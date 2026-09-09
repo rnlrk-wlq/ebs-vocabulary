@@ -412,6 +412,30 @@
             </section>
 
             <section id="view-match" class="view-section hidden flex flex-col items-center justify-center py-4 space-y-6 w-full">
+                <!-- 짝맞추기 게임 준비 화면 -->
+                <div id="matchPrepContainer" class="w-full max-w-md bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl space-y-6 text-center">
+                    <div class="space-y-2">
+                        <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner">
+                            <i class="fa-solid fa-puzzle-piece"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">짝맞추기 Game</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">영어 단어와 알맞은 뜻을 찾아 짝을 맞춰보세요!</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-900 dark:to-emerald-950/40 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
+                        <p class="text-xs font-bold text-slate-500 dark:text-slate-400">짝맞추기 누적 점수</p>
+                        <p id="matchCumulativeScore" class="text-3xl font-black text-emerald-500 mt-1">0점</p>
+                        <p id="matchLastScore" class="text-[11px] font-bold text-slate-400 mt-2">아직 완료한 게임이 없습니다.</p>
+                    </div>
+
+                    <button onclick="startMatchGame()" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-2xl transition shadow-lg shadow-emerald-500/30 text-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play text-xs"></i>
+                        <span>게임 시작하기</span>
+                    </button>
+                </div>
+
+                <!-- 짝맞추기 게임 진행 화면 -->
+                <div id="matchActiveContainer" class="hidden w-full flex flex-col items-center space-y-6">
                 <div class="w-full max-w-2xl flex items-center justify-between bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="flex items-center space-x-3">
                         <span class="text-xs font-bold text-slate-600 dark:text-slate-300">시간: <span id="matchTimer" class="text-blue-600 font-mono">05:00</span></span>
@@ -419,7 +443,7 @@
                     <div class="text-xs font-bold text-slate-600 dark:text-slate-300">
                         점수: <span id="matchScore" class="text-emerald-500 font-bold">0</span>
                     </div>
-                    <button onclick="initMatchGame()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition">
+                    <button onclick="showMatchPrepScreen()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition">
                         새 게임
                     </button>
                 </div>
@@ -429,6 +453,7 @@
 
                 <!-- 세로 4열 구조 (1,2열: 영어 / 3,4열: 한국어) -->
                 <div id="matchGrid" class="w-full max-w-2xl grid grid-cols-4 gap-2 sm:gap-3">
+                </div>
                 </div>
             </section>
 
@@ -530,4 +555,3 @@
     </div>
 </body>
 </html>
-

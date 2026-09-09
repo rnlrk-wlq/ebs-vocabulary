@@ -321,6 +321,8 @@ let matchTimeRemaining = 300;
 let matchWordQueue = [];
 let matchNextWordIndex = 0;
 let matchCompletedPairs = 0;
+let matchCumulativeScore = 0;
+let matchLastScore = null;
 
 function normalize(str) {
     if (!str) return '';
@@ -410,7 +412,7 @@ function switchTab(tabName) {
     } else if (tabName === 'ranking') {
         renderLeaderboard();
     } else if (tabName === 'match') {
-        initMatchGame();
+        showMatchPrepScreen();
     } else if (tabName === 'list') {
         renderVocabList();
     }
@@ -938,6 +940,57 @@ function renderLeaderboard() {
     }).join('');
 }
 
+function loadMatchScore() {
+    try {
+        matchCumulativeScore = Number(localStorage.getItem('ebs_voca_match_total')) || 0;
+        const storedLastScore = localStorage.getItem('ebs_voca_match_last');
+        matchLastScore = storedLastScore === null ? null : Number(storedLastScore);
+    } catch (e) {
+        matchCumulativeScore = 0;
+        matchLastScore = null;
+    }
+}
+
+function saveMatchScore() {
+    try {
+        localStorage.setItem('ebs_voca_match_total', String(matchCumulativeScore));
+        localStorage.setItem('ebs_voca_match_last', String(matchLastScore));
+    } catch (e) {
+        console.error("Match score save error:", e);
+    }
+}
+
+function showMatchPrepScreen() {
+    if (matchTimer) {
+        clearInterval(matchTimer);
+        matchTimer = null;
+    }
+    document.getElementById('matchPrepContainer').classList.remove('hidden');
+    document.getElementById('matchActiveContainer').classList.add('hidden');
+    document.getElementById('matchCumulativeScore').innerText = `${matchCumulativeScore}점`;
+    document.getElementById('matchLastScore').innerText = matchLastScore === null
+        ? '아직 완료한 게임이 없습니다.'
+        : `최근 게임 점수: ${matchLastScore}점`;
+}
+
+function startMatchGame() {
+    document.getElementById('matchPrepContainer').classList.add('hidden');
+    document.getElementById('matchActiveContainer').classList.remove('hidden');
+    initMatchGame();
+}
+
+function finishMatchGame(message) {
+    if (matchTimer) {
+        clearInterval(matchTimer);
+        matchTimer = null;
+    }
+    matchLastScore = matchScore;
+    matchCumulativeScore += matchScore;
+    saveMatchScore();
+    alert(message);
+    showMatchPrepScreen();
+}
+
 function initMatchGame() {
     const pool = getEffectiveWords();
     if (pool.length < 8) return;
@@ -983,8 +1036,7 @@ function initMatchGame() {
         matchTimeRemaining--;
         updateMatchTimerDisplay();
         if (matchTimeRemaining <= 0) {
-            clearInterval(matchTimer);
-            alert("시간이 종료되었습니다!");
+            finishMatchGame(`시간이 종료되었습니다! 이번 게임 점수: ${matchScore}점`);
         }
     }, 1000);
 }
@@ -1052,9 +1104,7 @@ function handleMatchCardClick(btnEl, cardIdx) {
                     };
                     renderMatchGrid();
                 } else {
-                    clearInterval(matchTimer);
-                    alert(`🎉 전체 ${matchCompletedPairs}쌍을 모두 맞혔습니다! 최종 점수: ${matchScore}점`);
-                    initMatchGame();
+                    finishMatchGame(`🎉 전체 ${matchCompletedPairs}쌍을 모두 맞혔습니다! 최종 점수: ${matchScore}점`);
                 }
             }, 350);
         } else {
@@ -1202,12 +1252,16 @@ document.addEventListener('keydown', function(e) {
         
         if (activeTab === 'tab-quiz') {
             const activeContainer = document.getElementById('quizActiveContainer');
-            if (!activeContainer.classList.contains('hidden') && quizMode === 'typing') {
-                // In quiz typing mode, Enter key triggers typing submit/next
-                const input = document.getElementById('quizTypingInput');
-                if (document.activeElement === input || quizAnswered) {
+            if (!activeContainer.classList.contains('hidden')) {
+                if (quizAnswered) {
                     e.preventDefault();
-                    handleQuizTypingAction();
+                    nextQuizQuestion();
+                } else if (quizMode === 'typing') {
+                    const input = document.getElementById('quizTypingInput');
+                    if (document.activeElement === input) {
+                        e.preventDefault();
+                        handleQuizTypingAction();
+                    }
                 }
             }
         }
@@ -1217,6 +1271,7 @@ document.addEventListener('keydown', function(e) {
 window.onload = function() {
     words = loadWordsFromStorage();
     loadUserScore();
+    loadMatchScore();
     renderVocabList();
     updateFlashcard();
     updateSpellingUI();
