@@ -882,13 +882,14 @@ function saveUserScore() {
 function loadLeaderboard() {
     try {
         const stored = localStorage.getItem('ebs_voca_leaderboard');
-        if (stored) return JSON.parse(stored);
+        if (stored) {
+            const defaultNicknames = ["수능만점자", "영어1등급", "열공선배"];
+            const board = JSON.parse(stored).filter(item => !defaultNicknames.includes(item.nickname));
+            localStorage.setItem('ebs_voca_leaderboard', JSON.stringify(board));
+            return board;
+        }
     } catch (e) {}
-    return [
-        { nickname: "수능만점자", score: 850, count: 12 },
-        { nickname: "영어1등급", score: 620, count: 8 },
-        { nickname: "열공선배", score: 450, count: 6 }
-    ];
+    return [];
 }
 
 function saveLeaderboard() {
