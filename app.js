@@ -318,6 +318,9 @@ let selectedMatchCards = [];
 let matchScore = 0;
 let matchTimer = null;
 let matchTimeRemaining = 300;
+let matchWordQueue = [];
+let matchNextWordIndex = 0;
+let matchCompletedPairs = 0;
 
 function normalize(str) {
     if (!str) return '';
@@ -939,8 +942,11 @@ function initMatchGame() {
     const pool = getEffectiveWords();
     if (pool.length < 8) return;
 
-    // Pick 8 random words
-    const shuffled = [...pool].sort(() => 0.5 - Math.random()).slice(0, 8);
+    // 전체 단어를 무작위 순서로 준비하고 처음 8개를 화면에 표시
+    matchWordQueue = [...pool].sort(() => 0.5 - Math.random());
+    const shuffled = matchWordQueue.slice(0, 8);
+    matchNextWordIndex = 8;
+    matchCompletedPairs = 0;
     
     // Build separate 4 English items and 4 Korean items
     const enCards = shuffled.map(w => ({ id: w.id, type: 'en', text: w.word, wordId: w.id }));
@@ -1017,24 +1023,40 @@ function handleMatchCardClick(btnEl, cardIdx) {
         if (first.card.wordId === second.card.wordId) {
             // Match Correct
             matchScore += 20;
+            matchCompletedPairs++;
             document.getElementById('matchScore').innerText = matchScore;
             document.getElementById('matchFeedback').innerText = "⭕ 정답! (+20점)";
             document.getElementById('matchFeedback').className = "w-full max-w-2xl text-center font-extrabold text-sm min-h-[28px] text-emerald-500";
 
-            first.btn.classList.add('opacity-0', 'pointer-events-none');
-            second.btn.classList.add('opacity-0', 'pointer-events-none');
             first.btn.disabled = true;
             second.btn.disabled = true;
+            first.btn.classList.add('bg-emerald-100', 'dark:bg-emerald-900/40', 'border-emerald-500');
+            second.btn.classList.add('bg-emerald-100', 'dark:bg-emerald-900/40', 'border-emerald-500');
             selectedMatchCards = [];
 
-            // Check if all matched
-            const remaining = document.querySelectorAll('.match-card:not(.opacity-0)');
-            if (remaining.length === 0) {
-                setTimeout(() => {
-                    alert(`🎉 축하합니다! 게임을 완료했습니다. 최종 점수: ${matchScore}점`);
+            // 맞힌 두 자리를 아직 나오지 않은 새로운 단어와 뜻으로 교체
+            setTimeout(() => {
+                if (matchNextWordIndex < matchWordQueue.length) {
+                    const nextWord = matchWordQueue[matchNextWordIndex++];
+                    matchCards[first.index] = {
+                        id: nextWord.id,
+                        type: first.card.type,
+                        text: first.card.type === 'en' ? nextWord.word : nextWord.meaning,
+                        wordId: nextWord.id
+                    };
+                    matchCards[second.index] = {
+                        id: nextWord.id,
+                        type: second.card.type,
+                        text: second.card.type === 'en' ? nextWord.word : nextWord.meaning,
+                        wordId: nextWord.id
+                    };
+                    renderMatchGrid();
+                } else {
+                    clearInterval(matchTimer);
+                    alert(`🎉 전체 ${matchCompletedPairs}쌍을 모두 맞혔습니다! 최종 점수: ${matchScore}점`);
                     initMatchGame();
-                }, 300);
-            }
+                }
+            }, 350);
         } else {
             // Match Wrong
             matchScore = Math.max(0, matchScore - 10);
@@ -1201,4 +1223,3 @@ window.onload = function() {
     showQuizPrepScreen();
     renderLeaderboard();
 };
-
