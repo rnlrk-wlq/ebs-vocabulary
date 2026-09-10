@@ -318,6 +318,7 @@ let quizAnswered = false;
 
 // User Profile & Leaderboard
 let currentUser = {
+    deviceId: '',
     nickname: "학습자",
     totalScore: 0,
     completedQuizzes: 0
@@ -895,6 +896,12 @@ function loadUserScore() {
         if (stored) {
             currentUser = JSON.parse(stored);
         }
+        if (!currentUser.deviceId) {
+            currentUser.deviceId = (window.crypto && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : `device-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            localStorage.setItem('ebs_voca_user_score', JSON.stringify(currentUser));
+        }
     } catch (e) {
         console.error("Score load error:", e);
     }
@@ -915,8 +922,20 @@ function loadLeaderboard() {
         if (stored) {
             const defaultNicknames = ["수능만점자", "영어1등급", "열공선배"];
             const board = JSON.parse(stored).filter(item => !defaultNicknames.includes(item.nickname));
-            localStorage.setItem('ebs_voca_leaderboard', JSON.stringify(board));
-            return board;
+            const mine = board.find(item => item.deviceId === currentUser.deviceId)
+                || board.find(item => item.nickname === currentUser.nickname);
+            const migrated = board.filter(item => item.deviceId && item.deviceId !== currentUser.deviceId);
+            if (mine) {
+                migrated.push({
+                    deviceId: currentUser.deviceId,
+                    nickname: currentUser.nickname,
+                    score: Math.max(Number(mine.score) || 0, currentUser.totalScore || 0),
+                    count: Math.max(Number(mine.count) || 0, currentUser.completedQuizzes || 0)
+                });
+            }
+            migrated.sort((a, b) => b.score - a.score);
+            localStorage.setItem('ebs_voca_leaderboard', JSON.stringify(migrated));
+            return migrated;
         }
     } catch (e) {}
     return [];
@@ -924,12 +943,14 @@ function loadLeaderboard() {
 
 function saveLeaderboard() {
     let board = loadLeaderboard();
-    const idx = board.findIndex(u => u.nickname === currentUser.nickname);
+    const idx = board.findIndex(u => u.deviceId === currentUser.deviceId);
     if (idx >= 0) {
+        board[idx].nickname = currentUser.nickname;
         board[idx].score = Math.max(board[idx].score, currentUser.totalScore);
         board[idx].count = currentUser.completedQuizzes;
     } else {
         board.push({
+            deviceId: currentUser.deviceId,
             nickname: currentUser.nickname,
             score: currentUser.totalScore,
             count: currentUser.completedQuizzes
