@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EBS 수능특강 영단어장</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="app.js?v=20260909-2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="app.js?v=20260910-1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -426,6 +429,21 @@
                         <p class="text-xs font-bold text-slate-500 dark:text-slate-400">짝맞추기 누적 점수</p>
                         <p id="matchCumulativeScore" class="text-3xl font-black text-emerald-500 mt-1">0점</p>
                         <p id="matchLastScore" class="text-[11px] font-bold text-slate-400 mt-2">아직 완료한 게임이 없습니다.</p>
+                    </div>
+
+                    <div class="text-left space-y-2">
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs font-black text-slate-700 dark:text-slate-200"><i class="fa-solid fa-ranking-star text-amber-500 mr-1"></i>공용 짝맞추기 랭킹</p>
+                            <span id="matchRankingStatus" class="text-[10px] text-slate-400">연결 중...</span>
+                        </div>
+                        <div class="max-h-52 overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <table class="w-full text-xs">
+                                <thead class="sticky top-0 bg-slate-50 dark:bg-slate-900 text-slate-500">
+                                    <tr><th class="p-2 text-center">순위</th><th class="p-2 text-left">닉네임</th><th class="p-2 text-center">게임</th><th class="p-2 text-right">누적점수</th></tr>
+                                </thead>
+                                <tbody id="matchRankingBody"><tr><td colspan="4" class="p-4 text-center text-slate-400">랭킹을 불러오는 중입니다.</td></tr></tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <button onclick="startMatchGame()" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-2xl transition shadow-lg shadow-emerald-500/30 text-sm flex items-center justify-center space-x-2">
