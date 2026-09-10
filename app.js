@@ -339,6 +339,9 @@ let matchPlayCount = 0;
 let rankingDb = null;
 let rankingUser = null;
 let stopRankingListener = null;
+let stopQuizRankingListener = null;
+let onlineQuizBoard = [];
+let quizRankingReady = false;
 
 const firebaseConfig = {
     apiKey: "AIzaSyDnVNBOUNlWPxf97fgQqERdkc5yZ7XU0p4",
@@ -911,6 +914,7 @@ function saveUserScore() {
     try {
         localStorage.setItem('ebs_voca_user_score', JSON.stringify(currentUser));
         saveLeaderboard();
+        saveQuizRanking();
     } catch (e) {
         console.error("Score save error:", e);
     }
@@ -963,7 +967,7 @@ function saveLeaderboard() {
 }
 
 function renderLeaderboard() {
-    const board = loadLeaderboard();
+    const board = quizRankingReady ? onlineQuizBoard : loadLeaderboard();
     const tbody = document.getElementById('leaderboardBody');
     
     document.getElementById('rankingMyNickname').innerText = `내 닉네임: ${currentUser.nickname}`;
@@ -980,7 +984,7 @@ function renderLeaderboard() {
         if (i === 1) badge = `<i class="fa-solid fa-medal text-slate-400 text-base"></i>`;
         if (i === 2) badge = `<i class="fa-solid fa-medal text-amber-700 text-base"></i>`;
 
-        const isMe = (item.nickname === currentUser.nickname);
+        const isMe = rankingUser ? item.id === rankingUser.uid : item.nickname === currentUser.nickname;
         return `
             <tr class="${isMe ? 'bg-blue-50/80 dark:bg-blue-900/30 font-bold' : ''} hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
                 <td class="p-3 text-center">${badge}</td>
@@ -1058,10 +1062,54 @@ async function initFirebaseRanking() {
         rankingUser = credential.user;
         status.innerText = '전체 사용자 실시간';
         subscribeMatchRanking();
+        subscribeQuizRanking();
+        saveQuizRanking();
     } catch (error) {
         console.error('Firebase ranking initialization error:', error);
         status.innerText = '연결 재시도 필요';
         renderMatchRankingEmptyState('공용 랭킹에 연결하지 못했습니다. 잠시 후 새로고침해 주세요.');
+    }
+}
+
+function subscribeQuizRanking() {
+    if (!rankingDb) return;
+    if (stopQuizRankingListener) stopQuizRankingListener();
+    stopQuizRankingListener = rankingDb.collection('quizRankings').orderBy('totalScore', 'desc').limit(50)
+        .onSnapshot(snapshot => {
+            quizRankingReady = true;
+            onlineQuizBoard = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    nickname: data.nickname,
+                    score: Number(data.totalScore) || 0,
+                    count: Number(data.completedQuizzes) || 0
+                };
+            });
+            const status = document.getElementById('quizRankingStatus');
+            if (status) status.innerText = '전체 사용자 실시간 랭킹';
+            renderLeaderboard();
+        }, error => {
+            console.error('Quiz ranking read error:', error);
+            const status = document.getElementById('quizRankingStatus');
+            if (status) status.innerText = '공용 랭킹 연결 실패';
+        });
+}
+
+async function saveQuizRanking() {
+    if (!rankingDb || !rankingUser) return;
+    const nickname = (currentUser.nickname || '학습자').trim().slice(0, 12);
+    try {
+        await rankingDb.collection('quizRankings').doc(rankingUser.uid).set({
+            nickname,
+            totalScore: Math.max(0, Math.trunc(currentUser.totalScore || 0)),
+            completedQuizzes: Math.max(0, Math.trunc(currentUser.completedQuizzes || 0)),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Quiz ranking save error:', error);
+        const status = document.getElementById('quizRankingStatus');
+        if (status) status.innerText = '공용 랭킹 저장 실패';
     }
 }
 
