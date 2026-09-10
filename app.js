@@ -278,18 +278,29 @@ const defaultWords = rawWordData
         const word = (koreanStart >= 0 ? line.slice(0, koreanStart) : line).trim();
         const meaning = (koreanStart >= 0 ? line.slice(koreanStart) : '').trim();
 
+        const examples = makeExample(word, meaning, index);
         return {
             id: 201 + index,
             word,
             pos: '',
             phonetic: '',
             meaning,
-            exampleEn: '',
-            exampleKo: '',
+            exampleEn: examples.en,
+            exampleKo: examples.ko,
             mastered: false,
             starred: false
         };
     });
+
+function makeExample(word, meaning, index) {
+    const templates = [
+        { en: `The passage uses “${word}” as an important key expression.`, ko: `이 글은 ‘${word}(${meaning})’을 중요한 핵심 표현으로 사용한다.` },
+        { en: `Students learned how “${word}” is used in context.`, ko: `학생들은 문맥에서 ‘${word}(${meaning})’이 어떻게 사용되는지 배웠다.` },
+        { en: `The teacher explained “${word}” with a clear example.`, ko: `교사는 ‘${word}(${meaning})’을 명확한 예로 설명했다.` },
+        { en: `Remember “${word}” when you read a similar sentence.`, ko: `비슷한 문장을 읽을 때 ‘${word}(${meaning})’을 기억하자.` }
+    ];
+    return templates[index % templates.length];
+}
 
 let words = [];
 let flashcardIndex = 0;
@@ -323,6 +334,20 @@ let matchNextWordIndex = 0;
 let matchCompletedPairs = 0;
 let matchCumulativeScore = 0;
 let matchLastScore = null;
+let matchPlayCount = 0;
+let rankingDb = null;
+let rankingUser = null;
+let stopRankingListener = null;
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDnVNBOUNlWPxf97fgQqERdkc5yZ7XU0p4",
+    authDomain: "ebs-vocabulary-ranking.firebaseapp.com",
+    projectId: "ebs-vocabulary-ranking",
+    storageBucket: "ebs-vocabulary-ranking.firebasestorage.app",
+    messagingSenderId: "367184184736",
+    appId: "1:367184184736:web:aab99e89d9c4489b2550c5",
+    measurementId: "G-REZK1RBF72"
+};
 
 function normalize(str) {
     if (!str) return '';
@@ -347,7 +372,11 @@ function loadWordsFromStorage() {
     try {
         const stored = localStorage.getItem('ebs_voca_words_2026_full_257');
         if (stored) {
-            return JSON.parse(stored);
+            const savedWords = JSON.parse(stored);
+            return savedWords.map((item, index) => {
+                const examples = makeExample(item.word, item.meaning, index);
+                return { ...item, exampleEn: item.exampleEn || examples.en, exampleKo: item.exampleKo || examples.ko };
+            });
         }
     } catch (e) {
         console.error("Storage load error:", e);
@@ -647,6 +676,7 @@ function saveNickname() {
         saveUserScore();
         showQuizPrepScreen();
         renderLeaderboard();
+        saveMatchRanking();
         toggleEditNickname();
     }
 }
@@ -946,9 +976,11 @@ function loadMatchScore() {
         matchCumulativeScore = Number(localStorage.getItem('ebs_voca_match_total')) || 0;
         const storedLastScore = localStorage.getItem('ebs_voca_match_last');
         matchLastScore = storedLastScore === null ? null : Number(storedLastScore);
+        matchPlayCount = Number(localStorage.getItem('ebs_voca_match_plays')) || 0;
     } catch (e) {
         matchCumulativeScore = 0;
         matchLastScore = null;
+        matchPlayCount = 0;
     }
 }
 
@@ -956,6 +988,7 @@ function saveMatchScore() {
     try {
         localStorage.setItem('ebs_voca_match_total', String(matchCumulativeScore));
         localStorage.setItem('ebs_voca_match_last', String(matchLastScore));
+        localStorage.setItem('ebs_voca_match_plays', String(matchPlayCount));
     } catch (e) {
         console.error("Match score save error:", e);
     }
@@ -987,9 +1020,73 @@ function finishMatchGame(message) {
     }
     matchLastScore = matchScore;
     matchCumulativeScore += matchScore;
+    matchPlayCount++;
     saveMatchScore();
+    saveMatchRanking();
     alert(message);
     showMatchPrepScreen();
+}
+
+async function initFirebaseRanking() {
+    const status = document.getElementById('matchRankingStatus');
+    try {
+        if (!window.firebase) throw new Error('Firebase SDK load failed');
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        rankingDb = firebase.firestore();
+        const credential = await firebase.auth().signInAnonymously();
+        rankingUser = credential.user;
+        status.innerText = '전체 사용자 실시간';
+        subscribeMatchRanking();
+    } catch (error) {
+        console.error('Firebase ranking initialization error:', error);
+        status.innerText = '연결 재시도 필요';
+        renderMatchRankingEmptyState('공용 랭킹에 연결하지 못했습니다. 잠시 후 새로고침해 주세요.');
+    }
+}
+
+function subscribeMatchRanking() {
+    if (!rankingDb) return;
+    if (stopRankingListener) stopRankingListener();
+    stopRankingListener = rankingDb.collection('matchingRankings').orderBy('bestScore', 'desc').limit(20)
+        .onSnapshot(snapshot => renderMatchRanking(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))), error => {
+            console.error('Ranking read error:', error);
+            renderMatchRankingEmptyState('랭킹을 불러오지 못했습니다.');
+        });
+}
+
+async function saveMatchRanking() {
+    if (!rankingDb || !rankingUser || matchPlayCount < 1) return;
+    const nickname = (currentUser.nickname || '학습자').trim().slice(0, 12);
+    try {
+        await rankingDb.collection('matchingRankings').doc(rankingUser.uid).set({
+            nickname,
+            bestScore: Math.max(0, Math.trunc(matchCumulativeScore)),
+            plays: Math.max(0, Math.trunc(matchPlayCount)),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Ranking save error:', error);
+        const status = document.getElementById('matchRankingStatus');
+        if (status) status.innerText = '점수 저장 실패';
+    }
+}
+
+function renderMatchRanking(board) {
+    const tbody = document.getElementById('matchRankingBody');
+    if (!tbody) return;
+    if (!board.length) return renderMatchRankingEmptyState('첫 번째 기록의 주인공이 되어보세요!');
+    tbody.innerHTML = board.map((item, index) => {
+        const rank = index < 3 ? ['🥇', '🥈', '🥉'][index] : index + 1;
+        const isMe = rankingUser && item.id === rankingUser.uid;
+        return `<tr class="border-t border-slate-100 dark:border-slate-700 ${isMe ? 'bg-emerald-50 dark:bg-emerald-900/20 font-bold' : ''}">
+            <td class="p-2 text-center">${rank}</td><td class="p-2">${escapeHtml(item.nickname || '학습자')}${isMe ? ' <span class="text-[9px] text-emerald-600">나</span>' : ''}</td>
+            <td class="p-2 text-center text-slate-500">${Number(item.plays) || 0}회</td><td class="p-2 text-right font-black text-emerald-500">${Number(item.bestScore) || 0}점</td></tr>`;
+    }).join('');
+}
+
+function renderMatchRankingEmptyState(message = '등록된 짝맞추기 랭킹이 없습니다.') {
+    const tbody = document.getElementById('matchRankingBody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">${escapeHtml(message)}</td></tr>`;
 }
 
 function initMatchGame() {
@@ -1278,4 +1375,5 @@ window.onload = function() {
     updateSpellingUI();
     showQuizPrepScreen();
     renderLeaderboard();
+    initFirebaseRanking();
 };
