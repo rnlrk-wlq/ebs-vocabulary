@@ -344,7 +344,7 @@ let onlineQuizBoard = [];
 let quizRankingReady = false;
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDnVNBOUNlWPxf97fgQqERdkc5yZ7XU0p4",
+    apiKey: "AIzaSyDnVNBOUN1WPxf97fgQqERdkc5yZ7XU0p4",
     authDomain: "ebs-vocabulary-ranking.firebaseapp.com",
     projectId: "ebs-vocabulary-ranking",
     storageBucket: "ebs-vocabulary-ranking.firebasestorage.app",
@@ -1067,6 +1067,8 @@ async function initFirebaseRanking() {
     } catch (error) {
         console.error('Firebase ranking initialization error:', error);
         status.innerText = '연결 재시도 필요';
+        const quizStatus = document.getElementById('quizRankingStatus');
+        if (quizStatus) quizStatus.innerText = '공용 랭킹 연결 실패';
         renderMatchRankingEmptyState('공용 랭킹에 연결하지 못했습니다. 잠시 후 새로고침해 주세요.');
     }
 }
