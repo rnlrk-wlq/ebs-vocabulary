@@ -1187,14 +1187,44 @@ function finishMatchGame(message) {
     showMatchPrepScreen();
 }
 
+let rankingSignInPromise = null;
+
+function getPersistentRankingUser() {
+    if (rankingSignInPromise) return rankingSignInPromise;
+    rankingSignInPromise = (async () => {
+        const auth = firebase.auth();
+        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        // Wait for Firebase to restore the saved browser session before creating an ID.
+        const restoredUser = await new Promise((resolve, reject) => {
+            let unsubscribe;
+            const finish = (callback, value) => {
+                Promise.resolve().then(() => {
+                    if (unsubscribe) unsubscribe();
+                    callback(value);
+                });
+            };
+            unsubscribe = auth.onAuthStateChanged(
+                user => finish(resolve, user),
+                error => finish(reject, error)
+            );
+        });
+        if (restoredUser) return restoredUser;
+        if (auth.currentUser) return auth.currentUser;
+        return (await auth.signInAnonymously()).user;
+    })().catch(error => {
+        rankingSignInPromise = null;
+        throw error;
+    });
+    return rankingSignInPromise;
+}
+
 async function initFirebaseRanking() {
     const status = document.getElementById('matchRankingStatus');
     try {
         if (!window.firebase) throw new Error('Firebase SDK load failed');
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         rankingDb = firebase.firestore();
-        const credential = await firebase.auth().signInAnonymously();
-        rankingUser = credential.user;
+        rankingUser = await getPersistentRankingUser();
         status.innerText = '전체 사용자 실시간';
         subscribeMatchRanking();
         subscribeQuizRanking();
