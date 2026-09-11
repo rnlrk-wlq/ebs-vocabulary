@@ -327,6 +327,7 @@ let currentUser = {
 // Matching Game State
 let matchCards = [];
 let selectedMatchCards = [];
+let matchResolving = false;
 let matchScore = 0;
 let matchTimer = null;
 let matchTimeRemaining = 300;
@@ -1197,12 +1198,28 @@ function renderMatchRankingEmptyState(message = '등록된 짝맞추기 랭킹�
     if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">${escapeHtml(message)}</td></tr>`;
 }
 
+function shuffleMatchItems(items) {
+    const result = [...items];
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+}
+
+function randomizeMatchPositions() {
+    // Keep the English/meaning columns, but independently randomize every position.
+    const english = shuffleMatchItems(matchCards.filter(card => card.type === 'en'));
+    const korean = shuffleMatchItems(matchCards.filter(card => card.type === 'ko'));
+    matchCards = matchCards.map(card => card.type === 'en' ? english.pop() : korean.pop());
+}
+
 function initMatchGame() {
     const pool = getEffectiveWords();
     if (pool.length < 8) return;
 
     // 전체 단어를 무작위 순서로 준비하고 처음 8개를 화면에 표시
-    matchWordQueue = [...pool].sort(() => 0.5 - Math.random());
+    matchWordQueue = shuffleMatchItems(pool);
     const shuffled = matchWordQueue.slice(0, 8);
     matchNextWordIndex = 8;
     matchCompletedPairs = 0;
@@ -1211,9 +1228,7 @@ function initMatchGame() {
     const enCards = shuffled.map(w => ({ id: w.id, type: 'en', text: w.word, wordId: w.id }));
     const koCards = shuffled.map(w => ({ id: w.id, type: 'ko', text: w.meaning, wordId: w.id }));
 
-    // Shuffle each side separately
-    enCards.sort(() => 0.5 - Math.random());
-    koCards.sort(() => 0.5 - Math.random());
+    // Positions are randomized independently after building the grid.
 
     // Col 1 & 2: English cards (indices 0..3 and 4..7)
     // Col 3 & 4: Korean cards (indices 0..3 and 4..7)
@@ -1227,7 +1242,9 @@ function initMatchGame() {
         }
     }
 
+    randomizeMatchPositions();
     selectedMatchCards = [];
+    matchResolving = false;
     matchScore = 0;
     document.getElementById('matchScore').innerText = matchScore;
     document.getElementById('matchFeedback').innerText = '';
@@ -1264,7 +1281,7 @@ function renderMatchGrid() {
 
 function handleMatchCardClick(btnEl, cardIdx) {
     const card = matchCards[cardIdx];
-    if (!card || btnEl.disabled) return;
+    if (!card || btnEl.disabled || matchResolving) return;
 
     // Prevent selecting two cards of same type (e.g. en & en)
     if (selectedMatchCards.length === 1 && selectedMatchCards[0].card.type === card.type) {
@@ -1276,6 +1293,7 @@ function handleMatchCardClick(btnEl, cardIdx) {
     selectedMatchCards.push({ btn: btnEl, card: card, index: cardIdx });
 
     if (selectedMatchCards.length === 2) {
+        matchResolving = true;
         const [first, second] = selectedMatchCards;
 
         if (first.card.wordId === second.card.wordId) {
@@ -1308,8 +1326,12 @@ function handleMatchCardClick(btnEl, cardIdx) {
                         text: second.card.type === 'en' ? nextWord.word : nextWord.meaning,
                         wordId: nextWord.id
                     };
+                    randomizeMatchPositions();
+                    selectedMatchCards = [];
+                    matchResolving = false;
                     renderMatchGrid();
                 } else {
+                    matchResolving = false;
                     finishMatchGame(`🎉 전체 ${matchCompletedPairs}쌍을 모두 맞혔습니다! 최종 점수: ${matchScore}점`);
                 }
             }, 350);
@@ -1327,6 +1349,7 @@ function handleMatchCardClick(btnEl, cardIdx) {
                 first.btn.classList.remove('ring-2', 'ring-blue-600', 'ring-rose-500', 'bg-blue-50', 'bg-rose-50');
                 second.btn.classList.remove('ring-2', 'ring-blue-600', 'ring-rose-500', 'bg-blue-50', 'bg-rose-50');
                 selectedMatchCards = [];
+                matchResolving = false;
             }, 800);
         }
     }
