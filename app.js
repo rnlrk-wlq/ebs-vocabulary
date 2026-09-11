@@ -314,13 +314,25 @@ function wordFolder(item) {
     return index < 0 ? 1 : index < 65 ? 1 : index < 129 ? 2 : index < 193 ? 3 : 4;
 }
 
-function openFolderPicker() {
-    document.getElementById('folderPicker').classList.remove('hidden');
-    document.getElementById('folderCountAll').innerText = words.length + '개 단어';
-    for (let folder = 1; folder <= 4; folder++) {
-        document.getElementById('folderCount' + folder).innerText =
-            words.filter(word => wordFolder(word) === folder).length + '개 단어';
+let listStatusFilter = 'all';
+
+function handleListFilterChange() {
+    const menu = document.getElementById('listFilter');
+    const value = menu.value;
+    if (value.startsWith('folder:')) {
+        const raw = value.slice(7);
+        const folder = raw === 'all' ? 'all' : Number(raw);
+        pendingFolderTab = activeStudyTab;
+        selectWordFolder(folder);
+        if (selectedFolder !== folder) {
+            menu.value = listStatusFilter === 'all' ? 'folder:' + selectedFolder : listStatusFilter;
+            return;
+        }
+        listStatusFilter = 'all';
+    } else {
+        listStatusFilter = value;
     }
+    renderVocabList();
 }
 
 function selectWordFolder(folder) {
@@ -345,17 +357,12 @@ function selectWordFolder(folder) {
         showQuizPrepScreen();
         showMatchPrepScreen();
     }
-    document.getElementById('folderPicker').classList.add('hidden');
     document.getElementById('studyMain').classList.remove('hidden');
     document.getElementById('selectedFolderLabel').innerText = folder === 'all' ? '전체 단어' : '폴더 ' + folder;
-    document.getElementById('folderChangeButton').classList.remove('hidden');
     switchTab(pendingFolderTab);
 }
 
-function changeWordFolder() {
-    pendingFolderTab = activeStudyTab;
-    openFolderPicker();
-}
+
 let flashcardIndex = 0;
 let spellingIndex = 0;
 let spellingAnswered = false;
@@ -475,7 +482,7 @@ function getEffectiveWords() {
 function switchTab(tabName) {
     if (selectedFolder === null) {
         pendingFolderTab = tabName;
-        openFolderPicker();
+        selectWordFolder('all');
         return;
     }
     activeStudyTab = tabName;
@@ -1444,7 +1451,7 @@ function handleMatchCardClick(btnEl, cardIdx) {
 
 function renderVocabList() {
     const search = document.getElementById('listSearchInput').value.toLowerCase().trim();
-    const filter = document.getElementById('listFilter').value;
+    const filter = listStatusFilter;
     const tbody = document.getElementById('vocabTableBody');
 
     let filtered = getEffectiveWords().filter(item => {
@@ -1589,6 +1596,6 @@ window.onload = function() {
     words = loadWordsFromStorage();
     loadUserScore();
     loadMatchScore();
-    openFolderPicker();
+    selectWordFolder('all');
     initFirebaseRanking();
 };
