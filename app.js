@@ -347,7 +347,7 @@ let matchRankingReady = false;
 let combinedRankingError = false;
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDnVNBOUN1WPxf97fgQqERdkc5yZ7XU0p4",
+    apiKey: "AIzaSyDnVNB0UN1WPxf97fgQqERdkc5yZ7XUOp4",
     authDomain: "ebs-vocabulary-ranking.firebaseapp.com",
     projectId: "ebs-vocabulary-ranking",
     storageBucket: "ebs-vocabulary-ranking.firebasestorage.app",
