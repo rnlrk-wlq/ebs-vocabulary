@@ -303,6 +303,58 @@ function makeExample(word, meaning, index) {
 }
 
 let words = [];
+let selectedFolder = null;
+let pendingFolderTab = 'flashcard';
+let activeStudyTab = 'flashcard';
+let matchSession = 0;
+
+function wordFolder(item) {
+    if (Number.isInteger(item.folderId) && item.folderId >= 1 && item.folderId <= 4) return item.folderId;
+    const index = defaultWords.findIndex(word => word.id === item.id);
+    return index < 0 ? 1 : index < 65 ? 1 : index < 129 ? 2 : index < 193 ? 3 : 4;
+}
+
+function openFolderPicker() {
+    document.getElementById('folderPicker').classList.remove('hidden');
+    for (let folder = 1; folder <= 4; folder++) {
+        document.getElementById('folderCount' + folder).innerText =
+            words.filter(word => wordFolder(word) === folder).length + '개 단어';
+    }
+}
+
+function selectWordFolder(folder) {
+    if (![1, 2, 3, 4].includes(folder)) return;
+    if (selectedFolder !== folder) {
+        const quizActive = !document.getElementById('quizActiveContainer').classList.contains('hidden');
+        const matchActive = matchTimer !== null;
+        if (selectedFolder !== null && (quizActive || matchActive) &&
+            !confirm('폴더를 바꾸면 진행 중인 학습이 종료됩니다. 폴더를 변경할까요?')) return;
+        matchSession++;
+        if (matchTimer) clearInterval(matchTimer);
+        matchTimer = null;
+        matchResolving = false;
+        selectedMatchCards = [];
+        quizPool = [];
+        quizIndex = 0;
+        quizAnswered = false;
+        flashcardIndex = 0;
+        spellingIndex = 0;
+        spellingAnswered = false;
+        selectedFolder = folder;
+        showQuizPrepScreen();
+        showMatchPrepScreen();
+    }
+    document.getElementById('folderPicker').classList.add('hidden');
+    document.getElementById('studyMain').classList.remove('hidden');
+    document.getElementById('selectedFolderLabel').innerText = '폴더 ' + folder;
+    document.getElementById('folderChangeButton').classList.remove('hidden');
+    switchTab(pendingFolderTab);
+}
+
+function changeWordFolder() {
+    pendingFolderTab = activeStudyTab;
+    openFolderPicker();
+}
 let flashcardIndex = 0;
 let spellingIndex = 0;
 let spellingAnswered = false;
@@ -383,7 +435,7 @@ function loadWordsFromStorage() {
             const savedWords = JSON.parse(stored);
             return savedWords.map((item, index) => {
                 const examples = makeExample(item.word, item.meaning, index);
-                return { ...item, exampleEn: item.exampleEn || examples.en, exampleKo: item.exampleKo || examples.ko };
+                return { ...item, folderId: wordFolder(item), exampleEn: item.exampleEn || examples.en, exampleKo: item.exampleKo || examples.ko };
             });
         }
     } catch (e) {
@@ -401,8 +453,10 @@ function saveWordsToStorage() {
 }
 
 function resetWordsToDefault() {
-    if (confirm(`단어장을 수능특강 기본 ${defaultWords.length}개 단어로 초기화하시겠습니까?`)) {
-        words = JSON.parse(JSON.stringify(defaultWords));
+    if (selectedFolder === null) return;
+    if (confirm(`폴더 ${selectedFolder}의 단어만 기본 단어로 초기화하시겠습니까?`)) {
+        words = words.filter(item => wordFolder(item) !== selectedFolder)
+            .concat(JSON.parse(JSON.stringify(defaultWords.filter(item => wordFolder(item) === selectedFolder))));
         saveWordsToStorage();
         flashcardIndex = 0;
         spellingIndex = 0;
@@ -414,10 +468,22 @@ function resetWordsToDefault() {
 }
 
 function getEffectiveWords() {
-    return words.length > 0 ? words : defaultWords;
+    return selectedFolder === null ? [] : words.filter(item => wordFolder(item) === selectedFolder);
 }
 
 function switchTab(tabName) {
+    if (selectedFolder === null) {
+        pendingFolderTab = tabName;
+        openFolderPicker();
+        return;
+    }
+    activeStudyTab = tabName;
+    pendingFolderTab = tabName;
+    if (tabName !== 'match') {
+        matchSession++;
+        if (matchTimer) clearInterval(matchTimer);
+        matchTimer = null;
+    }
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('bg-white', 'dark:bg-slate-700', 'text-blue-600', 'dark:text-blue-400', 'shadow-sm');
         btn.classList.add('text-slate-600', 'dark:text-slate-400');
@@ -457,7 +523,12 @@ function switchTab(tabName) {
 
 function updateFlashcard() {
     const pool = getEffectiveWords();
-    if (pool.length === 0) return;
+    if (pool.length === 0) {
+        document.getElementById('flashcardProgress').innerText = '0 / 0';
+        ['fcPos', 'fcPhonetic', 'fcMeaning', 'fcExampleEn', 'fcExampleKo'].forEach(id => document.getElementById(id).innerText = '');
+        document.getElementById('fcWord').innerText = '폴더가 비어 있습니다';
+        return;
+    }
 
     if (flashcardIndex >= pool.length) flashcardIndex = 0;
     if (flashcardIndex < 0) flashcardIndex = pool.length - 1;
@@ -524,6 +595,8 @@ function shuffleFlashcards() {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
     }
+    let next = 0;
+    words = words.map(item => wordFolder(item) === selectedFolder ? pool[next++] : item);
     flashcardIndex = 0;
     updateFlashcard();
 }
@@ -577,7 +650,14 @@ function speakSpellingWord() {
 
 function updateSpellingUI() {
     const pool = getEffectiveWords();
-    if (pool.length === 0) return;
+    if (pool.length === 0) {
+        document.getElementById('spProgress').innerText = '0 / 0';
+        document.getElementById('spWordTarget').innerText = '폴더가 비어 있습니다';
+        ['spPos', 'spPhonetic', 'spMeaning', 'spFeedback'].forEach(id => document.getElementById(id).innerText = '');
+        document.getElementById('spInput').value = '';
+        document.getElementById('spInput').disabled = true;
+        return;
+    }
 
     if (spellingIndex >= pool.length) spellingIndex = 0;
     if (spellingIndex < 0) spellingIndex = pool.length - 1;
@@ -757,11 +837,9 @@ function renderQuizQuestion() {
 
         // Build 4 choices
         const choices = [current.meaning];
-        const pool = getEffectiveWords();
-        while (choices.length < Math.min(4, pool.length)) {
-            const rnd = pool[Math.floor(Math.random() * pool.length)].meaning;
-            if (!choices.includes(rnd)) choices.push(rnd);
-        }
+        const alternatives = [...new Set(getEffectiveWords().map(word => word.meaning))]
+            .filter(meaning => meaning !== current.meaning);
+        choices.push(...shuffleMatchItems(alternatives).slice(0, 3));
         // Shuffle choices
         for (let i = choices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -1048,6 +1126,9 @@ function saveMatchScore() {
 }
 
 function showMatchPrepScreen() {
+    matchSession++;
+    matchResolving = false;
+    selectedMatchCards = [];
     if (matchTimer) {
         clearInterval(matchTimer);
         matchTimer = null;
@@ -1061,6 +1142,7 @@ function showMatchPrepScreen() {
 }
 
 function startMatchGame() {
+    if (getEffectiveWords().length < 8) { alert('짝맞추기는 선택한 폴더에 단어가 8개 이상 있어야 합니다.'); return; }
     document.getElementById('matchPrepContainer').classList.add('hidden');
     document.getElementById('matchActiveContainer').classList.remove('hidden');
     initMatchGame();
@@ -1215,6 +1297,7 @@ function randomizeMatchPositions() {
 }
 
 function initMatchGame() {
+    matchSession++;
     const pool = getEffectiveWords();
     if (pool.length < 8) return;
 
@@ -1280,6 +1363,7 @@ function renderMatchGrid() {
 }
 
 function handleMatchCardClick(btnEl, cardIdx) {
+    const session = matchSession;
     const card = matchCards[cardIdx];
     if (!card || btnEl.disabled || matchResolving) return;
 
@@ -1312,6 +1396,7 @@ function handleMatchCardClick(btnEl, cardIdx) {
 
             // 맞힌 두 자리를 아직 나오지 않은 새로운 단어와 뜻으로 교체
             setTimeout(() => {
+                if (session !== matchSession) return;
                 if (matchNextWordIndex < matchWordQueue.length) {
                     const nextWord = matchWordQueue[matchNextWordIndex++];
                     matchCards[first.index] = {
@@ -1346,6 +1431,7 @@ function handleMatchCardClick(btnEl, cardIdx) {
             second.btn.classList.add('ring-rose-500', 'bg-rose-50');
 
             setTimeout(() => {
+                if (session !== matchSession) return;
                 first.btn.classList.remove('ring-2', 'ring-blue-600', 'ring-rose-500', 'bg-blue-50', 'bg-rose-50');
                 second.btn.classList.remove('ring-2', 'ring-blue-600', 'ring-rose-500', 'bg-blue-50', 'bg-rose-50');
                 selectedMatchCards = [];
@@ -1360,7 +1446,7 @@ function renderVocabList() {
     const filter = document.getElementById('listFilter').value;
     const tbody = document.getElementById('vocabTableBody');
 
-    let filtered = words.filter(item => {
+    let filtered = getEffectiveWords().filter(item => {
         const matchesSearch = item.word.toLowerCase().includes(search) || item.meaning.includes(search);
         if (!matchesSearch) return false;
 
@@ -1447,10 +1533,11 @@ function submitAddWord(e) {
     const exE = document.getElementById('newExampleEn').value.trim();
     const exK = document.getElementById('newExampleKo').value.trim();
 
-    if (!w || !m) return;
+    if (!w || !m || selectedFolder === null) return;
 
     const newItem = {
         id: Date.now(),
+        folderId: selectedFolder,
         word: w,
         pos: p || 'n.',
         phonetic: ph || '',
@@ -1501,10 +1588,6 @@ window.onload = function() {
     words = loadWordsFromStorage();
     loadUserScore();
     loadMatchScore();
-    renderVocabList();
-    updateFlashcard();
-    updateSpellingUI();
-    showQuizPrepScreen();
-    renderLeaderboard();
+    openFolderPicker();
     initFirebaseRanking();
 };

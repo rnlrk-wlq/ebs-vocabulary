@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=20260911-match-random-3"></script>
+    <script src="app.js?v=20260911-folders-4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -51,8 +51,40 @@
             </nav>
         </header>
 
+
+        <div class="flex items-center justify-between mb-4 text-sm">
+            <span id="selectedFolderLabel" class="font-bold text-blue-600 dark:text-blue-400">학습할 폴더를 선택하세요</span>
+            <button id="folderChangeButton" onclick="changeWordFolder()" class="hidden px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold">폴더 변경</button>
+        </div>
+        <section id="folderPicker" class="mb-6 w-full bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <h2 class="text-xl font-black mb-2">학습 폴더 선택</h2>
+            <p class="text-sm text-slate-500 mb-5">선택한 폴더의 단어로 모든 학습 기능을 이용합니다. 랭킹은 전체 누적 점수를 합산합니다.</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <button onclick="selectWordFolder(1)" class="p-4 rounded-2xl bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 hover:border-blue-500 text-left">
+                    <span class="block font-extrabold text-blue-600 dark:text-blue-400"><i class="fa-solid fa-folder mr-1"></i>폴더 1</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-300 mt-2">기본 1–65번</span>
+                    <span id="folderCount1" class="block text-sm font-bold mt-1"></span>
+                </button>
+                <button onclick="selectWordFolder(2)" class="p-4 rounded-2xl bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 hover:border-blue-500 text-left">
+                    <span class="block font-extrabold text-blue-600 dark:text-blue-400"><i class="fa-solid fa-folder mr-1"></i>폴더 2</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-300 mt-2">기본 66–129번</span>
+                    <span id="folderCount2" class="block text-sm font-bold mt-1"></span>
+                </button>
+                <button onclick="selectWordFolder(3)" class="p-4 rounded-2xl bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 hover:border-blue-500 text-left">
+                    <span class="block font-extrabold text-blue-600 dark:text-blue-400"><i class="fa-solid fa-folder mr-1"></i>폴더 3</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-300 mt-2">기본 130–193번</span>
+                    <span id="folderCount3" class="block text-sm font-bold mt-1"></span>
+                </button>
+                <button onclick="selectWordFolder(4)" class="p-4 rounded-2xl bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 hover:border-blue-500 text-left">
+                    <span class="block font-extrabold text-blue-600 dark:text-blue-400"><i class="fa-solid fa-folder mr-1"></i>폴더 4</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-300 mt-2">기본 194–257번</span>
+                    <span id="folderCount4" class="block text-sm font-bold mt-1"></span>
+                </button>
+            </div>
+        </section>
+
         <!-- MAIN CONTENT AREA -->
-        <main class="flex-1 flex flex-col justify-center items-center w-full">
+        <main id="studyMain" class="hidden flex-1 flex flex-col justify-center items-center w-full">
 
             <section id="view-flashcard" class="view-section flex flex-col items-center justify-center space-y-6 w-full">
                 <!-- Progress Bar -->
@@ -186,7 +218,7 @@
                         <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
                             <i class="fa-solid fa-graduation-cap"></i>
                         </div>
-                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">전체 단어 퀴즈 테스트</h2>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">선택 폴더 퀴즈 테스트</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400">퀴즈를 풀고 누적 점수를 쌓아 랭킹 상위권에 도전해보세요!</p>
                     </div>
 
@@ -240,7 +272,7 @@
 
                     <!-- Info Tag -->
                     <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center justify-between border border-slate-100 dark:border-slate-700/50">
-                        <span>테스트할 전체 단어 수</span>
+                        <span>선택 폴더 단어 수</span>
                         <span class="font-extrabold text-blue-600 dark:text-blue-400 text-sm" id="prepTotalWordsCount">0개</span>
                     </div>
 
@@ -248,7 +280,7 @@
                     <div class="space-y-2">
                         <button onclick="startNewQuiz()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl transition shadow-lg shadow-blue-500/30 text-sm flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-play text-xs"></i>
-                            <span>전체 단어 퀴즈 시작하기</span>
+                            <span>선택 폴더 퀴즈 시작하기</span>
                         </button>
                         <button onclick="switchTab('ranking')" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition text-xs flex items-center justify-center space-x-1">
                             <i class="fa-solid fa-trophy text-amber-500"></i>
@@ -484,7 +516,7 @@
                     </div>
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <select id="listFilter" onchange="renderVocabList()" class="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none">
-                            <option value="all">전체 단어</option>
+                            <option value="all">폴더 전체 단어</option>
                             <option value="starred">⭐ 별표 보관함</option>
                             <option value="mastered">✔ 암기 완료만</option>
                             <option value="review">❌ 미암기 단어만</option>
