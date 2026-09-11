@@ -316,6 +316,7 @@ function wordFolder(item) {
 
 function openFolderPicker() {
     document.getElementById('folderPicker').classList.remove('hidden');
+    document.getElementById('folderCountAll').innerText = words.length + '개 단어';
     for (let folder = 1; folder <= 4; folder++) {
         document.getElementById('folderCount' + folder).innerText =
             words.filter(word => wordFolder(word) === folder).length + '개 단어';
@@ -323,7 +324,7 @@ function openFolderPicker() {
 }
 
 function selectWordFolder(folder) {
-    if (![1, 2, 3, 4].includes(folder)) return;
+    if (!['all', 1, 2, 3, 4].includes(folder)) return;
     if (selectedFolder !== folder) {
         const quizActive = !document.getElementById('quizActiveContainer').classList.contains('hidden');
         const matchActive = matchTimer !== null;
@@ -346,7 +347,7 @@ function selectWordFolder(folder) {
     }
     document.getElementById('folderPicker').classList.add('hidden');
     document.getElementById('studyMain').classList.remove('hidden');
-    document.getElementById('selectedFolderLabel').innerText = '폴더 ' + folder;
+    document.getElementById('selectedFolderLabel').innerText = folder === 'all' ? '전체 단어' : '폴더 ' + folder;
     document.getElementById('folderChangeButton').classList.remove('hidden');
     switchTab(pendingFolderTab);
 }
@@ -454,8 +455,8 @@ function saveWordsToStorage() {
 
 function resetWordsToDefault() {
     if (selectedFolder === null) return;
-    if (confirm(`폴더 ${selectedFolder}의 단어만 기본 단어로 초기화하시겠습니까?`)) {
-        words = words.filter(item => wordFolder(item) !== selectedFolder)
+    if (confirm(selectedFolder === 'all' ? '전체 단어장을 기본 단어로 초기화하시겠습니까?' : `폴더 ${selectedFolder}의 단어만 기본 단어로 초기화하시겠습니까?`)) {
+        words = selectedFolder === 'all' ? JSON.parse(JSON.stringify(defaultWords)) : words.filter(item => wordFolder(item) !== selectedFolder)
             .concat(JSON.parse(JSON.stringify(defaultWords.filter(item => wordFolder(item) === selectedFolder))));
         saveWordsToStorage();
         flashcardIndex = 0;
@@ -468,7 +469,7 @@ function resetWordsToDefault() {
 }
 
 function getEffectiveWords() {
-    return selectedFolder === null ? [] : words.filter(item => wordFolder(item) === selectedFolder);
+    return selectedFolder === null ? [] : selectedFolder === 'all' ? [...words] : words.filter(item => wordFolder(item) === selectedFolder);
 }
 
 function switchTab(tabName) {
@@ -596,7 +597,7 @@ function shuffleFlashcards() {
         [pool[i], pool[j]] = [pool[j], pool[i]];
     }
     let next = 0;
-    words = words.map(item => wordFolder(item) === selectedFolder ? pool[next++] : item);
+    words = words.map(item => selectedFolder === 'all' || wordFolder(item) === selectedFolder ? pool[next++] : item);
     flashcardIndex = 0;
     updateFlashcard();
 }
@@ -1537,7 +1538,7 @@ function submitAddWord(e) {
 
     const newItem = {
         id: Date.now(),
-        folderId: selectedFolder,
+        folderId: selectedFolder === 'all' ? 1 : selectedFolder,
         word: w,
         pos: p || 'n.',
         phonetic: ph || '',

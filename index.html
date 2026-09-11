@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=20260911-folders-4"></script>
+    <script src="app.js?v=20260912-all-words-5"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -58,8 +58,13 @@
         </div>
         <section id="folderPicker" class="mb-6 w-full bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
             <h2 class="text-xl font-black mb-2">학습 폴더 선택</h2>
-            <p class="text-sm text-slate-500 mb-5">선택한 폴더의 단어로 모든 학습 기능을 이용합니다. 랭킹은 전체 누적 점수를 합산합니다.</p>
+            <p class="text-sm text-slate-500 mb-5">전체 단어 또는 선택한 폴더의 단어로 모든 학습 기능을 이용합니다. 랭킹은 전체 누적 점수를 합산합니다.</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <button onclick="selectWordFolder('all')" class="col-span-2 sm:col-span-4 p-4 rounded-2xl bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 hover:border-blue-500 text-left">
+                    <span class="block font-extrabold text-blue-600 dark:text-blue-400"><i class="fa-solid fa-layer-group mr-1"></i>전체 단어</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-300 mt-2">폴더 1–4의 모든 단어 학습</span>
+                    <span id="folderCountAll" class="block text-sm font-bold mt-1"></span>
+                </button>
                 <button onclick="selectWordFolder(1)" class="p-4 rounded-2xl bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 hover:border-blue-500 text-left">
                     <span class="block font-extrabold text-blue-600 dark:text-blue-400"><i class="fa-solid fa-folder mr-1"></i>폴더 1</span>
                     <span class="block text-xs text-slate-500 dark:text-slate-300 mt-2">기본 1–65번</span>
@@ -516,7 +521,7 @@
                     </div>
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <select id="listFilter" onchange="renderVocabList()" class="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none">
-                            <option value="all">폴더 전체 단어</option>
+                            <option value="all">선택 범위 전체 단어</option>
                             <option value="starred">⭐ 별표 보관함</option>
                             <option value="mastered">✔ 암기 완료만</option>
                             <option value="review">❌ 미암기 단어만</option>
