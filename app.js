@@ -342,6 +342,9 @@ let stopRankingListener = null;
 let stopQuizRankingListener = null;
 let onlineQuizBoard = [];
 let quizRankingReady = false;
+let onlineMatchBoard = [];
+let matchRankingReady = false;
+let combinedRankingError = false;
 
 const firebaseConfig = {
     apiKey: "AIzaSyDnVNBOUN1WPxf97fgQqERdkc5yZ7XU0p4",
@@ -966,12 +969,36 @@ function saveLeaderboard() {
     } catch (e) {}
 }
 
+function buildCombinedLeaderboard(quizBoard, matchBoard) {
+    const users = new Map();
+    quizBoard.forEach(item => users.set(item.id, { ...item, score: Number(item.score) || 0 }));
+    matchBoard.forEach(item => {
+        const user = users.get(item.id) || { id: item.id, nickname: item.nickname || '학습자', score: 0, count: 0 };
+        user.score += Number(item.bestScore) || 0;
+        users.set(item.id, user);
+    });
+    return [...users.values()].sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+}
+
+function updateCombinedRankingStatus() {
+    const status = document.getElementById('quizRankingStatus');
+    if (status) status.innerText = combinedRankingError ? '공용 랭킹 연결 실패'
+        : quizRankingReady && matchRankingReady ? '전체 사용자 실시간 합산 랭킹' : '전체 사용자 연결 중...';
+    renderLeaderboard();
+}
+
 function renderLeaderboard() {
-    const board = quizRankingReady ? onlineQuizBoard : loadLeaderboard();
+    const board = buildCombinedLeaderboard(onlineQuizBoard, onlineMatchBoard).slice(0, 50);
     const tbody = document.getElementById('leaderboardBody');
     
     document.getElementById('rankingMyNickname').innerText = `내 닉네임: ${currentUser.nickname}`;
-    document.getElementById('rankingMyScore').innerText = `${currentUser.totalScore}점`;
+    document.getElementById('rankingMyScore').innerText = `${(Number(currentUser.totalScore) || 0) + matchCumulativeScore}점`;
+
+    if (!quizRankingReady || !matchRankingReady || combinedRankingError) {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400">' +
+            (combinedRankingError ? '공용 랭킹 연결 실패. 새로고침해 주세요.' : '공용 합산 랭킹을 불러오는 중입니다.') + '</td></tr>';
+        return;
+    }
 
     if (board.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">등록된 랭킹 기록이 없습니다.</td></tr>`;
@@ -1064,7 +1091,10 @@ async function initFirebaseRanking() {
         subscribeMatchRanking();
         subscribeQuizRanking();
         saveQuizRanking();
+        saveMatchRanking();
     } catch (error) {
+        combinedRankingError = true;
+        updateCombinedRankingStatus();
         console.error('Firebase ranking initialization error:', error);
         status.innerText = '연결 재시도 필요';
         const quizStatus = document.getElementById('quizRankingStatus');
@@ -1076,7 +1106,7 @@ async function initFirebaseRanking() {
 function subscribeQuizRanking() {
     if (!rankingDb) return;
     if (stopQuizRankingListener) stopQuizRankingListener();
-    stopQuizRankingListener = rankingDb.collection('quizRankings').orderBy('totalScore', 'desc').limit(50)
+    stopQuizRankingListener = rankingDb.collection('quizRankings')
         .onSnapshot(snapshot => {
             quizRankingReady = true;
             onlineQuizBoard = snapshot.docs.map(doc => {
@@ -1088,10 +1118,10 @@ function subscribeQuizRanking() {
                     count: Number(data.completedQuizzes) || 0
                 };
             });
-            const status = document.getElementById('quizRankingStatus');
-            if (status) status.innerText = '전체 사용자 실시간 랭킹';
-            renderLeaderboard();
+            updateCombinedRankingStatus();
         }, error => {
+            combinedRankingError = true;
+            updateCombinedRankingStatus();
             console.error('Quiz ranking read error:', error);
             const status = document.getElementById('quizRankingStatus');
             if (status) status.innerText = '공용 랭킹 연결 실패';
@@ -1118,8 +1148,15 @@ async function saveQuizRanking() {
 function subscribeMatchRanking() {
     if (!rankingDb) return;
     if (stopRankingListener) stopRankingListener();
-    stopRankingListener = rankingDb.collection('matchingRankings').orderBy('bestScore', 'desc').limit(20)
-        .onSnapshot(snapshot => renderMatchRanking(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))), error => {
+    stopRankingListener = rankingDb.collection('matchingRankings')
+        .onSnapshot(snapshot => {
+            matchRankingReady = true;
+            onlineMatchBoard = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+            renderMatchRanking([...onlineMatchBoard].sort((a, b) => (Number(b.bestScore) || 0) - (Number(a.bestScore) || 0)).slice(0, 20));
+            updateCombinedRankingStatus();
+        }, error => {
+            combinedRankingError = true;
+            updateCombinedRankingStatus();
             console.error('Ranking read error:', error);
             renderMatchRankingEmptyState('랭킹을 불러오지 못했습니다.');
         });
