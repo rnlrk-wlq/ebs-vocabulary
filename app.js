@@ -302,6 +302,23 @@ function makeExample(word, meaning, index) {
     return templates[index % templates.length];
 }
 
+const studyFolders = {
+    "4": "04. 함축적 의미 파악",
+    "5": "05. 주제 · 제목 파악",
+    "8": "08. 어법 정확성 파악",
+    "9": "09. 어휘 적절성 파악",
+    "12": "12. 문단 내 글의 순서 파악하기",
+    "13": "13. 주어진 문장의 적합한 위치 찾기",
+    "14": "14. 문단 요약하기"
+};
+const documentWordOrder = [209,211,212,214,216,218,220,222,224,226,228,230,232,234,236,237,238,239,240,241,242,243,244,201,202,203,204,205,206,207,208,210,213,215,217,219,221,223,225,227,229,231,233,235,261,263,264,266,268,270,272,274,276,278,280,282,284,286,287,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,262,265,267,269,271,273,275,277,279,281,283,285,299,301,303,305,307,309,310,312,314,316,318,320,322,323,324,325,326,327,328,329,288,289,290,291,292,293,294,295,296,297,298,300,302,304,306,308,311,313,315,317,319,321,338,339,340,341,342,343,344,345,346,347,348,349,330,331,332,333,334,335,336,337,357,358,359,360,361,362,363,364,365,366,368,370,372,374,376,379,381,383,384,385,386,350,351,352,353,354,355,356,367,369,371,373,375,377,378,380,382,387,388,389,390,391,392,393,394,395,396,397,399,401,403,405,407,409,411,413,415,416,417,419,421,423,426,428,430,432,434,436,438,439,440,441,442,443,444,445,446,398,400,402,404,406,408,410,412,414,418,420,422,424,425,427,429,431,433,435,437,447,448,449,450,451,452,453,454,455,456,457];
+const documentWordFolders = {"201":4,"202":4,"203":4,"204":4,"205":4,"206":4,"207":4,"208":4,"209":4,"210":4,"211":4,"212":4,"213":4,"214":4,"215":4,"216":4,"217":4,"218":4,"219":4,"220":4,"221":4,"222":4,"223":4,"224":4,"225":4,"226":4,"227":4,"228":4,"229":4,"230":4,"231":4,"232":4,"233":4,"234":4,"235":4,"236":4,"237":4,"238":4,"239":4,"240":4,"241":4,"242":4,"243":4,"244":4,"245":5,"246":5,"247":5,"248":5,"249":5,"250":5,"251":5,"252":5,"253":5,"254":5,"255":5,"256":5,"257":5,"258":5,"259":5,"260":5,"261":5,"262":5,"263":5,"264":5,"265":5,"266":5,"267":5,"268":5,"269":5,"270":5,"271":5,"272":5,"273":5,"274":5,"275":5,"276":5,"277":5,"278":5,"279":5,"280":5,"281":5,"282":5,"283":5,"284":5,"285":5,"286":5,"287":5,"288":8,"289":8,"290":8,"291":8,"292":8,"293":8,"294":8,"295":8,"296":8,"297":8,"298":8,"299":8,"300":8,"301":8,"302":8,"303":8,"304":8,"305":8,"306":8,"307":8,"308":8,"309":8,"310":8,"311":8,"312":8,"313":8,"314":8,"315":8,"316":8,"317":8,"318":8,"319":8,"320":8,"321":8,"322":8,"323":8,"324":8,"325":8,"326":8,"327":8,"328":8,"329":8,"330":9,"331":9,"332":9,"333":9,"334":9,"335":9,"336":9,"337":9,"338":9,"339":9,"340":9,"341":9,"342":9,"343":9,"344":9,"345":9,"346":9,"347":9,"348":9,"349":9,"350":12,"351":12,"352":12,"353":12,"354":12,"355":12,"356":12,"357":12,"358":12,"359":12,"360":12,"361":12,"362":12,"363":12,"364":12,"365":12,"366":12,"367":12,"368":12,"369":12,"370":12,"371":12,"372":12,"373":12,"374":12,"375":12,"376":12,"377":12,"378":12,"379":12,"380":12,"381":12,"382":12,"383":12,"384":12,"385":12,"386":12,"387":12,"388":12,"389":12,"390":12,"391":12,"392":12,"393":12,"394":12,"395":12,"396":12,"397":13,"398":13,"399":13,"400":13,"401":13,"402":13,"403":13,"404":13,"405":13,"406":13,"407":13,"408":13,"409":13,"410":13,"411":13,"412":13,"413":13,"414":13,"415":13,"416":13,"417":13,"418":13,"419":13,"420":13,"421":13,"422":13,"423":13,"424":13,"425":13,"426":13,"427":13,"428":13,"429":13,"430":13,"431":13,"432":13,"433":13,"434":13,"435":13,"436":13,"437":13,"438":13,"439":13,"440":13,"441":13,"442":13,"443":13,"444":13,"445":13,"446":13,"447":14,"448":14,"449":14,"450":14,"451":14,"452":14,"453":14,"454":14,"455":14,"456":14,"457":14};
+function sortDocumentWords(items) {
+    const positions = new Map(documentWordOrder.map((id, index) => [id, index]));
+    return [...items].sort((a, b) => (positions.get(a.id) ?? Infinity) - (positions.get(b.id) ?? Infinity));
+}
+defaultWords.sort((a, b) => documentWordOrder.indexOf(a.id) - documentWordOrder.indexOf(b.id));
+
 let words = [];
 let selectedFolder = null;
 let pendingFolderTab = 'flashcard';
@@ -309,9 +326,9 @@ let activeStudyTab = 'flashcard';
 let matchSession = 0;
 
 function wordFolder(item) {
-    if (Number.isInteger(item.folderId) && item.folderId >= 1 && item.folderId <= 4) return item.folderId;
-    const index = defaultWords.findIndex(word => word.id === item.id);
-    return index < 0 ? 1 : index < 65 ? 1 : index < 129 ? 2 : index < 193 ? 3 : 4;
+    if (documentWordFolders[item.id]) return documentWordFolders[item.id];
+    if (item.folderScheme === 'hwp' && studyFolders[item.folderId]) return item.folderId;
+    return ({1: 4, 2: 5, 3: 8, 4: 9})[item.folderId] || 4;
 }
 
 let listStatusFilter = 'all';
@@ -336,7 +353,7 @@ function handleListFilterChange() {
 }
 
 function selectWordFolder(folder) {
-    if (!['all', 1, 2, 3, 4].includes(folder)) return;
+    if (!(folder === 'all' || Object.hasOwn(studyFolders, folder))) return;
     if (selectedFolder !== folder) {
         const quizActive = !document.getElementById('quizActiveContainer').classList.contains('hidden');
         const matchActive = matchTimer !== null;
@@ -358,7 +375,7 @@ function selectWordFolder(folder) {
         showMatchPrepScreen();
     }
     document.getElementById('studyMain').classList.remove('hidden');
-    document.getElementById('selectedFolderLabel').innerText = folder === 'all' ? '전체 단어' : '폴더 ' + folder;
+    document.getElementById('selectedFolderLabel').innerText = folder === 'all' ? '전체 단어' : studyFolders[folder];
     switchTab(pendingFolderTab);
 }
 
@@ -441,10 +458,10 @@ function loadWordsFromStorage() {
         const stored = localStorage.getItem('ebs_voca_words_2026_full_257');
         if (stored) {
             const savedWords = JSON.parse(stored);
-            return savedWords.map((item, index) => {
+            return sortDocumentWords(savedWords.map((item, index) => {
                 const examples = makeExample(item.word, item.meaning, index);
-                return { ...item, folderId: wordFolder(item), exampleEn: item.exampleEn || examples.en, exampleKo: item.exampleKo || examples.ko };
-            });
+                return { ...item, folderId: wordFolder(item), folderScheme: 'hwp', exampleEn: item.exampleEn || examples.en, exampleKo: item.exampleKo || examples.ko };
+            }));
         }
     } catch (e) {
         console.error("Storage load error:", e);
@@ -1545,7 +1562,8 @@ function submitAddWord(e) {
 
     const newItem = {
         id: Date.now(),
-        folderId: selectedFolder === 'all' ? 1 : selectedFolder,
+        folderId: selectedFolder === 'all' ? 4 : selectedFolder,
+        folderScheme: 'hwp',
         word: w,
         pos: p || 'n.',
         phonetic: ph || '',
