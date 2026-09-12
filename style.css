@@ -4,3 +4,42 @@
 .rotate-y-180 { transform: rotateY(180deg); }
 .flipped { transform: rotateY(180deg); }
 
+/* Keep the brand and navigation on separate rows so Korean labels stay intact. */
+#app > header {
+    flex-direction: column;
+    align-items: stretch;
+}
+#app > header > div {
+    min-width: 0;
+}
+#app > header > div > div:first-child {
+    flex-shrink: 0;
+}
+#app > header h1,
+#app > header p {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+#app > header > nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    overflow: visible;
+}
+#app > header > nav .tab-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0.625rem 0.25rem;
+    white-space: nowrap;
+    line-height: 1.5;
+}
+#app > header > nav .tab-btn > i {
+    flex-shrink: 0;
+}
+@media (min-width: 640px) {
+    #app > header > nav {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
