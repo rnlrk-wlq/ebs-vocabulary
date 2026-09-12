@@ -1058,6 +1058,12 @@ function showBatchIntermission() {
     quizBatchCorrect = 0;
 }
 
+function exitQuizAtIntermission() {
+    // Correct answers already contribute to the cumulative score.
+    saveUserScore();
+    showQuizPrepScreen();
+}
+
 function continueNextBatch() {
     document.getElementById('quizBatchContainer').classList.add('hidden');
     document.getElementById('quizActiveContainer').classList.remove('hidden');
