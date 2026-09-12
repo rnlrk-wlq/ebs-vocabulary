@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=20260912-quiz-exit-11"></script>
+    <script src="app.js?v=20260912-match-duration-12"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=20260912-list-layout-2">
 </head>
@@ -457,6 +457,16 @@
                         </div>
                     </div>
 
+                    <div class="space-y-2 text-left">
+                        <label for="matchDuration" class="block text-xs font-bold text-slate-600 dark:text-slate-300">게임 시간</label>
+                        <select id="matchDuration" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-bold">
+                            <option value="60">1분</option>
+                            <option value="180">3분</option>
+                            <option value="300" selected>5분</option>
+                        </select>
+                        <p class="text-xs text-slate-500">나가도 현재 게임 점수는 누적 점수에 저장됩니다.</p>
+                    </div>
+
                     <button onclick="startMatchGame()" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-2xl transition shadow-lg shadow-emerald-500/30 text-sm flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-play text-xs"></i>
                         <span>게임 시작하기</span>
@@ -473,7 +483,7 @@
                         점수: <span id="matchScore" class="text-emerald-500 font-bold">0</span>
                     </div>
                     <button onclick="showMatchPrepScreen()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition">
-                        새 게임
+                        나가기
                     </button>
                 </div>
 
