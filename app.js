@@ -2444,6 +2444,7 @@ let matchWordQueue = [];
 let matchNextWordIndex = 0;
 let matchCompletedPairs = 0;
 let matchCumulativeScore = 0;
+let matchBestScore = 0;
 let matchLastScore = null;
 let matchPlayCount = 0;
 let rankingDb = null;
@@ -3131,7 +3132,7 @@ function buildCombinedLeaderboard(quizBoard, matchBoard) {
     quizBoard.forEach(item => users.set(item.id, { ...item, score: Number(item.score) || 0 }));
     matchBoard.forEach(item => {
         const user = users.get(item.id) || { id: item.id, nickname: item.nickname || '학습자', score: 0, count: 0 };
-        user.score += Number(item.bestScore) || 0;
+        user.score += Number(item.singleGameBest) || 0;
         users.set(item.id, user);
     });
     return [...users.values()].sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
@@ -3150,7 +3151,7 @@ function renderLeaderboard() {
     const tbody = document.getElementById('leaderboardBody');
     
     document.getElementById('rankingMyNickname').innerText = `내 닉네임: ${currentUser.nickname}`;
-    document.getElementById('rankingMyScore').innerText = `${(Number(currentUser.totalScore) || 0) + matchCumulativeScore}점`;
+    document.getElementById('rankingMyScore').innerText = `${(Number(currentUser.totalScore) || 0) + matchBestScore}점`;
 
     const myRank = document.getElementById('rankingMyRank');
     const myIndex = rankingUser ? allRanks.findIndex(item => item.id === rankingUser.uid) : -1;
@@ -3192,9 +3193,11 @@ function loadMatchScore() {
         matchCumulativeScore = Number(localStorage.getItem('ebs_voca_match_total')) || 0;
         const storedLastScore = localStorage.getItem('ebs_voca_match_last');
         matchLastScore = storedLastScore === null ? null : Number(storedLastScore);
+        matchBestScore = Math.max(0, Number(localStorage.getItem('ebs_voca_match_best')) || 0, Number(matchLastScore) || 0);
         matchPlayCount = Number(localStorage.getItem('ebs_voca_match_plays')) || 0;
     } catch (e) {
         matchCumulativeScore = 0;
+        matchBestScore = 0;
         matchLastScore = null;
         matchPlayCount = 0;
     }
@@ -3203,6 +3206,7 @@ function loadMatchScore() {
 function saveMatchScore() {
     try {
         localStorage.setItem('ebs_voca_match_total', String(matchCumulativeScore));
+        localStorage.setItem('ebs_voca_match_best', String(matchBestScore));
         localStorage.setItem('ebs_voca_match_last', String(matchLastScore));
         localStorage.setItem('ebs_voca_match_plays', String(matchPlayCount));
     } catch (e) {
@@ -3217,6 +3221,7 @@ function preserveMatchSessionScore() {
     if (matchTimer !== null) clearInterval(matchTimer);
     matchTimer = null;
     matchLastScore = matchScore;
+    matchBestScore = Math.max(matchBestScore, matchScore);
     matchCumulativeScore += matchScore;
     matchPlayCount++;
     saveMatchScore();
@@ -3236,7 +3241,7 @@ function showMatchPrepScreen() {
     }
     document.getElementById('matchPrepContainer').classList.remove('hidden');
     document.getElementById('matchActiveContainer').classList.add('hidden');
-    document.getElementById('matchCumulativeScore').innerText = `${matchCumulativeScore}점`;
+    document.getElementById('matchCumulativeScore').innerText = `${matchBestScore}점`;
     document.getElementById('matchLastScore').innerText = matchLastScore === null
         ? '아직 완료한 게임이 없습니다.'
         : `최근 게임 점수: ${matchLastScore}점`;
@@ -3359,7 +3364,14 @@ function subscribeMatchRanking() {
         .onSnapshot(snapshot => {
             matchRankingReady = true;
             onlineMatchBoard = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-            renderMatchRanking([...onlineMatchBoard].sort((a, b) => (Number(b.bestScore) || 0) - (Number(a.bestScore) || 0)).slice(0, 20));
+            const mine = rankingUser && onlineMatchBoard.find(item => item.id === rankingUser.uid);
+            if (mine) {
+                matchBestScore = Math.max(matchBestScore, Number(mine.singleGameBest) || 0);
+                saveMatchScore();
+                document.getElementById('matchCumulativeScore').innerText = `${matchBestScore}점`;
+            }
+            renderMatchRanking(onlineMatchBoard.filter(item => Number.isFinite(item.singleGameBest))
+                .sort((a, b) => b.singleGameBest - a.singleGameBest || a.id.localeCompare(b.id)).slice(0, 20));
             updateCombinedRankingStatus();
         }, error => {
             combinedRankingError = true;
@@ -3373,11 +3385,19 @@ async function saveMatchRanking() {
     if (!rankingDb || !rankingUser || matchPlayCount < 1) return;
     const nickname = (currentUser.nickname || '학습자').trim().slice(0, 12);
     try {
-        await rankingDb.collection('matchingRankings').doc(rankingUser.uid).set({
-            nickname,
-            bestScore: Math.max(0, Math.trunc(matchCumulativeScore)),
-            plays: Math.max(0, Math.trunc(matchPlayCount)),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        const ref = rankingDb.collection('matchingRankings').doc(rankingUser.uid);
+        const candidate = Math.max(0, Math.trunc(matchBestScore));
+        await rankingDb.runTransaction(async transaction => {
+            const snapshot = await transaction.get(ref);
+            const previous = snapshot.exists ? snapshot.data() : {};
+            transaction.set(ref, {
+                nickname,
+                singleGameBest: Math.max(candidate, Number(previous.singleGameBest) || 0),
+                // Retain the old cumulative field for existing records.
+                bestScore: Math.max(Number(previous.bestScore) || 0, matchCumulativeScore),
+                plays: Math.max(Number(previous.plays) || 0, Math.trunc(matchPlayCount)),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
         });
     } catch (error) {
         console.error('Ranking save error:', error);
@@ -3395,7 +3415,7 @@ function renderMatchRanking(board) {
         const isMe = rankingUser && item.id === rankingUser.uid;
         return `<tr class="border-t border-slate-100 dark:border-slate-700 ${isMe ? 'bg-emerald-50 dark:bg-emerald-900/20 font-bold' : ''}">
             <td class="p-2 text-center">${rank}</td><td class="p-2">${escapeHtml(item.nickname || '학습자')}${isMe ? ' <span class="text-[9px] text-emerald-600">나</span>' : ''}</td>
-            <td class="p-2 text-center text-slate-500">${Number(item.plays) || 0}회</td><td class="p-2 text-right font-black text-emerald-500">${Number(item.bestScore) || 0}점</td></tr>`;
+            <td class="p-2 text-center text-slate-500">${Number(item.plays) || 0}회</td><td class="p-2 text-right font-black text-emerald-500">${Number(item.singleGameBest) || 0}점</td></tr>`;
     }).join('');
 }
 
