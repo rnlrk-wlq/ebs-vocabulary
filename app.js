@@ -1241,6 +1241,977 @@ const funWordExamples = {
 };
 
 // Names label fictional classroom stories, not real statements or events.
+const teacherWordExamples = {
+  "disproportionately": {
+    "en": "{en} received a disproportionately large slice of cake.",
+    "ko": "{ko} 선생님은 유난히 큰 케이크 조각을 받았다."
+  },
+  "subsidy": {
+    "en": "{en} used a garden subsidy to build a tiny palace for tomatoes.",
+    "ko": "{ko} 선생님은 정원 보조금으로 토마토를 위한 작은 궁전을 만들었다."
+  },
+  "bear the brunt of": {
+    "en": "{en} had to bear the brunt of a water-balloon attack.",
+    "ko": "{ko} 선생님은 물풍선 공격의 가장 큰 타격을 받았다."
+  },
+  "infinite": {
+    "en": "{en} wished for an infinite supply of dumplings.",
+    "ko": "{ko} 선생님은 만두가 무한히 공급되기를 바랐다."
+  },
+  "distinguish": {
+    "en": "{en} could distinguish the twins by their sneezes.",
+    "ko": "{ko} 선생님은 재채기 소리로 쌍둥이를 구분할 수 있었다."
+  },
+  "warrant": {
+    "en": "{en} would not warrant that the homemade robot could dance safely.",
+    "ko": "{ko} 선생님은 직접 만든 로봇이 안전하게 춤출 수 있다고 보장하지 않았다."
+  },
+  "empathy": {
+    "en": "{en} felt empathy for a robot struggling with homework.",
+    "ko": "{ko} 선생님은 숙제로 고생하는 로봇에게 공감을 느꼈다."
+  },
+  "enlightenment": {
+    "en": "{en} experienced enlightenment on finding the missing glasses on the teacher's desk.",
+    "ko": "{ko} 선생님은 교탁 위에서 잃어버린 안경을 발견하고 깨우침을 얻었다."
+  },
+  "obstacle": {
+    "en": "{en} jumped over an obstacle and lost a shoe.",
+    "ko": "{ko} 선생님은 장애물을 뛰어넘다가 신발 한 짝을 잃어버렸다."
+  },
+  "perception": {
+    "en": "{en} changed everyone's perception of broccoli by giving it a crown.",
+    "ko": "{ko} 선생님은 브로콜리에 왕관을 씌워 모두의 인식을 바꿨다."
+  },
+  "longevity": {
+    "en": "{en} celebrated a turtle's longevity with a very small cake.",
+    "ko": "{ko} 선생님은 아주 작은 케이크로 거북이의 장수를 축하했다."
+  },
+  "acquire": {
+    "en": "{en} hoped to acquire cooking skills but mastered pizza delivery instead.",
+    "ko": "{ko} 선생님은 요리 기술을 습득하려다 피자 배달 주문의 달인이 됐다."
+  },
+  "inject": {
+    "en": "{en} used a syringe to inject jam into a giant doughnut.",
+    "ko": "{ko} 선생님은 주사기로 거대한 도넛에 잼을 주입했다."
+  },
+  "wipe out": {
+    "en": "{en} watched a puppy wipe out the entire picnic lunch.",
+    "ko": "{ko} 선생님은 강아지가 소풍 도시락을 통째로 없애 버리는 모습을 봤다."
+  },
+  "appreciate": {
+    "en": "{en} began to appreciate silence after meeting a talking fridge.",
+    "ko": "{ko} 선생님은 말하는 냉장고를 만나고 나서 조용함의 가치를 이해했다."
+  },
+  "infection": {
+    "en": "{en} drew an infection as a gang of germs wearing sunglasses.",
+    "ko": "{ko} 선생님은 감염을 선글라스를 쓴 세균 무리로 그렸다."
+  },
+  "significance": {
+    "en": "{en} explained the significance of breakfast while guarding the last pancake.",
+    "ko": "{ko} 선생님은 마지막 팬케이크를 지키며 아침 식사의 중요성을 설명했다."
+  },
+  "antibiotic": {
+    "en": "{en} drew an antibiotic as a superhero chasing bacteria.",
+    "ko": "{ko} 선생님은 항생제를 세균을 쫓는 슈퍼히어로로 그렸다."
+  },
+  "journalism": {
+    "en": "{en} explored journalism by reporting on a missing sandwich.",
+    "ko": "{ko} 선생님은 사라진 샌드위치를 취재하며 언론 보도를 체험했다."
+  },
+  "spine": {
+    "en": "{en} put a tiny scarf around the model skeleton's spine.",
+    "ko": "{ko} 선생님은 해골 모형의 척추에 작은 목도리를 둘렀다."
+  },
+  "resist": {
+    "en": "{en} could not resist a dumpling shaped like a dinosaur.",
+    "ko": "{ko} 선생님은 공룡 모양 만두의 유혹을 참을 수 없었다."
+  },
+  "revive": {
+    "en": "{en} used fresh batteries to revive a dancing toy.",
+    "ko": "{ko} 선생님은 새 건전지로 춤추는 장난감을 되살렸다."
+  },
+  "ground": {
+    "en": "{en} found grounds for suspicion in the cat's cookie-covered whiskers.",
+    "ko": "{ko} 선생님은 쿠키가 묻은 고양이 수염에서 의심할 근거를 찾았다."
+  },
+  "markedly": {
+    "en": "{en} danced markedly better after removing the giant flippers.",
+    "ko": "{ko} 선생님은 거대한 오리발을 벗자 현저하게 더 잘 춤췄다."
+  },
+  "perspective": {
+    "en": "{en} photographed lunch from a hamster's perspective.",
+    "ko": "{ko} 선생님은 햄스터의 관점에서 점심을 촬영했다."
+  },
+  "chronic": {
+    "en": "{en} invented a robot with a chronic hiccup problem.",
+    "ko": "{ko} 선생님은 만성적인 딸꾹질 문제가 있는 로봇을 발명했다."
+  },
+  "furnish": {
+    "en": "{en} promised to furnish the picnic with snacks, not dancing ants.",
+    "ko": "{ko} 선생님은 소풍에 춤추는 개미가 아니라 간식을 제공하겠다고 약속했다."
+  },
+  "neurological": {
+    "en": "{en} turned a neurological diagram into a colorful subway map.",
+    "ko": "{ko} 선생님은 신경계 도표를 알록달록한 지하철 노선도로 바꿨다."
+  },
+  "alternative": {
+    "en": "{en} suggested a blanket fort as an alternative to a hotel.",
+    "ko": "{ko} 선생님은 호텔의 대안으로 이불 요새를 제안했다."
+  },
+  "symptom": {
+    "en": "{en} gave the cartoon robot a strange symptom: sneezing confetti.",
+    "ko": "{ko} 선생님은 만화 속 로봇에게 색종이를 재채기하는 이상한 증상을 설정했다."
+  },
+  "behaviourism": {
+    "en": "{en} explained behaviourism with a dog that trained humans to share snacks.",
+    "ko": "{ko} 선생님은 사람에게 간식을 나누도록 훈련한 개로 행동주의를 설명했다."
+  },
+  "reset the clock": {
+    "en": "{en} wanted to reset the clock after adding salt to the cake.",
+    "ko": "{ko} 선생님은 케이크에 소금을 넣은 뒤 시간을 되돌리고 싶었다."
+  },
+  "plausibility": {
+    "en": "{en} questioned the plausibility of a penguin eating homework.",
+    "ko": "{ko} 선생님은 펭귄이 숙제를 먹었다는 말이 그럴듯한지 의문을 품었다."
+  },
+  "acute": {
+    "en": "{en} wrote about a dragon with an acute stomachache after eating a castle.",
+    "ko": "{ko} 선생님은 성을 먹고 급성 복통이 생긴 용에 관한 글을 썼다."
+  },
+  "pellet": {
+    "en": "{en} watched a hamster hide a food pellet like buried treasure.",
+    "ko": "{ko} 선생님은 햄스터가 먹이 알갱이를 보물처럼 숨기는 모습을 봤다."
+  },
+  "decompress": {
+    "en": "{en} watched dancing-potato videos to decompress after work.",
+    "ko": "{ko} 선생님은 퇴근 후 긴장을 풀려고 춤추는 감자 영상을 봤다."
+  },
+  "cardiovascular": {
+    "en": "{en} illustrated the cardiovascular system with tiny delivery trucks.",
+    "ko": "{ko} 선생님은 작은 배달 트럭들로 심혈관계를 표현했다."
+  },
+  "evade": {
+    "en": "{en} tried to evade a sprinkler but stepped into a puddle.",
+    "ko": "{ko} 선생님은 스프링클러를 피하려다 물웅덩이에 발을 넣었다."
+  },
+  "economist": {
+    "en": "{en} asked an economist why doughnuts kept getting more expensive.",
+    "ko": "{ko} 선생님은 경제학자에게 도넛이 왜 자꾸 비싸지는지 물었다."
+  },
+  "burden": {
+    "en": "{en} found carrying the picnic basket a burden until the puppy emptied it.",
+    "ko": "{ko} 선생님은 강아지가 바구니를 비우기 전까지 소풍 바구니 운반을 부담스럽게 느꼈다."
+  },
+  "vice versa": {
+    "en": "{en} trained the puppy, and vice versa: the puppy taught snack sharing.",
+    "ko": "{ko} 선생님은 강아지를 훈련했고 그 반대도 마찬가지였다. 강아지는 간식 나누기를 가르쳤다."
+  },
+  "legally": {
+    "en": "{en} asked whether a parrot could legally sign a contract.",
+    "ko": "{ko} 선생님은 앵무새가 법적으로 계약서에 서명할 수 있는지 물었다."
+  },
+  "price-sensitive": {
+    "en": "{en} played a price-sensitive shopper comparing three banana shops.",
+    "ko": "{ko} 선생님은 바나나 가게 세 곳을 비교하는 가격에 민감한 손님을 연기했다."
+  },
+  "shrink": {
+    "en": "{en} watched a sweater shrink until it fitted a teddy bear.",
+    "ko": "{ko} 선생님은 스웨터가 곰 인형에 맞을 만큼 줄어드는 것을 봤다."
+  },
+  "nostril": {
+    "en": "{en} drew a dragon with a marshmallow in one nostril.",
+    "ko": "{ko} 선생님은 한쪽 콧구멍에 마시멜로가 낀 용을 그렸다."
+  },
+  "detect": {
+    "en": "{en} could detect a snack bag opening from the next classroom.",
+    "ko": "{ko} 선생님은 옆 교실에서 과자 봉지 여는 소리를 감지할 수 있었다."
+  },
+  "microbe": {
+    "en": "{en} gave a cartoon microbe a tiny briefcase.",
+    "ko": "{ko} 선생님은 만화 속 미생물에게 작은 서류 가방을 쥐여 줬다."
+  },
+  "a swarm of": {
+    "en": "{en} was followed by a swarm of children asking for dinosaur stickers.",
+    "ko": "{ko} 선생님 뒤로 공룡 스티커를 달라는 아이들이 무리 지어 따라왔다."
+  },
+  "neutralize": {
+    "en": "{en} used a giant eraser to neutralize the chalk monster in a play.",
+    "ko": "{ko} 선생님은 연극에서 거대한 지우개로 분필 괴물을 무력화했다."
+  },
+  "breakthrough": {
+    "en": "{en} announced a breakthrough: a chip bag that opened silently.",
+    "ko": "{ko} 선생님은 소리 없이 열리는 과자 봉지라는 획기적인 발명을 발표했다."
+  },
+  "respiratory": {
+    "en": "{en} explained the respiratory system using a dragon puppet.",
+    "ko": "{ko} 선생님은 용 인형으로 호흡계를 설명했다."
+  },
+  "antiviral": {
+    "en": "{en} designed an antiviral superhero with a microscope-shaped shield.",
+    "ko": "{ko} 선생님은 현미경 모양 방패를 든 항바이러스 슈퍼히어로를 디자인했다."
+  },
+  "trainee": {
+    "en": "{en} played a trainee magician who turned a hat into a cabbage.",
+    "ko": "{ko} 선생님은 모자를 양배추로 바꾸는 견습 마술사를 연기했다."
+  },
+  "attraction": {
+    "en": "{en} made a dancing carrot the main attraction of the show.",
+    "ko": "{ko} 선생님은 춤추는 당근을 공연의 주요 볼거리로 만들었다."
+  },
+  "characteristic": {
+    "en": "{en} gave the robot one unusual characteristic: a fear of spoons.",
+    "ko": "{ko} 선생님은 로봇에게 숟가락을 무서워하는 특이한 특성을 부여했다."
+  },
+  "assign": {
+    "en": "{en} decided to assign the loudest puppet the role of a silent tree.",
+    "ko": "{ko} 선생님은 가장 시끄러운 인형에게 말 없는 나무 역할을 배정했다."
+  },
+  "surname": {
+    "en": "{en} gave the alien character the surname Pancake.",
+    "ko": "{ko} 선생님은 외계인 등장인물의 성을 팬케이크로 지었다."
+  },
+  "likelihood": {
+    "en": "{en} calculated the likelihood of a cat returning a stolen chair.",
+    "ko": "{ko} 선생님은 고양이가 빼앗은 의자를 돌려줄 가능성을 계산했다."
+  },
+  "engage in": {
+    "en": "{en} watched ducks engage in a noisy argument over a puddle.",
+    "ko": "{ko} 선생님은 오리들이 물웅덩이를 두고 시끄럽게 다투는 것을 봤다."
+  },
+  "annoy": {
+    "en": "{en} built a robot that could annoy anyone by repeating hello.",
+    "ko": "{ko} 선생님은 안녕을 반복해 누구나 짜증 나게 할 수 있는 로봇을 만들었다."
+  },
+  "laboratory": {
+    "en": "{en} put a sign in the laboratory: no invisible hamsters allowed.",
+    "ko": "{ko} 선생님은 실험실에 투명 햄스터 출입 금지 표지판을 붙였다."
+  },
+  "proximity": {
+    "en": "{en} enjoyed the proximity of the picnic blanket to the cake table.",
+    "ko": "{ko} 선생님은 소풍 돗자리가 케이크 탁자와 가까워서 좋았다."
+  },
+  "artificial": {
+    "en": "{en} watered an artificial plant, then laughed at the mistake.",
+    "ko": "{ko} 선생님은 인공 식물에 물을 주고는 실수를 깨닫고 웃었다."
+  },
+  "behave": {
+    "en": "{en} taught the robot to behave politely, even around rude toasters.",
+    "ko": "{ko} 선생님은 무례한 토스터 앞에서도 로봇이 예의 있게 행동하도록 가르쳤다."
+  },
+  "sweaty": {
+    "en": "{en} became sweaty after racing a very energetic puppy.",
+    "ko": "{ko} 선생님은 기운 넘치는 강아지와 달리기 경주를 하고 땀이 났다."
+  },
+  "habitat": {
+    "en": "{en} built a toy hamster habitat with a tiny swimming pool.",
+    "ko": "{ko} 선생님은 작은 수영장이 딸린 장난감 햄스터 서식지를 만들었다."
+  },
+  "flushed": {
+    "en": "{en} looked flushed after dancing in a dinosaur costume.",
+    "ko": "{ko} 선생님은 공룡 의상을 입고 춤춘 뒤 얼굴이 달아올랐다."
+  },
+  "dusk": {
+    "en": "{en} met a puppet vampire ordering pizza at dusk.",
+    "ko": "{ko} 선생님은 해 질 녘 피자를 주문하는 뱀파이어 인형을 만났다."
+  },
+  "sympathetic nervous system": {
+    "en": "{en} drew the sympathetic nervous system as an alarm crew in tiny helmets.",
+    "ko": "{ko} 선생님은 교감신경계를 작은 헬멧을 쓴 경보 대원들로 그렸다."
+  },
+  "prey": {
+    "en": "{en} drew a lion's prey escaping on a skateboard.",
+    "ko": "{ko} 선생님은 스케이트보드로 탈출하는 사자의 먹잇감을 그렸다."
+  },
+  "distress": {
+    "en": "{en} comforted a puppet in distress over a missing cookie.",
+    "ko": "{ko} 선생님은 쿠키를 잃어버려 괴로워하는 인형을 달랬다."
+  },
+  "distribution": {
+    "en": "{en} noticed an unfair distribution of cake: the teddy bear had half.",
+    "ko": "{ko} 선생님은 케이크 분배가 불공평하다는 걸 알아챘다. 곰 인형이 절반을 차지했다."
+  },
+  "induce": {
+    "en": "{en} used a very boring speech to induce sleep in a cartoon dragon.",
+    "ko": "{ko} 선생님은 아주 지루한 연설로 만화 속 용의 잠을 유도했다."
+  },
+  "predator": {
+    "en": "{en} filmed a tiny predator hunting a giant sock.",
+    "ko": "{ko} 선생님은 작은 포식자가 거대한 양말을 사냥하는 모습을 촬영했다."
+  },
+  "physiological": {
+    "en": "{en} illustrated a physiological response with a robot hiding from an alarm.",
+    "ko": "{ko} 선생님은 알람을 피해 숨는 로봇으로 생리적 반응을 표현했다."
+  },
+  "disturbance": {
+    "en": "{en} paused the play because of a disturbance caused by a dancing pigeon.",
+    "ko": "{ko} 선생님은 춤추는 비둘기의 방해 때문에 연극을 멈췄다."
+  },
+  "oxytocin": {
+    "en": "{en} named a cuddly molecule model Oxytocin.",
+    "ko": "{ko} 선생님은 포근한 분자 모형의 이름을 옥시토신이라고 지었다."
+  },
+  "identify": {
+    "en": "{en} could identify the cookie thief by the crumbs on its crown.",
+    "ko": "{ko} 선생님은 왕관의 부스러기로 쿠키 도둑을 알아낼 수 있었다."
+  },
+  "meditation": {
+    "en": "{en} stopped meditation when a kitten climbed onto the cushion.",
+    "ko": "{ko} 선생님은 방석에 아기 고양이가 올라오자 명상을 멈췄다."
+  },
+  "crucial": {
+    "en": "{en} learned that a lid was crucial when shaking a smoothie.",
+    "ko": "{ko} 선생님은 스무디를 흔들 때 뚜껑이 매우 중요하다는 것을 배웠다."
+  },
+  "channel": {
+    "en": "{en} tried to channel frustration into exercise but baked cookies instead.",
+    "ko": "{ko} 선생님은 답답함을 운동으로 풀려다가 대신 쿠키를 구웠다."
+  },
+  "roost": {
+    "en": "{en} found a chicken using the stage throne as a roost.",
+    "ko": "{ko} 선생님은 닭이 무대 왕좌를 홰로 사용하는 것을 발견했다."
+  },
+  "euphoria": {
+    "en": "{en} felt euphoria on finding an extra dumpling in the lunchbox.",
+    "ko": "{ko} 선생님은 도시락에서 만두 하나를 더 발견하고 행복감을 느꼈다."
+  },
+  "forage": {
+    "en": "{en} watched a squirrel forage inside an abandoned picnic basket.",
+    "ko": "{ko} 선생님은 다람쥐가 버려진 소풍 바구니에서 먹이를 찾는 것을 봤다."
+  },
+  "intuitive": {
+    "en": "{en} designed an intuitive app that even a cartoon cat could use.",
+    "ko": "{ko} 선생님은 만화 속 고양이도 쓸 만큼 직관적인 앱을 디자인했다."
+  },
+  "immune": {
+    "en": "{en} drew immune cells as tiny guards with oversized shields.",
+    "ko": "{ko} 선생님은 면역 세포를 커다란 방패를 든 작은 경비병들로 그렸다."
+  },
+  "document": {
+    "en": "{en} used photos to document a cat stealing a sandwich.",
+    "ko": "{ko} 선생님은 사진으로 고양이가 샌드위치를 훔친 일을 입증했다."
+  },
+  "investor": {
+    "en": "{en} played an investor interested in a penguin-run lemonade stand.",
+    "ko": "{ko} 선생님은 펭귄이 운영하는 레모네이드 가판대에 관심을 가진 투자자를 연기했다."
+  },
+  "diabetic": {
+    "en": "{en} wrote a mystery starring a diabetic who solved crimes with a talking hat.",
+    "ko": "{ko} 선생님은 말하는 모자와 사건을 해결하는 당뇨병 환자가 주인공인 추리물을 썼다."
+  },
+  "associated": {
+    "en": "{en} chose music associated with dramatic entrances, then tripped over a cushion.",
+    "ko": "{ko} 선생님은 극적인 등장과 관련된 음악을 골랐다가 방석에 걸려 넘어졌다."
+  },
+  "microbiome": {
+    "en": "{en} drew the microbiome as a city full of tiny buses.",
+    "ko": "{ko} 선생님은 마이크로바이옴을 작은 버스가 가득한 도시로 그렸다."
+  },
+  "effectively": {
+    "en": "{en} was effectively working for the cat that occupied the desk.",
+    "ko": "{ko} 선생님은 책상을 차지한 고양이를 위해 사실상 일하고 있었다."
+  },
+  "trivial-sounding": {
+    "en": "{en} started a debate with a trivial-sounding question about socks.",
+    "ko": "{ko} 선생님은 양말에 관한 사소해 보이는 질문으로 토론을 시작했다."
+  },
+  "dentistry": {
+    "en": "{en} wrote a comedy about dentistry for dragons with three hundred teeth.",
+    "ko": "{ko} 선생님은 이가 300개인 용들의 치과 진료에 관한 코미디를 썼다."
+  },
+  "prescribe": {
+    "en": "{en} played a doctor who refused to prescribe chocolate for boring homework.",
+    "ko": "{ko} 선생님은 지루한 숙제에 초콜릿을 처방하기를 거절하는 의사를 연기했다."
+  },
+  "component": {
+    "en": "{en} discovered a missing component in the robot: its joke detector.",
+    "ko": "{ko} 선생님은 로봇에서 빠진 부품인 농담 감지기를 발견했다."
+  },
+  "gut": {
+    "en": "{en} drew a gut sending a complaint letter to the brain.",
+    "ko": "{ko} 선생님은 뇌에 항의 편지를 보내는 장을 그렸다."
+  },
+  "microbial": {
+    "en": "{en} invented a microbial city with microscopic traffic lights.",
+    "ko": "{ko} 선생님은 현미경으로 봐야 보이는 신호등이 있는 미생물 도시를 만들었다."
+  },
+  "nutrient": {
+    "en": "{en} explained why glitter was not a nutrient for the toy alien.",
+    "ko": "{ko} 선생님은 장난감 외계인에게 반짝이 가루가 영양소가 아닌 이유를 설명했다."
+  },
+  "spectrum": {
+    "en": "{en} gave the puppet a wide spectrum of ridiculous excuses.",
+    "ko": "{ko} 선생님은 인형에게 폭넓고 우스꽝스러운 변명들을 마련해 줬다."
+  },
+  "gut flora": {
+    "en": "{en} drew gut flora as gardeners tending a tiny jungle.",
+    "ko": "{ko} 선생님은 장내 미생물군을 작은 밀림을 가꾸는 정원사들로 그렸다."
+  },
+  "digest": {
+    "en": "{en} invented a goat that could digest homework but hated its taste.",
+    "ko": "{ko} 선생님은 숙제를 소화할 수 있지만 그 맛은 싫어하는 염소를 만들었다."
+  },
+  "in silos": {
+    "en": "{en} found the robot chefs working in silos and producing five soups.",
+    "ko": "{ko} 선생님은 로봇 요리사들이 따로따로 일하며 수프 다섯 가지를 만드는 것을 발견했다."
+  },
+  "absorb": {
+    "en": "{en} used a giant sponge to absorb a tiny spill.",
+    "ko": "{ko} 선생님은 조금 쏟은 물을 흡수하려고 거대한 스펀지를 사용했다."
+  },
+  "knock-on": {
+    "en": "{en} watched a cat's jump cause a knock-on effect among the cups.",
+    "ko": "{ko} 선생님은 고양이의 점프가 컵들에 연쇄적인 영향을 일으키는 것을 봤다."
+  },
+  "get in the way": {
+    "en": "{en} wore a wizard hat that would get in the way on the bus.",
+    "ko": "{ko} 선생님은 버스에서 걸리적거릴 만큼 큰 마법사 모자를 썼다."
+  },
+  "perceive": {
+    "en": "{en} began to perceive the vacuum cleaner as the hamster's greatest enemy.",
+    "ko": "{ko} 선생님은 진공청소기를 햄스터의 최대 적으로 인식하기 시작했다."
+  },
+  "invade": {
+    "en": "{en} watched ducks invade the picnic just as the bread appeared.",
+    "ko": "{ko} 선생님은 빵이 나오자마자 오리들이 소풍 자리에 침입하는 것을 봤다."
+  },
+  "correspond to": {
+    "en": "{en} found that the mysterious footprints correspond to the puppy's paws.",
+    "ko": "{ko} 선생님은 수상한 발자국이 강아지 발과 일치한다는 것을 알아냈다."
+  },
+  "cognitively": {
+    "en": "{en} gave a toaster robot a cognitively demanding riddle about toast.",
+    "ko": "{ko} 선생님은 토스터 로봇에게 인지적으로 까다로운 토스트 수수께끼를 냈다."
+  },
+  "proportion": {
+    "en": "{en} tried to proportion a clay elephant correctly but made enormous ears.",
+    "ko": "{ko} 선생님은 찰흙 코끼리의 비율을 맞추려다 귀를 거대하게 만들었다."
+  },
+  "deficient": {
+    "en": "{en} built a hiding place deficient in one thing: a hiding spot.",
+    "ko": "{ko} 선생님은 한 가지가 부족한 은신처를 만들었다. 바로 숨을 자리였다."
+  },
+  "stereotype": {
+    "en": "{en} challenged a stereotype by drawing a dragon afraid of candles.",
+    "ko": "{ko} 선생님은 촛불을 무서워하는 용을 그려 고정관념에 도전했다."
+  },
+  "at the mercy of": {
+    "en": "{en} was at the mercy of a cat sitting on the remote.",
+    "ko": "{ko} 선생님은 리모컨 위에 앉은 고양이에게 휘둘렸다."
+  },
+  "layperson": {
+    "en": "{en} played a layperson trying to repair a singing spaceship.",
+    "ko": "{ko} 선생님은 노래하는 우주선을 고치려는 비전문가를 연기했다."
+  },
+  "ruminant": {
+    "en": "{en} drew a ruminant chewing thoughtfully in a business meeting.",
+    "ko": "{ko} 선생님은 업무 회의에서 생각에 잠겨 되새김질하는 반추동물을 그렸다."
+  },
+  "pathogenic": {
+    "en": "{en} cast pathogenic bacteria as the villains of a science comic.",
+    "ko": "{ko} 선생님은 병원성 세균을 과학 만화의 악당으로 설정했다."
+  },
+  "ostrich": {
+    "en": "{en} designed a very tall hat for a cartoon ostrich.",
+    "ko": "{ko} 선생님은 만화 속 타조를 위해 아주 높은 모자를 디자인했다."
+  },
+  "bury": {
+    "en": "{en} watched a puppy bury a toy in the laundry basket.",
+    "ko": "{ko} 선생님은 강아지가 빨래 바구니에 장난감을 묻는 모습을 봤다."
+  },
+  "blood sugar": {
+    "en": "{en} explained blood sugar with sugar-cube puppets riding a toy bus.",
+    "ko": "{ko} 선생님은 장난감 버스를 탄 각설탕 인형으로 혈당을 설명했다."
+  },
+  "strategically": {
+    "en": "{en} sat strategically near the dumplings at the picnic.",
+    "ko": "{ko} 선생님은 소풍에서 전략적으로 만두 가까이에 앉았다."
+  },
+  "consumption": {
+    "en": "{en} measured cookie consumption using a suspiciously empty jar.",
+    "ko": "{ko} 선생님은 수상하게 텅 빈 통으로 쿠키 소비량을 측정했다."
+  },
+  "bank balance": {
+    "en": "{en} checked the bank balance before buying a giant inflatable duck.",
+    "ko": "{ko} 선생님은 거대한 오리 튜브를 사기 전에 은행 잔액을 확인했다."
+  },
+  "polarization": {
+    "en": "{en} demonstrated polarization with rival teams of pineapple-pizza puppets.",
+    "ko": "{ko} 선생님은 파인애플 피자를 두고 대립하는 인형 팀들로 양극화를 보여 줬다."
+  },
+  "discrimination": {
+    "en": "{en} wrote about a robot protesting discrimination at a human-only cafe.",
+    "ko": "{ko} 선생님은 사람 전용 카페에서 차별에 항의하는 로봇에 관해 썼다."
+  },
+  "bias": {
+    "en": "{en} noticed a bias toward cats in a contest judged by kittens.",
+    "ko": "{ko} 선생님은 아기 고양이들이 심사하는 대회에서 고양이 편향을 발견했다."
+  },
+  "loop": {
+    "en": "{en} built a robot stuck in a loop of waving goodbye.",
+    "ko": "{ko} 선생님은 작별 인사로 손을 흔드는 순환에 갇힌 로봇을 만들었다."
+  },
+  "recognize": {
+    "en": "{en} could not recognize the principal in a banana costume.",
+    "ko": "{ko} 선생님은 바나나 의상을 입은 교장 선생님을 알아보지 못했다."
+  },
+  "conventional wisdom": {
+    "en": "{en} challenged conventional wisdom with a story about a flying pig.",
+    "ko": "{ko} 선생님은 날아다니는 돼지 이야기로 일반 통념에 도전했다."
+  },
+  "emerge": {
+    "en": "{en} saw a new problem emerge when the invisible paint spilled.",
+    "ko": "{ko} 선생님은 투명 페인트가 쏟아지자 새로운 문제가 생기는 것을 봤다."
+  },
+  "bigotry": {
+    "en": "{en} mocked bigotry in a play about a king who hated striped hats.",
+    "ko": "{ko} 선생님은 줄무늬 모자를 싫어하는 왕에 관한 연극에서 편협함을 풍자했다."
+  },
+  "concrete": {
+    "en": "{en} made a concrete plan to rescue a cookie from the top shelf.",
+    "ko": "{ko} 선생님은 맨 위 선반의 쿠키를 구출할 구체적인 계획을 세웠다."
+  },
+  "flock together": {
+    "en": "{en} watched ducks flock together at the sound of a bread bag.",
+    "ko": "{ko} 선생님은 빵 봉지 소리에 오리들이 떼 지어 모이는 것을 봤다."
+  },
+  "analyse": {
+    "en": "{en} had to analyse every crumb to solve the missing-cookie mystery.",
+    "ko": "{ko} 선생님은 쿠키 실종 사건을 풀려고 부스러기마다 분석해야 했다."
+  },
+  "digital footprint": {
+    "en": "{en} created a fictional digital footprint full of dancing-potato searches.",
+    "ko": "{ko} 선생님은 춤추는 감자 검색으로 가득한 가상의 디지털 발자국을 만들었다."
+  },
+  "essentially": {
+    "en": "{en} was essentially a chauffeur for a puppy in a toy car.",
+    "ko": "{ko} 선생님은 본질적으로 장난감 자동차를 탄 강아지의 운전기사였다."
+  },
+  "a sense of belonging": {
+    "en": "{en} gave the puppet club a sense of belonging with matching hats.",
+    "ko": "{ko} 선생님은 같은 모자로 인형 동아리에 소속감을 줬다."
+  },
+  "consequence": {
+    "en": "{en} faced an unexpected consequence of teaching a parrot to answer the phone.",
+    "ko": "{ko} 선생님은 앵무새에게 전화 받기를 가르친 뜻밖의 결과를 맞았다."
+  },
+  "in-group biases": {
+    "en": "{en} illustrated in-group biases with ducks voting only for ducks.",
+    "ko": "{ko} 선생님은 오리에게만 투표하는 오리들로 내집단 편향을 설명했다."
+  },
+  "reinforce": {
+    "en": "{en} used pillows to reinforce a blanket fort.",
+    "ko": "{ko} 선생님은 베개로 이불 요새를 강화했다."
+  },
+  "exclusive": {
+    "en": "{en} invented an exclusive club open only to purple dinosaurs.",
+    "ko": "{ko} 선생님은 보라색 공룡만 가입할 수 있는 배타적인 모임을 만들었다."
+  },
+  "marginalize": {
+    "en": "{en} wrote a play about tall hats trying to marginalize small caps.",
+    "ko": "{ko} 선생님은 높은 모자들이 작은 모자들을 주변화하려는 연극을 썼다."
+  },
+  "*clique": {
+    "en": "{en} invented a clique of robots interested only in sandwiches.",
+    "ko": "{ko} 선생님은 샌드위치에만 관심 있는 로봇 파벌을 만들었다."
+  },
+  "specification": {
+    "en": "{en} added one specification to the robot: no dancing during exams.",
+    "ko": "{ko} 선생님은 로봇에 시험 중 춤추지 말라는 사양 하나를 추가했다."
+  },
+  "account for": {
+    "en": "{en} explained how muddy paws account for the pattern on the homework.",
+    "ko": "{ko} 선생님은 진흙 묻은 발이 숙제의 무늬가 생긴 이유임을 설명했다."
+  },
+  "embed": {
+    "en": "{en} tried to embed a secret message in a pancake.",
+    "ko": "{ko} 선생님은 팬케이크에 비밀 메시지를 깊이 새기려 했다."
+  },
+  "virtually": {
+    "en": "{en} found the fridge virtually empty except for a lonely carrot.",
+    "ko": "{ko} 선생님은 외로운 당근 하나만 빼면 냉장고가 거의 비었다는 것을 발견했다."
+  },
+  "conceive": {
+    "en": "{en} could not conceive of a cat paying rent.",
+    "ko": "{ko} 선생님은 고양이가 월세를 낸다는 것을 생각할 수 없었다."
+  },
+  "*ergonomic": {
+    "en": "{en} bought an ergonomic chair that the cat immediately claimed.",
+    "ko": "{ko} 선생님은 고양이가 즉시 차지해 버린 인체 공학적 의자를 샀다."
+  },
+  "collaborative": {
+    "en": "{en} led a collaborative cooking project with three confused robots.",
+    "ko": "{ko} 선생님은 어리둥절한 로봇 셋과 협력적인 요리 프로젝트를 진행했다."
+  },
+  "democratically": {
+    "en": "{en} chose lunch democratically, although the puppy voted for a sock.",
+    "ko": "{ko} 선생님은 점심을 민주적으로 골랐지만 강아지는 양말에 투표했다."
+  },
+  "set out on": {
+    "en": "{en} set out on an adventure to find the missing remote.",
+    "ko": "{ko} 선생님은 사라진 리모컨을 찾는 모험에 나섰다."
+  },
+  "property": {
+    "en": "{en} designed a property advertisement for a dragon's cave.",
+    "ko": "{ko} 선생님은 용의 동굴을 위한 부동산 광고를 만들었다."
+  },
+  "compelling": {
+    "en": "{en} heard a compelling argument for giving the puppy another snack.",
+    "ko": "{ko} 선생님은 강아지에게 간식을 더 줘야 한다는 설득력 있는 주장을 들었다."
+  },
+  "majority support": {
+    "en": "{en} won majority support for a puppet show starring a potato.",
+    "ko": "{ko} 선생님은 감자가 주인공인 인형극에 대다수의 지지를 얻었다."
+  },
+  "colony": {
+    "en": "{en} watched an ant colony celebrate a fallen cookie.",
+    "ko": "{ko} 선생님은 개미 군체가 떨어진 쿠키를 축하하는 것을 봤다."
+  },
+  "opinionated": {
+    "en": "{en} created an opinionated parrot that reviewed every TV show.",
+    "ko": "{ko} 선생님은 모든 TV 프로그램을 평하는 자기주장이 강한 앵무새를 만들었다."
+  },
+  "educated": {
+    "en": "{en} made an educated guess about the cake thief after seeing the frosting.",
+    "ko": "{ko} 선생님은 묻어 있는 크림을 보고 케이크 도둑에 대해 정보에 근거한 추측을 했다."
+  },
+  "relate": {
+    "en": "{en} could relate a shopping trip as if it were a spy thriller.",
+    "ko": "{ko} 선생님은 장보러 다녀온 일도 첩보 영화처럼 들려줄 수 있었다."
+  },
+  "adopt": {
+    "en": "{en} decided to adopt a mascot that was not scared of balloons.",
+    "ko": "{ko} 선생님은 풍선을 무서워하지 않는 마스코트를 채택하기로 했다."
+  },
+  "account": {
+    "en": "{en} gave an account of a picnic interrupted by three hungry ducks.",
+    "ko": "{ko} 선생님은 배고픈 오리 세 마리가 방해한 소풍 이야기를 들려줬다."
+  },
+  "subsequent": {
+    "en": "{en} caught the first pancake on the ceiling; subsequent pancakes stayed lower.",
+    "ko": "{ko} 선생님은 첫 팬케이크를 천장에서 발견했고, 그 후의 팬케이크들은 더 낮게 머물렀다."
+  },
+  "interpretive dance": {
+    "en": "{en} explained a missing sandwich through interpretive dance.",
+    "ko": "{ko} 선생님은 의미를 담은 춤으로 샌드위치 실종 사건을 설명했다."
+  },
+  "asset": {
+    "en": "{en} considered a silent blender the best asset for midnight smoothies.",
+    "ko": "{ko} 선생님은 조용한 믹서기를 한밤중 스무디를 위한 최고의 자산으로 여겼다."
+  },
+  "entourage": {
+    "en": "{en} entered the stage with an entourage of toy ducks.",
+    "ko": "{ko} 선생님은 장난감 오리 수행단을 거느리고 무대에 등장했다."
+  },
+  "accumulation": {
+    "en": "{en} discovered an accumulation of socks behind the sofa.",
+    "ko": "{ko} 선생님은 소파 뒤에 쌓인 양말들을 발견했다."
+  },
+  "decree": {
+    "en": "{en} issued a royal decree in the play: every dragon must wear slippers.",
+    "ko": "{ko} 선생님은 연극에서 모든 용은 슬리퍼를 신으라는 왕명을 내렸다."
+  },
+  "budget": {
+    "en": "{en} tried to budget for a picnic without spending everything on dumplings.",
+    "ko": "{ko} 선생님은 만두에 돈을 다 쓰지 않도록 소풍 예산을 세우려 했다."
+  },
+  "scout": {
+    "en": "{en} played a scout reporting a dangerous puddle and a friendly frog.",
+    "ko": "{ko} 선생님은 위험한 물웅덩이와 친절한 개구리를 보고하는 정찰병을 연기했다."
+  },
+  "balance": {
+    "en": "{en} tried to balance a checkbook while a kitten stole the receipts.",
+    "ko": "{ko} 선생님은 아기 고양이가 영수증을 훔치는 동안 수표장 잔액을 맞추려 했다."
+  },
+  "checkbook": {
+    "en": "{en} gave the pirate puppet a checkbook and a treasure map.",
+    "ko": "{ko} 선생님은 해적 인형에게 수표장과 보물 지도를 줬다."
+  },
+  "assume": {
+    "en": "{en} learned never to assume that a quiet puppy was doing nothing.",
+    "ko": "{ko} 선생님은 조용한 강아지가 아무것도 안 한다고 생각하면 안 된다는 것을 배웠다."
+  },
+  "characterize": {
+    "en": "{en} would characterize the picnic as a buffet for ants.",
+    "ko": "{ko} 선생님은 그 소풍을 개미를 위한 뷔페라고 표현하곤 했다."
+  },
+  "neutral": {
+    "en": "{en} stayed neutral while two puppets argued over a biscuit.",
+    "ko": "{ko} 선생님은 두 인형이 비스킷을 두고 다투는 동안 중립을 지켰다."
+  },
+  "compound interest": {
+    "en": "{en} wished cookies could grow like savings earning compound interest.",
+    "ko": "{ko} 선생님은 쿠키가 복리 이자가 붙는 저축처럼 불어나기를 바랐다."
+  },
+  "controversial": {
+    "en": "{en} proposed a controversial menu: chocolate broccoli.",
+    "ko": "{ko} 선생님은 논란의 여지가 있는 메뉴인 초콜릿 브로콜리를 제안했다."
+  },
+  "have to do with": {
+    "en": "{en} wondered what the mysterious footprints have to do with the missing cake.",
+    "ko": "{ko} 선생님은 수상한 발자국이 사라진 케이크와 무슨 관련이 있는지 궁금했다."
+  },
+  "dimension": {
+    "en": "{en} measured each dimension of a sofa shaped like a banana.",
+    "ko": "{ko} 선생님은 바나나 모양 소파의 각 치수를 쟀다."
+  },
+  "implicitly": {
+    "en": "{en} implicitly invited the cat to sit down by opening a textbook.",
+    "ko": "{ko} 선생님은 교과서를 펼쳐 고양이에게 앉으라고 암묵적으로 권했다."
+  },
+  "accommodation": {
+    "en": "{en} explained accommodation with a child revising a bird category after meeting a penguin.",
+    "ko": "{ko} 선생님은 펭귄을 만나 새의 범주를 수정하는 아이로 인지적 조절을 설명했다."
+  },
+  "existing": {
+    "en": "{en} could not fit the inflatable dinosaur through the existing door.",
+    "ko": "{ko} 선생님은 공룡 풍선을 기존 문으로 통과시킬 수 없었다."
+  },
+  "in response to": {
+    "en": "{en} danced in response to a robot's unexpected drum solo.",
+    "ko": "{ko} 선생님은 로봇의 뜻밖의 드럼 독주에 반응하여 춤췄다."
+  },
+  "drape": {
+    "en": "{en} decided to drape a blanket over the shivering dragon puppet.",
+    "ko": "{ko} 선생님은 떨고 있는 용 인형 위에 이불을 느슨하게 덮기로 했다."
+  },
+  "modify": {
+    "en": "{en} had to modify a robot that buttered the table instead of toast.",
+    "ko": "{ko} 선생님은 토스트 대신 식탁에 버터를 바르는 로봇을 수정해야 했다."
+  },
+  "variation": {
+    "en": "{en} added a funny variation to the dance: a penguin shuffle.",
+    "ko": "{ko} 선생님은 춤에 펭귄 걸음이라는 재미있는 변화를 더했다."
+  },
+  "fit into": {
+    "en": "{en} tried to fit into a cardboard spaceship built for a teddy bear.",
+    "ko": "{ko} 선생님은 곰 인형용 종이 우주선 안에 들어가려 했다."
+  },
+  "assimilation": {
+    "en": "{en} explained assimilation with a child calling a drone a strange bird.",
+    "ko": "{ko} 선생님은 드론을 이상한 새라고 부르는 아이로 인지적 동화를 설명했다."
+  },
+  "schema": {
+    "en": "{en} revised a schema for pets after inventing a dragon that needed parking.",
+    "ko": "{ko} 선생님은 주차가 필요한 용을 만든 뒤 반려동물에 관한 스키마를 수정했다."
+  },
+  "discard": {
+    "en": "{en} had to discard a pancake as tough as a bicycle tire.",
+    "ko": "{ko} 선생님은 자전거 타이어만큼 질긴 팬케이크를 버려야 했다."
+  },
+  "trauma": {
+    "en": "{en} wrote gently about trauma while giving the hero a funny talking horse.",
+    "ko": "{ko} 선생님은 주인공에게 웃긴 말하는 말을 등장시키면서도 마음의 상처는 조심스럽게 다뤘다."
+  },
+  "deposit": {
+    "en": "{en} watched a cartoon hen deposit an egg in a royal hat.",
+    "ko": "{ko} 선생님은 만화 속 암탉이 왕의 모자에 알을 낳는 것을 봤다."
+  },
+  "faulty": {
+    "en": "{en} repaired a faulty vacuum that kept apologizing to chairs.",
+    "ko": "{ko} 선생님은 의자들에게 계속 사과하는 고장 난 청소기를 고쳤다."
+  },
+  "offspring": {
+    "en": "{en} drew a dragon's offspring sneezing toast onto a plate.",
+    "ko": "{ko} 선생님은 재채기로 접시에 토스트를 굽는 용의 새끼를 그렸다."
+  },
+  "metaphorical": {
+    "en": "{en} described homework as a metaphorical mountain of broccoli.",
+    "ko": "{ko} 선생님은 숙제를 비유적인 브로콜리 산으로 묘사했다."
+  },
+  "be equipped with": {
+    "en": "{en} insisted that the toy spaceship be equipped with a snack drawer.",
+    "ko": "{ko} 선생님은 장난감 우주선에 간식 서랍을 갖춰야 한다고 주장했다."
+  },
+  "nervous system": {
+    "en": "{en} drew a nervous system delivering messages on tiny scooters.",
+    "ko": "{ko} 선생님은 작은 스쿠터로 메시지를 전달하는 신경계를 그렸다."
+  },
+  "sense": {
+    "en": "{en} could sense trouble when the puppy became unusually quiet.",
+    "ko": "{ko} 선생님은 강아지가 유난히 조용해지자 문제를 감지할 수 있었다."
+  },
+  "hatchling": {
+    "en": "{en} watched a hatchling follow a rubber duck like a parade leader.",
+    "ko": "{ko} 선생님은 갓 부화한 새끼가 고무 오리를 행진 대장처럼 따라가는 것을 봤다."
+  },
+  "stove": {
+    "en": "{en} drew a snowman admiring a stove from a safe distance.",
+    "ko": "{ko} 선생님은 안전한 거리에서 난로를 감상하는 눈사람을 그렸다."
+  },
+  "embryo": {
+    "en": "{en} put a tiny hat on a giant embryo model for the exhibition.",
+    "ko": "{ko} 선생님은 전시를 위해 거대한 배아 모형에 작은 모자를 씌웠다."
+  },
+  "pull away": {
+    "en": "{en} tried to pull away a blanket pinned down by a sleepy cat.",
+    "ko": "{ko} 선생님은 졸린 고양이가 누르고 있는 이불을 떼어 내려고 했다."
+  },
+  "permeable": {
+    "en": "{en} discovered that a permeable bag was a poor aquarium.",
+    "ko": "{ko} 선생님은 투과성 가방이 어항으로는 좋지 않다는 것을 발견했다."
+  },
+  "short-lived": {
+    "en": "{en} enjoyed a short-lived victory before the cat reclaimed the chair.",
+    "ko": "{ko} 선생님은 고양이가 의자를 되찾기 전까지 짧은 승리를 즐겼다."
+  },
+  "envision": {
+    "en": "{en} could envision a world where socks returned from the dryer in pairs.",
+    "ko": "{ko} 선생님은 양말이 건조기에서 짝을 맞춰 돌아오는 세상을 상상할 수 있었다."
+  },
+  "indicate": {
+    "en": "{en} used arrows to indicate the escape route for the runaway pancake.",
+    "ko": "{ko} 선생님은 도망가는 팬케이크의 탈출 경로를 화살표로 가리켰다."
+  },
+  "sensitize": {
+    "en": "{en} found that puppy-sitting could sensitize anyone to chewing noises.",
+    "ko": "{ko} 선생님은 강아지 돌보기가 누구든 씹는 소리에 민감하게 할 수 있다는 걸 알아냈다."
+  },
+  "reaction": {
+    "en": "{en} had an unexpected reaction to the talking fridge: an apology.",
+    "ko": "{ko} 선생님은 말하는 냉장고에 사과라는 뜻밖의 반응을 보였다."
+  },
+  "stimulation": {
+    "en": "{en} gave a bored robot mental stimulation with a book of riddles.",
+    "ko": "{ko} 선생님은 지루해하는 로봇에게 수수께끼 책으로 정신적 자극을 줬다."
+  },
+  "deviance": {
+    "en": "{en} illustrated deviance with a king wearing pajamas to a ball.",
+    "ko": "{ko} 선생님은 무도회에 잠옷을 입고 간 왕으로 일탈을 설명했다."
+  },
+  "arthritic": {
+    "en": "{en} designed a floating chair for an arthritic wizard in a story.",
+    "ko": "{ko} 선생님은 이야기 속 관절염이 있는 마법사를 위해 공중 의자를 디자인했다."
+  },
+  "repetitive": {
+    "en": "{en} interrupted the robot's repetitive jokes with a new riddle.",
+    "ko": "{ko} 선생님은 새로운 수수께끼로 로봇의 반복적인 농담을 중단시켰다."
+  },
+  "saint": {
+    "en": "{en} played a saint who shared the last dumpling with a dragon.",
+    "ko": "{ko} 선생님은 용과 마지막 만두를 나누는 성자를 연기했다."
+  },
+  "scarce": {
+    "en": "{en} found clean socks scarce after the washing machine broke.",
+    "ko": "{ko} 선생님은 세탁기가 고장 난 뒤 깨끗한 양말이 부족하다는 걸 발견했다."
+  },
+  "devote": {
+    "en": "{en} decided to devote an afternoon to naming a toy goldfish.",
+    "ko": "{ko} 선생님은 장난감 금붕어 이름 짓기에 오후를 바치기로 했다."
+  },
+  "far-reaching": {
+    "en": "{en} imagined the far-reaching effects of teaching a parrot the door code.",
+    "ko": "{ko} 선생님은 앵무새에게 문 비밀번호를 가르친 일이 오래도록 미칠 영향을 상상했다."
+  },
+  "nonreproductive": {
+    "en": "{en} filmed nonreproductive behavior, including a bird stealing a spoon.",
+    "ko": "{ko} 선생님은 새가 숟가락을 훔치는 행동을 포함해 번식 외의 행동을 촬영했다."
+  },
+  "prestige": {
+    "en": "{en} gained unexpected prestige by winning a pancake-flipping contest.",
+    "ko": "{ko} 선생님은 팬케이크 뒤집기 대회에서 우승해 뜻밖의 명성을 얻었다."
+  },
+  "thrive": {
+    "en": "{en} invented a cactus that could thrive on terrible music.",
+    "ko": "{ko} 선생님은 형편없는 음악만으로 잘 살아가는 선인장을 만들었다."
+  },
+  "roughneck": {
+    "en": "{en} wrote about a roughneck secretly knitting sweaters for kittens.",
+    "ko": "{ko} 선생님은 몰래 아기 고양이 스웨터를 뜨는 망나니에 관해 썼다."
+  },
+  "have no choice but to do": {
+    "en": "{en} had no choice but to do the puppet's dance when the music started.",
+    "ko": "{ko} 선생님은 음악이 시작되자 인형의 춤을 따라 출 수밖에 없었다."
+  },
+  "deviate": {
+    "en": "{en} dared to deviate from the recipe and made a bouncing pancake.",
+    "ko": "{ko} 선생님은 과감히 요리법에서 벗어나 통통 튀는 팬케이크를 만들었다."
+  },
+  "do chores": {
+    "en": "{en} taught a broom to do chores in the school play.",
+    "ko": "{ko} 선생님은 학교 연극에서 빗자루에게 집안일을 가르쳤다."
+  },
+  "delinquent": {
+    "en": "{en} wrote about a delinquent who replaced every bell with a duck sound.",
+    "ko": "{ko} 선생님은 모든 종소리를 오리 소리로 바꾼 비행 청소년에 관해 썼다."
+  },
+  "ritual": {
+    "en": "{en} made checking the snack drawer a comic ritual in the play.",
+    "ko": "{ko} 선생님은 연극에서 간식 서랍 확인을 우스운 의식으로 만들었다."
+  },
+  "for kicks": {
+    "en": "{en} wore a dinosaur hat just for kicks.",
+    "ko": "{ko} 선생님은 순전히 재미로 공룡 모자를 썼다."
+  },
+  "gratuitous": {
+    "en": "{en} removed a gratuitous explosion from a film about making tea.",
+    "ko": "{ko} 선생님은 차 끓이는 영화에서 불필요한 폭발 장면을 뺐다."
+  },
+  "qualifier": {
+    "en": "{en} added the qualifier almost before edible to describe the soup.",
+    "ko": "{ko} 선생님은 수프를 설명하며 먹을 만한 앞에 거의라는 수식어를 붙였다."
+  },
+  "nest": {
+    "en": "{en} watched cartoon birds nest in a knight's helmet.",
+    "ko": "{ko} 선생님은 만화 속 새들이 기사의 투구에 둥지를 트는 것을 봤다."
+  },
+  "lay eggs": {
+    "en": "{en} invented a dragon that could lay eggs shaped like bowling balls.",
+    "ko": "{ko} 선생님은 볼링공 모양 알을 낳는 용을 만들었다."
+  },
+  "shell": {
+    "en": "{en} painted racing stripes on a toy turtle's shell.",
+    "ko": "{ko} 선생님은 장난감 거북이 등껍질에 경주용 줄무늬를 그렸다."
+  },
+  "illuminate": {
+    "en": "{en} used a flashlight to illuminate a cave full of dancing puppets.",
+    "ko": "{ko} 선생님은 손전등으로 춤추는 인형이 가득한 동굴을 비췄다."
+  },
+  "inferior": {
+    "en": "{en} rejected an inferior cardboard castle that collapsed when someone sneezed.",
+    "ko": "{ko} 선생님은 누군가 재채기하자 무너진 질 낮은 종이 성을 거절했다."
+  },
+  "consistent": {
+    "en": "{en} gave the robot a consistent habit: asking for breakfast after breakfast.",
+    "ko": "{ko} 선생님은 로봇에게 아침을 먹고도 아침을 달라는 한결같은 습관을 줬다."
+  },
+  "evolutionary biologist": {
+    "en": "{en} asked an evolutionary biologist whether socks could evolve into dust.",
+    "ko": "{ko} 선생님은 진화 생물학자에게 양말이 먼지로 진화할 수 있는지 물었다."
+  },
+  "maladaptive": {
+    "en": "{en} illustrated a maladaptive strategy: hiding from homework by doing more homework.",
+    "ko": "{ko} 선생님은 숙제를 더 하며 숙제를 피하는 부적응적 전략을 보여 줬다."
+  },
+  "optimal": {
+    "en": "{en} found the optimal picnic spot, but the ducks had found it first.",
+    "ko": "{ko} 선생님은 최적의 소풍 자리를 찾았지만 오리들이 먼저 발견한 뒤였다."
+  },
+  "uninhibited": {
+    "en": "{en} joined the puppets in an uninhibited dance.",
+    "ko": "{ko} 선생님은 인형들과 함께 거침없이 춤췄다."
+  },
+  "predation": {
+    "en": "{en} explained predation with a lion chasing a sarcastic zebra.",
+    "ko": "{ko} 선생님은 빈정거리는 얼룩말을 쫓는 사자로 포식을 설명했다."
+  },
+  "adjust": {
+    "en": "{en} had to adjust a giant hat to enter the bakery.",
+    "ko": "{ko} 선생님은 빵집에 들어가려고 거대한 모자를 조정해야 했다."
+  },
+  "incur": {
+    "en": "{en} worried that parking the toy dragon on the roof might incur extra charges.",
+    "ko": "{ko} 선생님은 지붕에 장난감 용을 주차하면 추가 요금이 생길까 걱정했다."
+  },
+  "elevated": {
+    "en": "{en} placed the parrot puppet on an elevated perch to supervise cooking.",
+    "ko": "{ko} 선생님은 요리를 감독하도록 앵무새 인형을 높은 횃대에 올렸다."
+  },
+  "plasticity": {
+    "en": "{en} explained brain plasticity with a drawing of a brain learning to juggle.",
+    "ko": "{ko} 선생님은 저글링을 배우는 뇌 그림으로 뇌의 가소성을 설명했다."
+  }
+};
+
 const exampleTeachers = [{"ko":"배종원","en":"Bae Jongwon"},{"ko":"손영희","en":"Son Younghee"},{"ko":"명정의","en":"Myeong Jeongui"},{"ko":"전인호","en":"Jeon Inho"},{"ko":"이재욱","en":"Lee Jaewook"},{"ko":"이혜원","en":"Lee Hyewon"},{"ko":"백혜숙","en":"Baek Hyesook"},{"ko":"박승주","en":"Park Seungju"},{"ko":"서민영","en":"Seo Minyoung"},{"ko":"허순명","en":"Heo Sunmyeong"},{"ko":"조혜주","en":"Jo Hyeju"},{"ko":"위광현","en":"Wi Gwanghyeon"},{"ko":"황지성","en":"Hwang Jiseong"},{"ko":"김덕하","en":"Kim Deokha"},{"ko":"이영춘","en":"Lee Youngchun"},{"ko":"김철훈","en":"Kim Cheolhun"},{"ko":"김성주","en":"Kim Seongju"},{"ko":"박영수","en":"Park Youngsu"},{"ko":"이연임","en":"Lee Yeonim"},{"ko":"백광일","en":"Baek Gwangil"},{"ko":"신지완","en":"Shin Jiwan"},{"ko":"전선영","en":"Jeon Seonyeong"},{"ko":"박수환","en":"Park Suhwan"},{"ko":"안다은","en":"An Daeun"},{"ko":"홍지혜","en":"Hong Jihye"},{"ko":"이민아","en":"Lee Mina"},{"ko":"강병선","en":"Kang Byeongseon"},{"ko":"강준영","en":"Kang Junyoung"},{"ko":"최수형","en":"Choi Suhyeong"},{"ko":"황정돈","en":"Hwang Jeongdon"}];
 
 const defaultWords = rawWordData
@@ -1271,9 +2242,10 @@ function makeExample(word, meaning, index) {
     const base = funWordExamples[key];
     if (!base) return makeLegacyExample(word, meaning, index);
     const teacher = exampleTeachers[index % exampleTeachers.length];
+    const story = teacherWordExamples[key];
     return {
-        en: teacher.en + "'s imaginary story: “" + base.en + "”",
-        ko: teacher.ko + " 선생님의 상상 이야기: “" + base.ko + "”"
+        en: story.en.replaceAll('{en}', teacher.en),
+        ko: story.ko.replaceAll('{ko}', teacher.ko)
     };
 }
 
@@ -1524,7 +2496,10 @@ function loadWordsFromStorage() {
                 const base = funWordExamples[item.word.replace(/\s*[~(].*$/, '').trim()];
                 const isLegacyExample = Array.from({ length: 4 }, (_, i) => makeLegacyExample(item.word, item.meaning, i))
                     .some(old => item.exampleEn === old.en && item.exampleKo === old.ko) ||
-                    (base && item.exampleEn === base.en && item.exampleKo === base.ko);
+                    (base && item.exampleEn === base.en && item.exampleKo === base.ko) ||
+                    (base && exampleTeachers.some(teacher =>
+                        item.exampleEn === teacher.en + "'s imaginary story: “" + base.en + "”" &&
+                        item.exampleKo === teacher.ko + " 선생님의 상상 이야기: “" + base.ko + "”"));
                 return { ...item, folderId: wordFolder(item), folderScheme: 'hwp',
                     exampleEn: isLegacyExample ? examples.en : item.exampleEn || examples.en,
                     exampleKo: isLegacyExample ? examples.ko : item.exampleKo || examples.ko };
