@@ -30,6 +30,9 @@
 
             <!-- TAB NAVIGATION -->
             <nav class="flex items-center gap-1 bg-slate-200/60 dark:bg-slate-800 p-1.5 rounded-2xl text-xs font-bold overflow-x-auto max-w-full">
+                <button onclick="switchTab('list')" id="tab-list" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                    <i class="fa-solid fa-list-check mr-1"></i>단어 목록
+                </button>
                 <button onclick="switchTab('flashcard')" id="tab-flashcard" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm">
                     <i class="fa-solid fa-clone mr-1"></i>플래시카드
                 </button>
@@ -39,14 +42,11 @@
                 <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
                     <i class="fa-solid fa-pen-to-square mr-1"></i>퀴즈 테스트
                 </button>
-                <button onclick="switchTab('ranking')" id="tab-ranking" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
-                    <i class="fa-solid fa-trophy mr-1 text-amber-500"></i>명예의 전당 랭킹
-                </button>
                 <button onclick="switchTab('match')" id="tab-match" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
                     <i class="fa-solid fa-puzzle-piece mr-1"></i>짝맞추기 Game
                 </button>
-                <button onclick="switchTab('list')" id="tab-list" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
-                    <i class="fa-solid fa-list-check mr-1"></i>단어 목록
+                <button onclick="switchTab('ranking')" id="tab-ranking" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                    <i class="fa-solid fa-trophy mr-1 text-amber-500"></i>명예의 전당 랭킹
                 </button>
             </nav>
         </header>
