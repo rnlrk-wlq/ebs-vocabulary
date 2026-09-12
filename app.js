@@ -3145,11 +3145,18 @@ function updateCombinedRankingStatus() {
 }
 
 function renderLeaderboard() {
-    const board = buildCombinedLeaderboard(onlineQuizBoard, onlineMatchBoard).slice(0, 50);
+    const allRanks = buildCombinedLeaderboard(onlineQuizBoard, onlineMatchBoard);
+    const board = allRanks.slice(0, 50);
     const tbody = document.getElementById('leaderboardBody');
     
     document.getElementById('rankingMyNickname').innerText = `내 닉네임: ${currentUser.nickname}`;
     document.getElementById('rankingMyScore').innerText = `${(Number(currentUser.totalScore) || 0) + matchCumulativeScore}점`;
+
+    const myRank = document.getElementById('rankingMyRank');
+    const myIndex = rankingUser ? allRanks.findIndex(item => item.id === rankingUser.uid) : -1;
+    myRank.innerText = combinedRankingError ? '확인 불가'
+        : !quizRankingReady || !matchRankingReady || !rankingUser ? '확인 중...'
+        : myIndex >= 0 ? `${myIndex + 1}위` : '미등록';
 
     if (!quizRankingReady || !matchRankingReady || combinedRankingError) {
         tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400">' +
