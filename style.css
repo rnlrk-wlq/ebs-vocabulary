@@ -43,3 +43,60 @@
         grid-template-columns: repeat(6, minmax(0, 1fr));
     }
 }
+
+/* Let the search shrink while keeping list actions readable and aligned. */
+#view-list > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+#view-list > div:first-child > div:first-child {
+    width: 100%;
+    min-width: 0;
+}
+#view-list > div:first-child > div:last-child {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+#view-list > div:first-child > div:last-child > * {
+    margin: 0;
+    min-width: 0;
+    min-height: 2.5rem;
+}
+#listFilter {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+#view-list > div:first-child button {
+    justify-content: center;
+    white-space: nowrap;
+    padding: 0.5rem;
+}
+#view-list > div:first-child button i {
+    flex-shrink: 0;
+}
+@media (min-width: 768px) {
+    #view-list > div:first-child {
+        flex-direction: row;
+        align-items: center;
+    }
+    #view-list > div:first-child > div:first-child {
+        flex: 1 1 12rem;
+    }
+    #view-list > div:first-child > div:last-child {
+        flex: 0 1 36rem;
+        grid-template-columns: minmax(8rem, 1fr) repeat(3, max-content);
+    }
+    #listFilter {
+        grid-column: auto;
+    }
+    #view-list > div:first-child button {
+        padding-inline: 0.75rem;
+    }
+}
+#listSearchInput {
+    min-height: 2.5rem;
+}
