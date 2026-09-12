@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=20260912-persistent-user-8"></script>
+    <script src="app.js?v=20260912-custom-folders-9"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -500,12 +500,16 @@
                                 <option value="folder:13">13. 주어진 문장의 적합한 위치 찾기 (50개)</option>
                                 <option value="folder:14">14. 문단 요약하기 (11개)</option>
                             </optgroup>
+                            <optgroup id="customFolderOptions" label="내 폴더"></optgroup>
                             <optgroup label="선택 폴더 안에서 보기">
                             <option value="starred">⭐ 별표 보관함</option>
                             <option value="mastered">✔ 암기 완료만</option>
                             <option value="review">❌ 미암기 단어만</option>
                             </optgroup>
                         </select>
+                        <button onclick="createCustomFolder()" class="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="내 폴더 만들기">
+                            <i class="fa-solid fa-folder-plus"></i><span>폴더 만들기</span>
+                        </button>
                         <button onclick="openAddWordModal()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition flex items-center space-x-1 shadow-sm" title="새 단어 추가">
                             <i class="fa-solid fa-plus"></i>
                             <span>단어 추가</span>

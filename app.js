@@ -331,6 +331,68 @@ function wordFolder(item) {
     return ({1: 4, 2: 5, 3: 8, 4: 9})[item.folderId] || 4;
 }
 
+
+const customFolderStorageKey = 'ebs_voca_custom_folders_v1';
+let customFolders = [];
+
+function loadCustomFolders() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(customFolderStorageKey) || '[]');
+        if (!Array.isArray(saved)) return;
+        customFolders = saved.filter(folder =>
+            folder && Number.isSafeInteger(folder.id) && folder.id >= 1000 &&
+            typeof folder.name === 'string' && folder.name.trim().length > 0 &&
+            folder.name.trim().length <= 30
+        ).filter((folder, index, list) => list.findIndex(item => item.id === folder.id) === index)
+            .map(folder => ({ id: folder.id, name: folder.name.trim() }));
+        customFolders.forEach(folder => { studyFolders[folder.id] = folder.name; });
+    } catch (error) {
+        console.error('Custom folder load error:', error);
+    }
+}
+
+function renderCustomFolderOptions() {
+    const group = document.getElementById('customFolderOptions');
+    const menu = document.getElementById('listFilter');
+    const previousValue = menu.value;
+    group.innerHTML = '';
+    customFolders.forEach(folder => {
+        const option = document.createElement('option');
+        option.value = 'folder:' + folder.id;
+        option.textContent = folder.name + ' (' +
+            words.filter(word => wordFolder(word) === folder.id).length + '개)';
+        group.appendChild(option);
+    });
+    group.disabled = customFolders.length === 0;
+    menu.value = previousValue;
+}
+
+function createCustomFolder() {
+    const input = prompt('새 폴더 이름을 입력하세요. (최대 30자)');
+    if (input === null) return;
+    const name = input.trim();
+    if (!name || name.length > 30) {
+        alert('폴더 이름을 1~30자로 입력해 주세요.');
+        return;
+    }
+    if (Object.values(studyFolders).some(existing => existing.toLocaleLowerCase() === name.toLocaleLowerCase())) {
+        alert('같은 이름의 폴더가 있습니다. 다른 이름을 입력해 주세요.');
+        return;
+    }
+    const folder = { id: Math.max(Date.now(), ...customFolders.map(item => item.id + 1)), name };
+    try {
+        localStorage.setItem(customFolderStorageKey, JSON.stringify([...customFolders, folder]));
+    } catch (error) {
+        alert('폴더를 저장하지 못했습니다. 브라우저 저장 공간 설정을 확인해 주세요.');
+        return;
+    }
+    customFolders.push(folder);
+    studyFolders[folder.id] = folder.name;
+    renderCustomFolderOptions();
+    document.getElementById('listFilter').value = 'folder:' + folder.id;
+    handleListFilterChange();
+}
+
 let listStatusFilter = 'all';
 
 function handleListFilterChange() {
@@ -479,6 +541,10 @@ function saveWordsToStorage() {
 
 function resetWordsToDefault() {
     if (selectedFolder === null) return;
+    if (customFolders.some(folder => folder.id === selectedFolder)) {
+        alert('직접 만든 폴더에는 초기화할 기본 단어가 없습니다. 단어 목록에서 개별 단어를 삭제할 수 있습니다.');
+        return;
+    }
     if (confirm(selectedFolder === 'all' ? '전체 단어장을 기본 단어로 초기화하시겠습니까?' : `폴더 ${selectedFolder}의 단어만 기본 단어로 초기화하시겠습니까?`)) {
         words = selectedFolder === 'all' ? JSON.parse(JSON.stringify(defaultWords)) : words.filter(item => wordFolder(item) !== selectedFolder)
             .concat(JSON.parse(JSON.stringify(defaultWords.filter(item => wordFolder(item) === selectedFolder))));
@@ -1497,6 +1563,7 @@ function handleMatchCardClick(btnEl, cardIdx) {
 }
 
 function renderVocabList() {
+    renderCustomFolderOptions();
     const search = document.getElementById('listSearchInput').value.toLowerCase().trim();
     const filter = listStatusFilter;
     const tbody = document.getElementById('vocabTableBody');
@@ -1512,7 +1579,7 @@ function renderVocabList() {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">조건에 맞는 단어가 없습니다.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">조건에 맞는 단어가 없습니다. 단어 추가 버튼으로 이 폴더에 단어를 넣을 수 있습니다.</td></tr>`;
         return;
     }
 
@@ -1641,7 +1708,9 @@ document.addEventListener('keydown', function(e) {
 });
 
 window.onload = function() {
+    loadCustomFolders();
     words = loadWordsFromStorage();
+    renderCustomFolderOptions();
     loadUserScore();
     loadMatchScore();
     selectWordFolder('all');
