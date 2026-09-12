@@ -1240,6 +1240,9 @@ const funWordExamples = {
   }
 };
 
+// Names label fictional classroom stories, not real statements or events.
+const exampleTeachers = [{"ko":"배종원","en":"Bae Jongwon"},{"ko":"손영희","en":"Son Younghee"},{"ko":"명정의","en":"Myeong Jeongui"},{"ko":"전인호","en":"Jeon Inho"},{"ko":"이재욱","en":"Lee Jaewook"},{"ko":"이혜원","en":"Lee Hyewon"},{"ko":"백혜숙","en":"Baek Hyesook"},{"ko":"박승주","en":"Park Seungju"},{"ko":"서민영","en":"Seo Minyoung"},{"ko":"허순명","en":"Heo Sunmyeong"},{"ko":"조혜주","en":"Jo Hyeju"},{"ko":"위광현","en":"Wi Gwanghyeon"},{"ko":"황지성","en":"Hwang Jiseong"},{"ko":"김덕하","en":"Kim Deokha"},{"ko":"이영춘","en":"Lee Youngchun"},{"ko":"김철훈","en":"Kim Cheolhun"},{"ko":"김성주","en":"Kim Seongju"},{"ko":"박영수","en":"Park Youngsu"},{"ko":"이연임","en":"Lee Yeonim"},{"ko":"백광일","en":"Baek Gwangil"},{"ko":"신지완","en":"Shin Jiwan"},{"ko":"전선영","en":"Jeon Seonyeong"},{"ko":"박수환","en":"Park Suhwan"},{"ko":"안다은","en":"An Daeun"},{"ko":"홍지혜","en":"Hong Jihye"},{"ko":"이민아","en":"Lee Mina"},{"ko":"강병선","en":"Kang Byeongseon"},{"ko":"강준영","en":"Kang Junyoung"},{"ko":"최수형","en":"Choi Suhyeong"},{"ko":"황정돈","en":"Hwang Jeongdon"}];
+
 const defaultWords = rawWordData
     .split(/\r?\n/)
     .map(line => line.trim())
@@ -1265,7 +1268,13 @@ const defaultWords = rawWordData
 
 function makeExample(word, meaning, index) {
     const key = word.replace(/\s*[~(].*$/, '').trim();
-    return funWordExamples[key] || makeLegacyExample(word, meaning, index);
+    const base = funWordExamples[key];
+    if (!base) return makeLegacyExample(word, meaning, index);
+    const teacher = exampleTeachers[index % exampleTeachers.length];
+    return {
+        en: teacher.en + "'s imaginary story: “" + base.en + "”",
+        ko: teacher.ko + " 선생님의 상상 이야기: “" + base.ko + "”"
+    };
 }
 
 function makeLegacyExample(word, meaning, index) {
@@ -1510,9 +1519,12 @@ function loadWordsFromStorage() {
         if (stored) {
             const savedWords = JSON.parse(stored);
             return sortDocumentWords(savedWords.map((item, index) => {
-                const examples = makeExample(item.word, item.meaning, index);
+                const defaultIndex = defaultWords.findIndex(word => word.id === item.id && word.word === item.word);
+                const examples = makeExample(item.word, item.meaning, defaultIndex >= 0 ? defaultIndex : index);
+                const base = funWordExamples[item.word.replace(/\s*[~(].*$/, '').trim()];
                 const isLegacyExample = Array.from({ length: 4 }, (_, i) => makeLegacyExample(item.word, item.meaning, i))
-                    .some(old => item.exampleEn === old.en && item.exampleKo === old.ko);
+                    .some(old => item.exampleEn === old.en && item.exampleKo === old.ko) ||
+                    (base && item.exampleEn === base.en && item.exampleKo === base.ko);
                 return { ...item, folderId: wordFolder(item), folderScheme: 'hwp',
                     exampleEn: isLegacyExample ? examples.en : item.exampleEn || examples.en,
                     exampleKo: isLegacyExample ? examples.ko : item.exampleKo || examples.ko };
