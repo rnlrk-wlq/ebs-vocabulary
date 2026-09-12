@@ -9,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=20260912-my-rank-16"></script>
+    <script src="app.js?v=20260912-match-best-20"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=20260912-list-layout-2">
 </head>
@@ -384,7 +384,7 @@
                             </div>
                             <div>
                                 <h2 class="text-xl font-black text-slate-900 dark:text-white">명예의 전당 랭킹</h2>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">퀴즈 + 짝맞추기 누적 점수를 합산한 단어 마스터 순위</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">퀴즈 누적 점수 + 짝맞추기 최고점수를 합산한 순위</p>
                                 <p id="quizRankingStatus" class="text-[10px] font-bold text-emerald-500 mt-1">전체 사용자 연결 중...</p>
                             </div>
                         </div>
@@ -439,7 +439,7 @@
                     </div>
 
                     <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-900 dark:to-emerald-950/40 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
-                        <p class="text-xs font-bold text-slate-500 dark:text-slate-400">짝맞추기 누적 점수</p>
+                        <p class="text-xs font-bold text-slate-500 dark:text-slate-400">짝맞추기 최고점수</p>
                         <p id="matchCumulativeScore" class="text-3xl font-black text-emerald-500 mt-1">0점</p>
                         <p id="matchLastScore" class="text-[11px] font-bold text-slate-400 mt-2">아직 완료한 게임이 없습니다.</p>
                     </div>
@@ -452,7 +452,7 @@
                         <div class="max-h-52 overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-700">
                             <table class="w-full text-xs">
                                 <thead class="sticky top-0 bg-slate-50 dark:bg-slate-900 text-slate-500">
-                                    <tr><th class="p-2 text-center">순위</th><th class="p-2 text-left">닉네임</th><th class="p-2 text-center">게임</th><th class="p-2 text-right">누적점수</th></tr>
+                                    <tr><th class="p-2 text-center">순위</th><th class="p-2 text-left">닉네임</th><th class="p-2 text-center">게임</th><th class="p-2 text-right">최고점수</th></tr>
                                 </thead>
                                 <tbody id="matchRankingBody"><tr><td colspan="4" class="p-4 text-center text-slate-400">랭킹을 불러오는 중입니다.</td></tr></tbody>
                             </table>
@@ -466,7 +466,7 @@
                             <option value="180">3분</option>
                             <option value="300" selected>5분</option>
                         </select>
-                        <p class="text-xs text-slate-500">나가도 현재 게임 점수는 누적 점수에 저장됩니다.</p>
+                        <p class="text-xs text-slate-500">나가도 기록은 저장되며, 최고점수를 넘으면 랭킹에 반영됩니다.</p>
                     </div>
 
                     <button onclick="startMatchGame()" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-2xl transition shadow-lg shadow-emerald-500/30 text-sm flex items-center justify-center space-x-2">
