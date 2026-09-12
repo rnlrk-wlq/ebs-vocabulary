@@ -368,8 +368,18 @@ function renderCustomFolderOptions() {
 }
 
 function createCustomFolder() {
-    const input = prompt('새 폴더 이름을 입력하세요. (최대 30자)');
-    if (input === null) return;
+    document.getElementById('customFolderModal').classList.remove('hidden');
+    document.getElementById('customFolderName').value = '';
+    document.getElementById('customFolderName').focus();
+}
+
+function closeCustomFolderModal() {
+    document.getElementById('customFolderModal').classList.add('hidden');
+}
+
+function submitCustomFolder(event) {
+    event.preventDefault();
+    const input = document.getElementById('customFolderName').value;
     const name = input.trim();
     if (!name || name.length > 30) {
         alert('폴더 이름을 1~30자로 입력해 주세요.');
@@ -386,6 +396,7 @@ function createCustomFolder() {
         alert('폴더를 저장하지 못했습니다. 브라우저 저장 공간 설정을 확인해 주세요.');
         return;
     }
+    closeCustomFolderModal();
     customFolders.push(folder);
     studyFolders[folder.id] = folder.name;
     renderCustomFolderOptions();
