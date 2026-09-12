@@ -432,6 +432,7 @@ function selectWordFolder(folder) {
         const matchActive = matchTimer !== null;
         if (selectedFolder !== null && (quizActive || matchActive) &&
             !confirm('폴더를 바꾸면 진행 중인 학습이 종료됩니다. 폴더를 변경할까요?')) return;
+        preserveMatchSessionScore();
         matchSession++;
         if (matchTimer) clearInterval(matchTimer);
         matchTimer = null;
@@ -481,6 +482,7 @@ let matchResolving = false;
 let matchScore = 0;
 let matchTimer = null;
 let matchTimeRemaining = 300;
+let matchGameActive = false;
 let matchWordQueue = [];
 let matchNextWordIndex = 0;
 let matchCompletedPairs = 0;
@@ -582,6 +584,7 @@ function switchTab(tabName) {
     activeStudyTab = tabName;
     pendingFolderTab = tabName;
     if (tabName !== 'match') {
+        preserveMatchSessionScore();
         matchSession++;
         if (matchTimer) clearInterval(matchTimer);
         matchTimer = null;
@@ -1233,7 +1236,23 @@ function saveMatchScore() {
     }
 }
 
+function preserveMatchSessionScore() {
+    if (!matchGameActive) return;
+    matchGameActive = false;
+    matchSession++;
+    if (matchTimer !== null) clearInterval(matchTimer);
+    matchTimer = null;
+    matchLastScore = matchScore;
+    matchCumulativeScore += matchScore;
+    matchPlayCount++;
+    saveMatchScore();
+    saveMatchRanking();
+}
+
+window.addEventListener('pagehide', preserveMatchSessionScore);
+
 function showMatchPrepScreen() {
+    preserveMatchSessionScore();
     matchSession++;
     matchResolving = false;
     selectedMatchCards = [];
@@ -1257,15 +1276,8 @@ function startMatchGame() {
 }
 
 function finishMatchGame(message) {
-    if (matchTimer) {
-        clearInterval(matchTimer);
-        matchTimer = null;
-    }
-    matchLastScore = matchScore;
-    matchCumulativeScore += matchScore;
-    matchPlayCount++;
-    saveMatchScore();
-    saveMatchRanking();
+    if (!matchGameActive) return;
+    preserveMatchSessionScore();
     alert(message);
     showMatchPrepScreen();
 }
@@ -1474,7 +1486,9 @@ function initMatchGame() {
 
     // Timer setup
     if (matchTimer) clearInterval(matchTimer);
-    matchTimeRemaining = 300;
+    const duration = Number(document.getElementById('matchDuration').value);
+    matchTimeRemaining = [60, 180, 300].includes(duration) ? duration : 300;
+    matchGameActive = true;
     updateMatchTimerDisplay();
     matchTimer = setInterval(() => {
         matchTimeRemaining--;
@@ -1503,7 +1517,7 @@ function renderMatchGrid() {
 function handleMatchCardClick(btnEl, cardIdx) {
     const session = matchSession;
     const card = matchCards[cardIdx];
-    if (!card || btnEl.disabled || matchResolving) return;
+    if (!matchGameActive || !card || btnEl.disabled || matchResolving) return;
 
     // Prevent selecting two cards of same type (e.g. en & en)
     if (selectedMatchCards.length === 1 && selectedMatchCards[0].card.type === card.type) {
