@@ -2259,7 +2259,415 @@ function makeLegacyExample(word, meaning, index) {
     return templates[index % templates.length];
 }
 
+const lesson10Words = [
+  {
+    "id": 458,
+    "word": "reliable",
+    "meaning": "신뢰할 수 있는",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 459,
+    "word": "independent of",
+    "meaning": "~과 무관한",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 460,
+    "word": "accent",
+    "meaning": "억양",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 461,
+    "word": "reveal",
+    "meaning": "드러내다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 462,
+    "word": "socioeconomic",
+    "meaning": "사회경제적인",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 463,
+    "word": "tag",
+    "meaning": "표식, 꼬리표",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 464,
+    "word": "category",
+    "meaning": "범주",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 465,
+    "word": "define",
+    "meaning": "규정하다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 466,
+    "word": "pronounce",
+    "meaning": "발음하다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 467,
+    "word": "flexible",
+    "meaning": "융통성 있는",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 468,
+    "word": "*be affiliated with",
+    "meaning": "~과 어울리다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 469,
+    "word": "bring ~ to mind",
+    "meaning": "(기억, 생각 등을) 떠올리다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 470,
+    "word": "trap",
+    "meaning": "함정, 덫",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 471,
+    "word": "continuously",
+    "meaning": "계속해서",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 472,
+    "word": "re-trigger",
+    "meaning": "(감정이나 반응 등을) 다시 촉발하다, 재자극하다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 473,
+    "word": "distress",
+    "meaning": "심리적 고통, 괴로움",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 474,
+    "word": "hugely",
+    "meaning": "매우, 엄청나게",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 475,
+    "word": "slippery slope",
+    "meaning": "미끄러운 비탈",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 476,
+    "word": "firm",
+    "meaning": "흔들림 없는, 확고한",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 477,
+    "word": "*churn",
+    "meaning": "휘젓다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 478,
+    "word": "**rumination",
+    "meaning": "반추",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 479,
+    "word": "neuron",
+    "meaning": "뉴런, 신경 세포",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 480,
+    "word": "phenomenon",
+    "meaning": "현상 (pl. phenomena)",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 481,
+    "word": "contagious",
+    "meaning": "전염되는",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 482,
+    "word": "represent",
+    "meaning": "나타내다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 483,
+    "word": "simulate",
+    "meaning": "흉내 내다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 484,
+    "word": "observation",
+    "meaning": "의견, 발언",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 485,
+    "word": "appropriate",
+    "meaning": "적합한",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 486,
+    "word": "distress",
+    "meaning": "고통",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 487,
+    "word": "*anthropologist",
+    "meaning": "인류학자",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  },
+  {
+    "id": 488,
+    "word": "**deploy",
+    "meaning": "전개하다",
+    "pos": "",
+    "phonetic": "",
+    "folderId": 10,
+    "folderScheme": "hwp",
+    "exampleEn": "",
+    "exampleKo": "",
+    "mastered": false,
+    "starred": false
+  }
+];
+defaultWords.push(...lesson10Words);
+
 const studyFolders = {
+    "10": "10강",
     "4": "04. 함축적 의미 파악",
     "5": "05. 주제 · 제목 파악",
     "8": "08. 어법 정확성 파악",
@@ -2270,6 +2678,9 @@ const studyFolders = {
 };
 const documentWordOrder = [209,211,212,214,216,218,220,222,224,226,228,230,232,234,236,237,238,239,240,241,242,243,244,201,202,203,204,205,206,207,208,210,213,215,217,219,221,223,225,227,229,231,233,235,261,263,264,266,268,270,272,274,276,278,280,282,284,286,287,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,262,265,267,269,271,273,275,277,279,281,283,285,299,301,303,305,307,309,310,312,314,316,318,320,322,323,324,325,326,327,328,329,288,289,290,291,292,293,294,295,296,297,298,300,302,304,306,308,311,313,315,317,319,321,338,339,340,341,342,343,344,345,346,347,348,349,330,331,332,333,334,335,336,337,357,358,359,360,361,362,363,364,365,366,368,370,372,374,376,379,381,383,384,385,386,350,351,352,353,354,355,356,367,369,371,373,375,377,378,380,382,387,388,389,390,391,392,393,394,395,396,397,399,401,403,405,407,409,411,413,415,416,417,419,421,423,426,428,430,432,434,436,438,439,440,441,442,443,444,445,446,398,400,402,404,406,408,410,412,414,418,420,422,424,425,427,429,431,433,435,437,447,448,449,450,451,452,453,454,455,456,457];
 const documentWordFolders = {"201":4,"202":4,"203":4,"204":4,"205":4,"206":4,"207":4,"208":4,"209":4,"210":4,"211":4,"212":4,"213":4,"214":4,"215":4,"216":4,"217":4,"218":4,"219":4,"220":4,"221":4,"222":4,"223":4,"224":4,"225":4,"226":4,"227":4,"228":4,"229":4,"230":4,"231":4,"232":4,"233":4,"234":4,"235":4,"236":4,"237":4,"238":4,"239":4,"240":4,"241":4,"242":4,"243":4,"244":4,"245":5,"246":5,"247":5,"248":5,"249":5,"250":5,"251":5,"252":5,"253":5,"254":5,"255":5,"256":5,"257":5,"258":5,"259":5,"260":5,"261":5,"262":5,"263":5,"264":5,"265":5,"266":5,"267":5,"268":5,"269":5,"270":5,"271":5,"272":5,"273":5,"274":5,"275":5,"276":5,"277":5,"278":5,"279":5,"280":5,"281":5,"282":5,"283":5,"284":5,"285":5,"286":5,"287":5,"288":8,"289":8,"290":8,"291":8,"292":8,"293":8,"294":8,"295":8,"296":8,"297":8,"298":8,"299":8,"300":8,"301":8,"302":8,"303":8,"304":8,"305":8,"306":8,"307":8,"308":8,"309":8,"310":8,"311":8,"312":8,"313":8,"314":8,"315":8,"316":8,"317":8,"318":8,"319":8,"320":8,"321":8,"322":8,"323":8,"324":8,"325":8,"326":8,"327":8,"328":8,"329":8,"330":9,"331":9,"332":9,"333":9,"334":9,"335":9,"336":9,"337":9,"338":9,"339":9,"340":9,"341":9,"342":9,"343":9,"344":9,"345":9,"346":9,"347":9,"348":9,"349":9,"350":12,"351":12,"352":12,"353":12,"354":12,"355":12,"356":12,"357":12,"358":12,"359":12,"360":12,"361":12,"362":12,"363":12,"364":12,"365":12,"366":12,"367":12,"368":12,"369":12,"370":12,"371":12,"372":12,"373":12,"374":12,"375":12,"376":12,"377":12,"378":12,"379":12,"380":12,"381":12,"382":12,"383":12,"384":12,"385":12,"386":12,"387":12,"388":12,"389":12,"390":12,"391":12,"392":12,"393":12,"394":12,"395":12,"396":12,"397":13,"398":13,"399":13,"400":13,"401":13,"402":13,"403":13,"404":13,"405":13,"406":13,"407":13,"408":13,"409":13,"410":13,"411":13,"412":13,"413":13,"414":13,"415":13,"416":13,"417":13,"418":13,"419":13,"420":13,"421":13,"422":13,"423":13,"424":13,"425":13,"426":13,"427":13,"428":13,"429":13,"430":13,"431":13,"432":13,"433":13,"434":13,"435":13,"436":13,"437":13,"438":13,"439":13,"440":13,"441":13,"442":13,"443":13,"444":13,"445":13,"446":13,"447":14,"448":14,"449":14,"450":14,"451":14,"452":14,"453":14,"454":14,"455":14,"456":14,"457":14};
+documentWordOrder.splice(documentWordOrder.findIndex(id => documentWordFolders[id] === 12), 0, ...lesson10Words.map(item => item.id));
+lesson10Words.forEach(item => { documentWordFolders[item.id] = 10; });
+
 function sortDocumentWords(items) {
     const positions = new Map(documentWordOrder.map((id, index) => [id, index]));
     return [...items].sort((a, b) => (positions.get(a.id) ?? Infinity) - (positions.get(b.id) ?? Infinity));
@@ -2491,6 +2902,13 @@ function loadWordsFromStorage() {
         const stored = localStorage.getItem('ebs_voca_words_2026_full_257');
         if (stored) {
             const savedWords = JSON.parse(stored);
+            if (!localStorage.getItem('ebs_voca_lesson10_import_v1')) {
+                lesson10Words.forEach(item => {
+                    if (!savedWords.some(saved => saved.id === item.id)) savedWords.push({ ...item });
+                });
+                localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
+                localStorage.setItem('ebs_voca_lesson10_import_v1', '1');
+            }
             return sortDocumentWords(savedWords.map((item, index) => {
                 const defaultIndex = defaultWords.findIndex(word => word.id === item.id && word.word === item.word);
                 const examples = makeExample(item.word, item.meaning, defaultIndex >= 0 ? defaultIndex : index);
@@ -2509,6 +2927,7 @@ function loadWordsFromStorage() {
     } catch (e) {
         console.error("Storage load error:", e);
     }
+    localStorage.setItem('ebs_voca_lesson10_import_v1', '1');
     return JSON.parse(JSON.stringify(defaultWords));
 }
 
