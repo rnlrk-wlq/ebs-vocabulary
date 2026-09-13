@@ -143,3 +143,17 @@
     min-width: 0;
     max-width: 100%;
 }
+
+#app[hidden], #introScreen[hidden] { display: none; }
+.mobile-word-pos { display: none; }
+@media (max-width: 639px) {
+    #vocabListScroll > table { min-width: 0; width: 100%; table-layout: fixed; }
+    #vocabListScroll th, #vocabListScroll td { padding: 0.65rem 0.15rem; min-width: 0; font-size: 11px; }
+    #vocabListScroll th:nth-child(1), #vocabListScroll th:nth-child(2) { width: 26px; }
+    #vocabListScroll th:nth-child(3), #vocabListScroll td:nth-child(3) { width: 29%; min-width: 0; overflow-wrap: anywhere; }
+    #vocabListScroll th:nth-child(4), #vocabListScroll td:nth-child(4) { display: none; }
+    #vocabListScroll th:nth-child(5), #vocabListScroll td:nth-child(5) { width: auto; min-width: 0; word-break: keep-all; overflow-wrap: break-word; }
+    #vocabListScroll th:nth-child(6) { width: 32px; }
+    #vocabListScroll th:nth-child(7) { width: 26px; }
+    #vocabListScroll .mobile-word-pos { display: block; font-size: 10px; font-weight: normal; color: #64748b; margin-top: 3px; }
+}
