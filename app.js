@@ -4039,7 +4039,7 @@ function renderVocabList() {
                     <i class="${item.mastered ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-regular fa-circle text-slate-300 dark:text-slate-600'}"></i>
                 </button>
             </td>
-            <td class="p-3 font-bold text-slate-900 dark:text-white">${escapeHtml(item.word)}</td>
+            <td class="p-3 font-bold text-slate-900 dark:text-white">${escapeHtml(item.word)}<span class="mobile-word-pos">${escapeHtml(item.pos || '')}</span></td>
             <td class="p-3 text-slate-400 font-mono text-[11px]">${escapeHtml(item.pos || '')}</td>
             <td class="p-3 font-semibold text-slate-700 dark:text-slate-200">${escapeHtml(item.meaning)}</td>
             <td class="p-3 text-center">
@@ -4159,4 +4159,24 @@ window.onload = function() {
     loadMatchScore();
     selectWordFolder('all');
     initFirebaseRanking();
+    document.getElementById('introNickname').value = currentUser.nickname === '학습자' ? '' : (currentUser.nickname || '');
 };
+
+function startFromIntro(event) {
+    event.preventDefault();
+    const input = document.getElementById('introNickname');
+    const nickname = input.value.trim();
+    if (!nickname) {
+        input.setCustomValidity('닉네임을 입력해 주세요.');
+        input.reportValidity();
+        return;
+    }
+    input.setCustomValidity('');
+    currentUser.nickname = nickname;
+    saveUserScore();
+    saveMatchRanking();
+    document.getElementById('introScreen').hidden = true;
+    document.getElementById('app').hidden = false;
+    switchTab('list');
+    document.getElementById('tab-list').focus();
+}
