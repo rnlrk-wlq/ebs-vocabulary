@@ -9,13 +9,26 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=20260914-lesson10-22"></script>
+    <script src="app.js?v=20260914-intro-mobile-24"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20260914-mobile-brand-23">
+    <link rel="stylesheet" href="style.css?v=20260914-intro-mobile-24">
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 font-sans antialiased">
 
-    <div id="app" class="max-w-4xl mx-auto px-4 py-6 flex flex-col min-h-screen">
+    <section id="introScreen" class="min-h-screen flex items-center justify-center px-5 py-10">
+        <form onsubmit="startFromIntro(event)" class="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-xl text-center space-y-6">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>
+            <div><h1 class="text-3xl font-black">단어 함 보카?</h1><p class="text-sm text-slate-500 dark:text-slate-400 mt-3">오늘도 단어 하나부터, 함께 시작해요!</p></div>
+            <div class="text-left space-y-2">
+                <label for="introNickname" class="block text-sm font-bold">닉네임</label>
+                <input id="introNickname" maxlength="12" required autocomplete="nickname" oninput="this.setCustomValidity('')" placeholder="사용할 닉네임을 입력해 주세요" class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <p class="text-xs text-slate-500 dark:text-slate-400">랭킹에 표시될 이름이에요. 기존 학습 기록과 점수는 유지돼요.</p>
+            </div>
+            <button type="submit" class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold">시작하기</button>
+        </form>
+    </section>
+
+    <div id="app" hidden class="max-w-4xl mx-auto px-4 py-6 flex flex-col min-h-screen">
         
         <!-- HEADER & NAVIGATION -->
         <header class="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
