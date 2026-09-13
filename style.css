@@ -113,3 +113,33 @@
 #view-list > div:has(> #vocabListScroll) {
     flex-shrink: 0;
 }
+
+/* Keep vocabulary readable on narrow screens; scroll inside the table. */
+#vocabListScroll {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+#vocabListScroll > table {
+    min-width: 42rem;
+}
+#vocabListScroll th {
+    white-space: nowrap;
+}
+#vocabListScroll th:nth-child(3),
+#vocabListScroll td:nth-child(3) {
+    min-width: 10rem;
+}
+#vocabListScroll th:nth-child(5),
+#vocabListScroll td:nth-child(5) {
+    min-width: 14rem;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+#view-list,
+#view-list > div:has(> #vocabListScroll) {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
