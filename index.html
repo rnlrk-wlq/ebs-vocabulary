@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="app-version" content="20260912-navigation-order-19">
-    <title>EBS 수능특강 영단어장</title>
+    <title>단어 함 보카?</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="app.js?v=20260914-lesson10-22"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20260912-equal-table-height-21">
+    <link rel="stylesheet" href="style.css?v=20260914-mobile-brand-23">
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 font-sans antialiased">
 
@@ -24,7 +24,7 @@
                     <i class="fa-solid fa-book-open text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black tracking-tight text-slate-900 dark:text-white">EBS 수능특강 영단어장</h1>
+                    <h1 class="text-xl font-black tracking-tight text-slate-900 dark:text-white">단어 함 보카?</h1>
                     <p class="text-xs text-slate-500 dark:text-slate-400">수능 필수 핵심 어휘 마스터 프로젝트</p>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                     <i class="fa-solid fa-puzzle-piece mr-1"></i>짝맞추기 Game
                 </button>
                 <button onclick="switchTab('ranking')" id="tab-ranking" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
-                    <i class="fa-solid fa-trophy mr-1 text-amber-500"></i>명예의 전당 랭킹
+                    <i class="fa-solid fa-trophy mr-1 text-amber-500"></i>선택받은 자
                 </button>
             </nav>
         </header>
@@ -259,7 +259,7 @@
                         </button>
                         <button onclick="switchTab('ranking')" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition text-xs flex items-center justify-center space-x-1">
                             <i class="fa-solid fa-trophy text-amber-500"></i>
-                            <span>명예의 전당 랭킹 보기</span>
+                            <span>선택받은 자 보기</span>
                         </button>
                     </div>
                 </div>
@@ -383,7 +383,7 @@
                                 <i class="fa-solid fa-trophy"></i>
                             </div>
                             <div>
-                                <h2 class="text-xl font-black text-slate-900 dark:text-white">명예의 전당 랭킹</h2>
+                                <h2 class="text-xl font-black text-slate-900 dark:text-white">선택받은 자</h2>
                                 <p class="text-xs text-slate-500 dark:text-slate-400">퀴즈 누적 점수 + 짝맞추기 최고점수를 합산한 순위</p>
                                 <p id="quizRankingStatus" class="text-[10px] font-bold text-emerald-500 mt-1">전체 사용자 연결 중...</p>
                             </div>
@@ -401,7 +401,7 @@
                     </div>
 
                     <!-- Leaderboard Table -->
-                    <div id="leaderboardScroll" class="overflow-auto overscroll-contain" tabindex="0" role="region" aria-label="명예의 전당 순위표, 스크롤하여 더 보기">
+                    <div id="leaderboardScroll" class="overflow-auto overscroll-contain" tabindex="0" role="region" aria-label="선택받은 자 순위표, 스크롤하여 더 보기">
                         <table class="w-full text-left text-xs">
                             <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold">
                                 <tr>
