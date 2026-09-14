@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="pronunciations.js?v=20260914-dictionary-1"></script>
-    <script src="app.js?v=20260914-dictionary-1"></script>
+    <script src="app.js?v=20260914-quiz-hints-1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=20260914-blue-sky-28">
 </head>
@@ -164,7 +164,7 @@
             <section id="view-spelling-practice" class="view-section hidden flex flex-col items-center justify-center space-y-6 w-full">
                 <div class="w-full max-w-md bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-lg space-y-5">
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
-                        <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-full" id="spPos">품사</span>
+                        <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-full" id="spPos" hidden></span>
                         <span class="text-xs font-mono text-slate-400" id="spProgress">1 / 39</span>
                     </div>
 
@@ -315,6 +315,8 @@
 
                     <!-- Inputs (Spelling Typing) -->
                     <div id="quizTypingContainer" class="hidden space-y-3">
+                        <button type="button" id="quizHintButton" onclick="showQuizHint()" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-700 text-sm font-bold disabled:opacity-50">힌트 보기 · 정답 3초</button>
+                        <p id="quizHintAnswer" aria-live="polite" class="hidden rounded-xl bg-blue-50 p-3 text-center font-bold text-slate-800"></p>
                         <input type="text" id="quizTypingInput" autocomplete="off" placeholder="영어 스펠링을 입력하세요..." class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center text-base font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600">
                         <button onclick="handleQuizTypingAction()" id="quizTypingBtn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition shadow-md shadow-blue-500/20 text-sm">
                             정답 제출 (Enter)

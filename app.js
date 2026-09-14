@@ -2967,6 +2967,7 @@ function getEffectiveWords() {
 }
 
 function switchTab(tabName) {
+    clearQuizHint();
     if (selectedFolder === null) {
         pendingFolderTab = tabName;
         selectWordFolder('all');
@@ -3317,7 +3318,8 @@ function updateSpellingUI() {
     if (spellingIndex < 0) spellingIndex = pool.length - 1;
 
     const item = pool[spellingIndex];
-    document.getElementById('spPos').innerText = item.pos || '품사';
+    document.getElementById('spPos').innerText = '';
+    document.getElementById('spPos').classList.add('hidden');
     document.getElementById('spProgress').innerText = `${spellingIndex + 1} / ${pool.length}`;
     document.getElementById('spWordTarget').innerText = item.word;
     document.getElementById('spPhonetic').innerText = item.phonetic || '';
@@ -3385,6 +3387,7 @@ function randomSpellingWord() {
 }
 
 function showQuizPrepScreen() {
+    clearQuizHint();
     document.getElementById('quizPrepContainer').classList.remove('hidden');
     document.getElementById('quizActiveContainer').classList.add('hidden');
     document.getElementById('quizBatchContainer').classList.add('hidden');
@@ -3460,7 +3463,37 @@ function startNewQuiz() {
     renderQuizQuestion();
 }
 
+let quizHintTimer = null;
+
+function clearQuizHint() {
+    clearTimeout(quizHintTimer);
+    quizHintTimer = null;
+    const answer = document.getElementById('quizHintAnswer');
+    if (answer) {
+        answer.textContent = '';
+        answer.classList.add('hidden');
+    }
+    const button = document.getElementById('quizHintButton');
+    if (button) button.disabled = false;
+}
+
+function showQuizHint() {
+    if (quizMode !== 'typing' || quizAnswered || !quizPool[quizIndex]) return;
+    clearQuizHint();
+    const answer = document.getElementById('quizHintAnswer');
+    answer.textContent = cleanEnglishPronunciation(quizPool[quizIndex].word);
+    answer.classList.remove('hidden');
+    document.getElementById('quizHintButton').disabled = true;
+    quizHintTimer = setTimeout(clearQuizHint, 3000);
+}
+
+function getQuizFirstLetter(word) {
+    return cleanEnglishPronunciation(word).match(/[a-z]/i)?.[0] || '';
+}
+
+
 function renderQuizQuestion() {
+    clearQuizHint();
     if (quizIndex >= quizPool.length) {
         showQuizResult();
         return;
@@ -3513,13 +3546,13 @@ function renderQuizQuestion() {
     } else {
         badge.innerText = '스펠링 쓰기';
         qText.innerText = current.meaning;
-        subHint.innerText = `품사: ${current.pos || '알 수 없음'}`;
+        subHint.innerText = `첫 글자: ${getQuizFirstLetter(current.word)}`;
         subHint.classList.remove('hidden');
         choiceContainer.classList.add('hidden');
         typingContainer.classList.remove('hidden');
 
         const input = document.getElementById('quizTypingInput');
-        input.value = '';
+        input.value = getQuizFirstLetter(current.word);
         input.disabled = false;
         input.focus();
 
@@ -3559,6 +3592,7 @@ function handleQuizChoiceSelect(choiceIdx) {
 }
 
 function handleQuizTypingAction() {
+    clearQuizHint();
     const current = quizPool[quizIndex];
     const input = document.getElementById('quizTypingInput');
     const feedbackArea = document.getElementById('quizFeedbackArea');
@@ -3590,6 +3624,7 @@ function handleQuizTypingAction() {
 }
 
 function nextQuizQuestion() {
+    clearQuizHint();
     quizIndex++;
     if (quizIndex > 0 && quizIndex % quizBatchSize === 0 && quizIndex < quizPool.length) {
         showBatchIntermission();
@@ -3623,6 +3658,7 @@ function continueNextBatch() {
 }
 
 function showQuizResult() {
+    clearQuizHint();
     currentUser.completedQuizzes++;
     saveUserScore();
 
