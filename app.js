@@ -2214,14 +2214,24 @@ const teacherWordExamples = {
 
 const exampleTeachers = [{"ko":"배종원","en":"Bae Jongwon"},{"ko":"손영희","en":"Son Younghee"},{"ko":"명정의","en":"Myeong Jeongui"},{"ko":"전인호","en":"Jeon Inho"},{"ko":"이재욱","en":"Lee Jaewook"},{"ko":"이혜원","en":"Lee Hyewon"},{"ko":"백혜숙","en":"Baek Hyesook"},{"ko":"박승주","en":"Park Seungju"},{"ko":"서민영","en":"Seo Minyoung"},{"ko":"허순명","en":"Heo Sunmyeong"},{"ko":"조혜주","en":"Jo Hyeju"},{"ko":"위광현","en":"Wi Gwanghyeon"},{"ko":"황지성","en":"Hwang Jiseong"},{"ko":"김덕하","en":"Kim Deokha"},{"ko":"이영춘","en":"Lee Youngchun"},{"ko":"김철훈","en":"Kim Cheolhun"},{"ko":"김성주","en":"Kim Seongju"},{"ko":"박영수","en":"Park Youngsu"},{"ko":"이연임","en":"Lee Yeonim"},{"ko":"백광일","en":"Baek Gwangil"},{"ko":"신지완","en":"Shin Jiwan"},{"ko":"전선영","en":"Jeon Seonyeong"},{"ko":"박수환","en":"Park Suhwan"},{"ko":"안다은","en":"An Daeun"},{"ko":"홍지혜","en":"Hong Jihye"},{"ko":"이민아","en":"Lee Mina"},{"ko":"강병선","en":"Kang Byeongseon"},{"ko":"강준영","en":"Kang Junyoung"},{"ko":"최수형","en":"Choi Suhyeong"},{"ko":"황정동","en":"Hwang Jeongdong"}];
 
+// A leading Korean parenthetical belongs to the meaning, not the English word.
+function repairMeaningParenthesis(item) {
+    if (/\s*\($/.test(item.word || '') && /^[^()]*\)/.test(item.meaning || '')) {
+        return { ...item, word: item.word.replace(/\s*\($/, ''), meaning: '(' + item.meaning };
+    }
+    return item;
+}
+
 const defaultWords = rawWordData
     .split(/\r?\n/)
     .map(line => line.trim())
     .filter(Boolean)
     .map((line, index) => {
         const koreanStart = line.search(/[가-힣]/);
-        const word = (koreanStart >= 0 ? line.slice(0, koreanStart) : line).trim();
-        const meaning = (koreanStart >= 0 ? line.slice(koreanStart) : '').trim();
+        const { word, meaning } = repairMeaningParenthesis({
+            word: (koreanStart >= 0 ? line.slice(0, koreanStart) : line).trim(),
+            meaning: (koreanStart >= 0 ? line.slice(koreanStart) : '').trim()
+        });
 
         const examples = makeExample(word, meaning, index);
         return {
@@ -2913,7 +2923,7 @@ function loadWordsFromStorage() {
     try {
         const stored = localStorage.getItem('ebs_voca_words_2026_full_257');
         if (stored) {
-            const savedWords = JSON.parse(stored).map(item => ({
+            const savedWords = JSON.parse(stored).map(repairMeaningParenthesis).map(item => ({
                 ...item,
                 exampleEn: typeof item.exampleEn === 'string' ? item.exampleEn.replace(/\bHwang Jeongdon\b/g, 'Hwang Jeongdong') : item.exampleEn,
                 exampleKo: typeof item.exampleKo === 'string' ? item.exampleKo.replaceAll('황정돈', '황정동') : item.exampleKo
@@ -3709,11 +3719,11 @@ function showQuizResult() {
 
 function loadUserScore() {
     try {
-        const stored = localStorage.getItem('ebs_voca_user_score_r20260914');
+        const stored = localStorage.getItem('ebs_voca_user_score_r20260914b');
         if (!stored) {
             // Carry identity forward, but never carry scores from the previous round.
             try {
-                const previous = JSON.parse(localStorage.getItem('ebs_voca_user_score') || '{}');
+                const previous = JSON.parse(localStorage.getItem('ebs_voca_user_score_r20260914') || localStorage.getItem('ebs_voca_user_score') || '{}');
                 currentUser.nickname = previous.nickname || currentUser.nickname;
                 if (previous.deviceId) currentUser.deviceId = previous.deviceId;
             } catch (error) { console.error('Previous nickname load error:', error); }
@@ -3725,7 +3735,7 @@ function loadUserScore() {
             currentUser.deviceId = (window.crypto && crypto.randomUUID)
                 ? crypto.randomUUID()
                 : `device-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-            localStorage.setItem('ebs_voca_user_score_r20260914', JSON.stringify(currentUser));
+            localStorage.setItem('ebs_voca_user_score_r20260914b', JSON.stringify(currentUser));
         }
     } catch (e) {
         console.error("Score load error:", e);
@@ -3734,7 +3744,7 @@ function loadUserScore() {
 
 function saveUserScore() {
     try {
-        localStorage.setItem('ebs_voca_user_score_r20260914', JSON.stringify(currentUser));
+        localStorage.setItem('ebs_voca_user_score_r20260914b', JSON.stringify(currentUser));
         saveLeaderboard();
         saveQuizRanking();
     } catch (e) {
@@ -3744,7 +3754,7 @@ function saveUserScore() {
 
 function loadLeaderboard() {
     try {
-        const stored = localStorage.getItem('ebs_voca_leaderboard_r20260914');
+        const stored = localStorage.getItem('ebs_voca_leaderboard_r20260914b');
         if (stored) {
             const defaultNicknames = ["수능만점자", "영어1등급", "열공선배"];
             const board = JSON.parse(stored).filter(item => !defaultNicknames.includes(item.nickname));
@@ -3760,7 +3770,7 @@ function loadLeaderboard() {
                 });
             }
             migrated.sort((a, b) => b.score - a.score);
-            localStorage.setItem('ebs_voca_leaderboard_r20260914', JSON.stringify(migrated));
+            localStorage.setItem('ebs_voca_leaderboard_r20260914b', JSON.stringify(migrated));
             return migrated;
         }
     } catch (e) {}
@@ -3784,7 +3794,7 @@ function saveLeaderboard() {
     }
     board.sort((a, b) => b.score - a.score);
     try {
-        localStorage.setItem('ebs_voca_leaderboard_r20260914', JSON.stringify(board));
+        localStorage.setItem('ebs_voca_leaderboard_r20260914b', JSON.stringify(board));
     } catch (e) {}
 }
 
@@ -3846,11 +3856,11 @@ function renderLeaderboard() {
 
 function loadMatchScore() {
     try {
-        matchCumulativeScore = Number(localStorage.getItem('ebs_voca_match_total_r20260914')) || 0;
-        const storedLastScore = localStorage.getItem('ebs_voca_match_last_r20260914');
+        matchCumulativeScore = Number(localStorage.getItem('ebs_voca_match_total_r20260914b')) || 0;
+        const storedLastScore = localStorage.getItem('ebs_voca_match_last_r20260914b');
         matchLastScore = storedLastScore === null ? null : Number(storedLastScore);
-        matchBestScore = Math.max(0, Number(localStorage.getItem('ebs_voca_match_best_r20260914')) || 0, Number(matchLastScore) || 0);
-        matchPlayCount = Number(localStorage.getItem('ebs_voca_match_plays_r20260914')) || 0;
+        matchBestScore = Math.max(0, Number(localStorage.getItem('ebs_voca_match_best_r20260914b')) || 0, Number(matchLastScore) || 0);
+        matchPlayCount = Number(localStorage.getItem('ebs_voca_match_plays_r20260914b')) || 0;
     } catch (e) {
         matchCumulativeScore = 0;
         matchBestScore = 0;
@@ -3861,10 +3871,10 @@ function loadMatchScore() {
 
 function saveMatchScore() {
     try {
-        localStorage.setItem('ebs_voca_match_total_r20260914', String(matchCumulativeScore));
-        localStorage.setItem('ebs_voca_match_best_r20260914', String(matchBestScore));
-        localStorage.setItem('ebs_voca_match_last_r20260914', String(matchLastScore));
-        localStorage.setItem('ebs_voca_match_plays_r20260914', String(matchPlayCount));
+        localStorage.setItem('ebs_voca_match_total_r20260914b', String(matchCumulativeScore));
+        localStorage.setItem('ebs_voca_match_best_r20260914b', String(matchBestScore));
+        localStorage.setItem('ebs_voca_match_last_r20260914b', String(matchLastScore));
+        localStorage.setItem('ebs_voca_match_plays_r20260914b', String(matchPlayCount));
     } catch (e) {
         console.error("Match score save error:", e);
     }
@@ -3971,7 +3981,7 @@ async function initFirebaseRanking() {
 function subscribeQuizRanking() {
     if (!rankingDb) return;
     if (stopQuizRankingListener) stopQuizRankingListener();
-    stopQuizRankingListener = rankingDb.collection('quizRankings_r20260914')
+    stopQuizRankingListener = rankingDb.collection('quizRankings_r20260914b')
         .onSnapshot(snapshot => {
             quizRankingReady = true;
             combinedRankingError = false;
@@ -4006,7 +4016,7 @@ async function saveQuizRanking() {
     const completed = Math.max(0, Math.trunc(currentUser.completedQuizzes || 0));
     if (candidate === 0) return;
     try {
-        const ref = rankingDb.collection('quizRankings_r20260914').doc(rankingUser.uid);
+        const ref = rankingDb.collection('quizRankings_r20260914b').doc(rankingUser.uid);
         // Keep the existing allowed schema. The server total includes the match best once.
         await rankingDb.runTransaction(async transaction => {
             const snapshot = await transaction.get(ref);
