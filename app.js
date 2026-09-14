@@ -2,6 +2,9 @@ tailwind.config = {
     darkMode: 'class',
     theme: {
         extend: {
+            colors: {
+                blue: { 50:'#fffdf0', 100:'#fef9c3', 200:'#fef08a', 300:'#fde047', 400:'#facc15', 500:'#ca8a04', 600:'#a16207', 700:'#854d0e', 800:'#713f12', 900:'#422006', 950:'#261500' }
+            },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
             }
@@ -2212,7 +2215,7 @@ const teacherWordExamples = {
   }
 };
 
-const exampleTeachers = [{"ko":"배종원","en":"Bae Jongwon"},{"ko":"손영희","en":"Son Younghee"},{"ko":"명정의","en":"Myeong Jeongui"},{"ko":"전인호","en":"Jeon Inho"},{"ko":"이재욱","en":"Lee Jaewook"},{"ko":"이혜원","en":"Lee Hyewon"},{"ko":"백혜숙","en":"Baek Hyesook"},{"ko":"박승주","en":"Park Seungju"},{"ko":"서민영","en":"Seo Minyoung"},{"ko":"허순명","en":"Heo Sunmyeong"},{"ko":"조혜주","en":"Jo Hyeju"},{"ko":"위광현","en":"Wi Gwanghyeon"},{"ko":"황지성","en":"Hwang Jiseong"},{"ko":"김덕하","en":"Kim Deokha"},{"ko":"이영춘","en":"Lee Youngchun"},{"ko":"김철훈","en":"Kim Cheolhun"},{"ko":"김성주","en":"Kim Seongju"},{"ko":"박영수","en":"Park Youngsu"},{"ko":"이연임","en":"Lee Yeonim"},{"ko":"백광일","en":"Baek Gwangil"},{"ko":"신지완","en":"Shin Jiwan"},{"ko":"전선영","en":"Jeon Seonyeong"},{"ko":"박수환","en":"Park Suhwan"},{"ko":"안다은","en":"An Daeun"},{"ko":"홍지혜","en":"Hong Jihye"},{"ko":"이민아","en":"Lee Mina"},{"ko":"강병선","en":"Kang Byeongseon"},{"ko":"강준영","en":"Kang Junyoung"},{"ko":"최수형","en":"Choi Suhyeong"},{"ko":"황정돈","en":"Hwang Jeongdon"}];
+const exampleTeachers = [{"ko":"배종원","en":"Bae Jongwon"},{"ko":"손영희","en":"Son Younghee"},{"ko":"명정의","en":"Myeong Jeongui"},{"ko":"전인호","en":"Jeon Inho"},{"ko":"이재욱","en":"Lee Jaewook"},{"ko":"이혜원","en":"Lee Hyewon"},{"ko":"백혜숙","en":"Baek Hyesook"},{"ko":"박승주","en":"Park Seungju"},{"ko":"서민영","en":"Seo Minyoung"},{"ko":"허순명","en":"Heo Sunmyeong"},{"ko":"조혜주","en":"Jo Hyeju"},{"ko":"위광현","en":"Wi Gwanghyeon"},{"ko":"황지성","en":"Hwang Jiseong"},{"ko":"김덕하","en":"Kim Deokha"},{"ko":"이영춘","en":"Lee Youngchun"},{"ko":"김철훈","en":"Kim Cheolhun"},{"ko":"김성주","en":"Kim Seongju"},{"ko":"박영수","en":"Park Youngsu"},{"ko":"이연임","en":"Lee Yeonim"},{"ko":"백광일","en":"Baek Gwangil"},{"ko":"신지완","en":"Shin Jiwan"},{"ko":"전선영","en":"Jeon Seonyeong"},{"ko":"박수환","en":"Park Suhwan"},{"ko":"안다은","en":"An Daeun"},{"ko":"홍지혜","en":"Hong Jihye"},{"ko":"이민아","en":"Lee Mina"},{"ko":"강병선","en":"Kang Byeongseon"},{"ko":"강준영","en":"Kang Junyoung"},{"ko":"최수형","en":"Choi Suhyeong"},{"ko":"황정동","en":"Hwang Jeongdong"}];
 
 const defaultWords = rawWordData
     .split(/\r?\n/)
@@ -2667,7 +2670,7 @@ const lesson10Words = [
 defaultWords.push(...lesson10Words);
 
 const studyFolders = {
-    "10": "10강",
+    "10": "10. 빈칸 내용 추론",
     "4": "04. 함축적 의미 파악",
     "5": "05. 주제 · 제목 파악",
     "8": "08. 어법 정확성 파악",
@@ -2901,7 +2904,11 @@ function loadWordsFromStorage() {
     try {
         const stored = localStorage.getItem('ebs_voca_words_2026_full_257');
         if (stored) {
-            const savedWords = JSON.parse(stored);
+            const savedWords = JSON.parse(stored).map(item => ({
+                ...item,
+                exampleEn: typeof item.exampleEn === 'string' ? item.exampleEn.replaceAll('Hwang Jeongdon', 'Hwang Jeongdong') : item.exampleEn,
+                exampleKo: typeof item.exampleKo === 'string' ? item.exampleKo.replaceAll('황정돈', '황정동') : item.exampleKo
+            }));
             if (!localStorage.getItem('ebs_voca_lesson10_import_v1')) {
                 lesson10Words.forEach(item => {
                     if (!savedWords.some(saved => saved.id === item.id)) savedWords.push({ ...item });
