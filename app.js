@@ -2932,6 +2932,16 @@ function loadWordsFromStorage() {
                 localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
                 localStorage.setItem('ebs_voca_september_numbered_import_v1', '1');
             }
+            // Apply the corrected text-file grouping once, retaining learning records and examples.
+            if (!localStorage.getItem('ebs_voca_september_text_import_v1')) {
+                SEPTEMBER_EXAM_WORDS.forEach(source => {
+                    const saved = savedWords.find(item => item.id === source.id);
+                    if (saved) Object.assign(saved, { word: source.word, meaning: source.meaning,
+                        folderId: source.folderId, folderScheme: 'hwp' });
+                });
+                localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
+                localStorage.setItem('ebs_voca_september_text_import_v1', '1');
+            }
             return sortDocumentWords(savedWords.map((item, index) => {
                 // Preserve these authored examples instead of applying the older example generator.
                 const examWord = SEPTEMBER_EXAM_WORDS.find(word => word.id === item.id);
@@ -2957,6 +2967,7 @@ function loadWordsFromStorage() {
     }
     localStorage.setItem('ebs_voca_lesson10_import_v1', '1');
     localStorage.setItem('ebs_voca_september_numbered_import_v1', '1');
+    localStorage.setItem('ebs_voca_september_text_import_v1', '1');
     return JSON.parse(JSON.stringify(defaultWords));
 }
 
