@@ -3670,7 +3670,15 @@ function showQuizResult() {
 
 function loadUserScore() {
     try {
-        const stored = localStorage.getItem('ebs_voca_user_score');
+        const stored = localStorage.getItem('ebs_voca_user_score_r20260914');
+        if (!stored) {
+            // Carry identity forward, but never carry scores from the previous round.
+            try {
+                const previous = JSON.parse(localStorage.getItem('ebs_voca_user_score') || '{}');
+                currentUser.nickname = previous.nickname || currentUser.nickname;
+                if (previous.deviceId) currentUser.deviceId = previous.deviceId;
+            } catch (error) { console.error('Previous nickname load error:', error); }
+        }
         if (stored) {
             currentUser = JSON.parse(stored);
         }
@@ -3678,7 +3686,7 @@ function loadUserScore() {
             currentUser.deviceId = (window.crypto && crypto.randomUUID)
                 ? crypto.randomUUID()
                 : `device-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-            localStorage.setItem('ebs_voca_user_score', JSON.stringify(currentUser));
+            localStorage.setItem('ebs_voca_user_score_r20260914', JSON.stringify(currentUser));
         }
     } catch (e) {
         console.error("Score load error:", e);
@@ -3687,7 +3695,7 @@ function loadUserScore() {
 
 function saveUserScore() {
     try {
-        localStorage.setItem('ebs_voca_user_score', JSON.stringify(currentUser));
+        localStorage.setItem('ebs_voca_user_score_r20260914', JSON.stringify(currentUser));
         saveLeaderboard();
         saveQuizRanking();
     } catch (e) {
@@ -3697,7 +3705,7 @@ function saveUserScore() {
 
 function loadLeaderboard() {
     try {
-        const stored = localStorage.getItem('ebs_voca_leaderboard');
+        const stored = localStorage.getItem('ebs_voca_leaderboard_r20260914');
         if (stored) {
             const defaultNicknames = ["수능만점자", "영어1등급", "열공선배"];
             const board = JSON.parse(stored).filter(item => !defaultNicknames.includes(item.nickname));
@@ -3713,7 +3721,7 @@ function loadLeaderboard() {
                 });
             }
             migrated.sort((a, b) => b.score - a.score);
-            localStorage.setItem('ebs_voca_leaderboard', JSON.stringify(migrated));
+            localStorage.setItem('ebs_voca_leaderboard_r20260914', JSON.stringify(migrated));
             return migrated;
         }
     } catch (e) {}
@@ -3737,12 +3745,12 @@ function saveLeaderboard() {
     }
     board.sort((a, b) => b.score - a.score);
     try {
-        localStorage.setItem('ebs_voca_leaderboard', JSON.stringify(board));
+        localStorage.setItem('ebs_voca_leaderboard_r20260914', JSON.stringify(board));
     } catch (e) {}
 }
 
 function buildCombinedLeaderboard(quizBoard) {
-    return quizBoard.map(item => ({ ...item, score: Number(item.score) || 0 }))
+    return quizBoard.map(item => ({ ...item, score: Number(item.score) || 0 })).filter(item => item.score > 0)
         .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
 }
 
@@ -3799,11 +3807,11 @@ function renderLeaderboard() {
 
 function loadMatchScore() {
     try {
-        matchCumulativeScore = Number(localStorage.getItem('ebs_voca_match_total')) || 0;
-        const storedLastScore = localStorage.getItem('ebs_voca_match_last');
+        matchCumulativeScore = Number(localStorage.getItem('ebs_voca_match_total_r20260914')) || 0;
+        const storedLastScore = localStorage.getItem('ebs_voca_match_last_r20260914');
         matchLastScore = storedLastScore === null ? null : Number(storedLastScore);
-        matchBestScore = Math.max(0, Number(localStorage.getItem('ebs_voca_match_best')) || 0, Number(matchLastScore) || 0);
-        matchPlayCount = Number(localStorage.getItem('ebs_voca_match_plays')) || 0;
+        matchBestScore = Math.max(0, Number(localStorage.getItem('ebs_voca_match_best_r20260914')) || 0, Number(matchLastScore) || 0);
+        matchPlayCount = Number(localStorage.getItem('ebs_voca_match_plays_r20260914')) || 0;
     } catch (e) {
         matchCumulativeScore = 0;
         matchBestScore = 0;
@@ -3814,10 +3822,10 @@ function loadMatchScore() {
 
 function saveMatchScore() {
     try {
-        localStorage.setItem('ebs_voca_match_total', String(matchCumulativeScore));
-        localStorage.setItem('ebs_voca_match_best', String(matchBestScore));
-        localStorage.setItem('ebs_voca_match_last', String(matchLastScore));
-        localStorage.setItem('ebs_voca_match_plays', String(matchPlayCount));
+        localStorage.setItem('ebs_voca_match_total_r20260914', String(matchCumulativeScore));
+        localStorage.setItem('ebs_voca_match_best_r20260914', String(matchBestScore));
+        localStorage.setItem('ebs_voca_match_last_r20260914', String(matchLastScore));
+        localStorage.setItem('ebs_voca_match_plays_r20260914', String(matchPlayCount));
     } catch (e) {
         console.error("Match score save error:", e);
     }
@@ -3924,7 +3932,7 @@ async function initFirebaseRanking() {
 function subscribeQuizRanking() {
     if (!rankingDb) return;
     if (stopQuizRankingListener) stopQuizRankingListener();
-    stopQuizRankingListener = rankingDb.collection('quizRankings')
+    stopQuizRankingListener = rankingDb.collection('quizRankings_r20260914')
         .onSnapshot(snapshot => {
             quizRankingReady = true;
             combinedRankingError = false;
@@ -3957,8 +3965,9 @@ async function saveQuizRanking() {
     const nickname = (currentUser.nickname || '학습자').trim().slice(0, 12);
     const candidate = getCombinedScore();
     const completed = Math.max(0, Math.trunc(currentUser.completedQuizzes || 0));
+    if (candidate === 0) return;
     try {
-        const ref = rankingDb.collection('quizRankings').doc(rankingUser.uid);
+        const ref = rankingDb.collection('quizRankings_r20260914').doc(rankingUser.uid);
         // Keep the existing allowed schema. The server total includes the match best once.
         await rankingDb.runTransaction(async transaction => {
             const snapshot = await transaction.get(ref);
