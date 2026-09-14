@@ -2666,7 +2666,19 @@ const lesson10Words = [
 ];
 defaultWords.push(...lesson10Words);
 
+// Keep exam vocabulary separate from the original EBS dataset.
+defaultWords.push(...SEPTEMBER_EXAM_WORDS);
+
 const studyFolders = {
+    "931": "고1 9월 학평 단어 · 31번",
+    "932": "고1 9월 학평 단어 · 32번",
+    "933": "고1 9월 학평 단어 · 33번",
+    "934": "고1 9월 학평 단어 · 34번",
+    "935": "고1 9월 학평 단어 · 35번",
+    "936": "고1 9월 학평 단어 · 36번",
+    "937": "고1 9월 학평 단어 · 37번",
+    "938": "고1 9월 학평 단어 · 38번",
+    "939": "고1 9월 학평 단어 · 39번",
     "10": "10. 빈칸 내용 추론",
     "4": "04. 함축적 의미 파악",
     "5": "05. 주제 · 제목 파악",
@@ -2685,6 +2697,9 @@ function sortDocumentWords(items) {
     const positions = new Map(documentWordOrder.map((id, index) => [id, index]));
     return [...items].sort((a, b) => (positions.get(a.id) ?? Infinity) - (positions.get(b.id) ?? Infinity));
 }
+documentWordOrder.push(...SEPTEMBER_EXAM_WORDS.map(item => item.id));
+SEPTEMBER_EXAM_WORDS.forEach(item => { documentWordFolders[item.id] = item.folderId; });
+
 defaultWords.sort((a, b) => documentWordOrder.indexOf(a.id) - documentWordOrder.indexOf(b.id));
 
 let words = [];
@@ -2910,7 +2925,19 @@ function loadWordsFromStorage() {
                 localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
                 localStorage.setItem('ebs_voca_lesson10_import_v1', '1');
             }
+            if (!localStorage.getItem('ebs_voca_september_numbered_import_v1')) {
+                SEPTEMBER_EXAM_WORDS.forEach(item => {
+                    if (!savedWords.some(saved => saved.id === item.id)) savedWords.push({ ...item });
+                });
+                localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
+                localStorage.setItem('ebs_voca_september_numbered_import_v1', '1');
+            }
             return sortDocumentWords(savedWords.map((item, index) => {
+                // Preserve these authored examples instead of applying the older example generator.
+                const examWord = SEPTEMBER_EXAM_WORDS.find(word => word.id === item.id);
+                if (examWord) return { ...item, folderId: examWord.folderId, folderScheme: 'hwp',
+                    exampleEn: item.exampleEn || examWord.exampleEn,
+                    exampleKo: item.exampleKo || examWord.exampleKo };
                 const defaultIndex = defaultWords.findIndex(word => word.id === item.id && word.word === item.word);
                 const examples = makeExample(item.word, item.meaning, defaultIndex >= 0 ? defaultIndex : index);
                 const base = funWordExamples[item.word.replace(/\s*[~(].*$/, '').trim()];
@@ -2929,6 +2956,7 @@ function loadWordsFromStorage() {
         console.error("Storage load error:", e);
     }
     localStorage.setItem('ebs_voca_lesson10_import_v1', '1');
+    localStorage.setItem('ebs_voca_september_numbered_import_v1', '1');
     return JSON.parse(JSON.stringify(defaultWords));
 }
 
