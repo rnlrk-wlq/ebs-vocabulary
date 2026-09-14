@@ -3122,13 +3122,91 @@ function speakWord(e) {
     speakText(pool[flashcardIndex].word);
 }
 
+// Prefer a natural English voice instead of the device's default voice.
+let englishSpeechRequest = 0;
+let englishSpeechTimer = null;
+let pendingEnglishSpeech = null;
+let activeEnglishUtterance = null;
+
+function rankEnglishVoice(voice) {
+    const language = String(voice.lang || '').replace(/_/g, '-').toLowerCase();
+    if (!/^en(?:-|$)/.test(language)) return -1;
+    const name = String(voice.name || '');
+    let score = language === 'en-us' ? 40 : 10;
+    if (/natural|neural|online/i.test(name)) score += 100;
+    else if (/premium|enhanced/i.test(name)) score += 80;
+    else if (/google/i.test(name)) score += 60;
+    else if (/samantha|ava|allison|susan|alex|daniel/i.test(name)) score += 30;
+    return score;
+}
+
+function selectEnglishVoice(voices) {
+    return voices
+        .map((voice, index) => ({ voice, index, score: rankEnglishVoice(voice) }))
+        .filter(entry => entry.score >= 0)
+        .sort((a, b) => b.score - a.score || a.index - b.index)[0]?.voice || null;
+}
+
+function cleanEnglishPronunciation(text) {
+    return String(text ?? '')
+        .replace(/\([^)]*[\u3131-\uD79D][^)]*\)/g, ' ')
+        .replace(/[*~]/g, ' ')
+        .replace(/[()]\s*$/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function playPendingEnglishSpeech() {
+    if (!pendingEnglishSpeech) return;
+    const request = pendingEnglishSpeech;
+    pendingEnglishSpeech = null;
+    clearTimeout(englishSpeechTimer);
+    englishSpeechTimer = null;
+    if (request.id !== englishSpeechRequest) return;
+    const synth = window.speechSynthesis;
+    const voice = selectEnglishVoice(synth.getVoices());
+    const utterance = new SpeechSynthesisUtterance(request.text);
+    if (voice) utterance.voice = voice;
+    utterance.lang = voice ? voice.lang.replace(/_/g, '-') : 'en-US';
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    // Retain the utterance while playing, including on mobile browsers.
+    activeEnglishUtterance = utterance;
+    const release = () => {
+        if (activeEnglishUtterance === utterance) activeEnglishUtterance = null;
+    };
+    utterance.onend = release;
+    utterance.onerror = release;
+    synth.resume();
+    synth.speak(utterance);
+}
+
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.addEventListener('voiceschanged', () => {
+        if (pendingEnglishSpeech && window.speechSynthesis.getVoices().length) {
+            playPendingEnglishSpeech();
+        }
+    });
+}
+
 function speakText(text) {
     if (!('speechSynthesis' in window)) return;
+    const id = ++englishSpeechRequest;
+    clearTimeout(englishSpeechTimer);
+    pendingEnglishSpeech = null;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.85;
-    window.speechSynthesis.speak(utterance);
+    activeEnglishUtterance = null;
+    const spokenText = cleanEnglishPronunciation(text);
+    if (!spokenText) return;
+    pendingEnglishSpeech = { id, text: spokenText };
+    if (window.speechSynthesis.getVoices().length) {
+        playPendingEnglishSpeech();
+    } else {
+        // Some browsers load voices asynchronously. Never queue stale clicks.
+        englishSpeechTimer = setTimeout(playPendingEnglishSpeech, 500);
+    }
 }
 
 function speakWordById(id) {
