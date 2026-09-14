@@ -2860,12 +2860,9 @@ let matchLastScore = null;
 let matchPlayCount = 0;
 let rankingDb = null;
 let rankingUser = null;
-let stopRankingListener = null;
 let stopQuizRankingListener = null;
 let onlineQuizBoard = [];
 let quizRankingReady = false;
-let onlineMatchBoard = [];
-let matchRankingReady = false;
 let combinedRankingError = false;
 
 const firebaseConfig = {
@@ -3421,7 +3418,7 @@ function saveNickname() {
         saveUserScore();
         showQuizPrepScreen();
         renderLeaderboard();
-        saveMatchRanking();
+        saveQuizRanking();
         toggleEditNickname();
     }
 }
@@ -3744,39 +3741,34 @@ function saveLeaderboard() {
     } catch (e) {}
 }
 
-function buildCombinedLeaderboard(quizBoard, matchBoard) {
-    const users = new Map();
-    quizBoard.forEach(item => users.set(item.id, { ...item, score: Number(item.score) || 0 }));
-    matchBoard.forEach(item => {
-        const user = users.get(item.id) || { id: item.id, nickname: item.nickname || '학습자', score: 0, count: 0 };
-        user.score += Number(item.singleGameBest) || 0;
-        users.set(item.id, user);
-    });
-    return [...users.values()].sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+function buildCombinedLeaderboard(quizBoard) {
+    return quizBoard.map(item => ({ ...item, score: Number(item.score) || 0 }))
+        .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
 }
 
 function updateCombinedRankingStatus() {
     const status = document.getElementById('quizRankingStatus');
     if (status) status.innerText = combinedRankingError ? '공용 랭킹 연결 실패'
-        : quizRankingReady && matchRankingReady ? '전체 사용자 실시간 합산 랭킹' : '전체 사용자 연결 중...';
+        : quizRankingReady ? '전체 사용자 실시간 합산 랭킹' : '전체 사용자 연결 중...';
     renderLeaderboard();
 }
 
 function renderLeaderboard() {
-    const allRanks = buildCombinedLeaderboard(onlineQuizBoard, onlineMatchBoard);
+    const allRanks = buildCombinedLeaderboard(onlineQuizBoard);
     const board = allRanks.slice(0, 50);
     const tbody = document.getElementById('leaderboardBody');
     
     document.getElementById('rankingMyNickname').innerText = `내 닉네임: ${currentUser.nickname}`;
-    document.getElementById('rankingMyScore').innerText = `${(Number(currentUser.totalScore) || 0) + matchBestScore}점`;
+    const savedMine = rankingUser && allRanks.find(item => item.id === rankingUser.uid);
+    document.getElementById('rankingMyScore').innerText = `${Math.max(getCombinedScore(), savedMine ? savedMine.score : 0)}점`;
 
     const myRank = document.getElementById('rankingMyRank');
     const myIndex = rankingUser ? allRanks.findIndex(item => item.id === rankingUser.uid) : -1;
     myRank.innerText = combinedRankingError ? '확인 불가'
-        : !quizRankingReady || !matchRankingReady || !rankingUser ? '확인 중...'
+        : !quizRankingReady || !rankingUser ? '확인 중...'
         : myIndex >= 0 ? `${myIndex + 1}위` : '미등록';
 
-    if (!quizRankingReady || !matchRankingReady || combinedRankingError) {
+    if (!quizRankingReady || combinedRankingError) {
         tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400">' +
             (combinedRankingError ? '공용 랭킹 연결 실패. 새로고침해 주세요.' : '공용 합산 랭킹을 불러오는 중입니다.') + '</td></tr>';
         return;
@@ -3842,7 +3834,7 @@ function preserveMatchSessionScore() {
     matchCumulativeScore += matchScore;
     matchPlayCount++;
     saveMatchScore();
-    saveMatchRanking();
+    saveQuizRanking();
 }
 
 window.addEventListener('pagehide', preserveMatchSessionScore);
@@ -3910,17 +3902,15 @@ function getPersistentRankingUser() {
 }
 
 async function initFirebaseRanking() {
-    const status = document.getElementById('matchRankingStatus');
+    const status = document.getElementById('quizRankingStatus');
     try {
         if (!window.firebase) throw new Error('Firebase SDK load failed');
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         rankingDb = firebase.firestore();
         rankingUser = await getPersistentRankingUser();
-        status.innerText = '전체 사용자 실시간';
-        subscribeMatchRanking();
+        status.innerText = '전체 사용자 연결 중...';
         subscribeQuizRanking();
         saveQuizRanking();
-        saveMatchRanking();
     } catch (error) {
         combinedRankingError = true;
         updateCombinedRankingStatus();
@@ -3928,7 +3918,6 @@ async function initFirebaseRanking() {
         status.innerText = '연결 재시도 필요';
         const quizStatus = document.getElementById('quizRankingStatus');
         if (quizStatus) quizStatus.innerText = '공용 랭킹 연결 실패';
-        renderMatchRankingEmptyState('공용 랭킹에 연결하지 못했습니다. 잠시 후 새로고침해 주세요.');
     }
 }
 
@@ -3938,6 +3927,7 @@ function subscribeQuizRanking() {
     stopQuizRankingListener = rankingDb.collection('quizRankings')
         .onSnapshot(snapshot => {
             quizRankingReady = true;
+            combinedRankingError = false;
             onlineQuizBoard = snapshot.docs.map(doc => {
                 const data = doc.data();
                 return {
@@ -3957,89 +3947,40 @@ function subscribeQuizRanking() {
         });
 }
 
+function getCombinedScore() {
+    return Math.max(0, Math.trunc(Number(currentUser.totalScore) || 0))
+        + Math.max(0, Math.trunc(Number(matchBestScore) || 0));
+}
+
 async function saveQuizRanking() {
     if (!rankingDb || !rankingUser) return;
     const nickname = (currentUser.nickname || '학습자').trim().slice(0, 12);
+    const candidate = getCombinedScore();
+    const completed = Math.max(0, Math.trunc(currentUser.completedQuizzes || 0));
     try {
-        await rankingDb.collection('quizRankings').doc(rankingUser.uid).set({
-            nickname,
-            totalScore: Math.max(0, Math.trunc(currentUser.totalScore || 0)),
-            completedQuizzes: Math.max(0, Math.trunc(currentUser.completedQuizzes || 0)),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    } catch (error) {
-        console.error('Quiz ranking save error:', error);
-        const status = document.getElementById('quizRankingStatus');
-        if (status) status.innerText = '공용 랭킹 저장 실패';
-    }
-}
-
-function subscribeMatchRanking() {
-    if (!rankingDb) return;
-    if (stopRankingListener) stopRankingListener();
-    stopRankingListener = rankingDb.collection('matchingRankings')
-        .onSnapshot(snapshot => {
-            matchRankingReady = true;
-            onlineMatchBoard = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-            const mine = rankingUser && onlineMatchBoard.find(item => item.id === rankingUser.uid);
-            if (mine) {
-                matchBestScore = Math.max(matchBestScore, Number(mine.singleGameBest) || 0);
-                saveMatchScore();
-                document.getElementById('matchCumulativeScore').innerText = `${matchBestScore}점`;
-            }
-            renderMatchRanking(onlineMatchBoard.filter(item => Number.isFinite(item.singleGameBest))
-                .sort((a, b) => b.singleGameBest - a.singleGameBest || a.id.localeCompare(b.id)).slice(0, 20));
-            updateCombinedRankingStatus();
-        }, error => {
-            combinedRankingError = true;
-            updateCombinedRankingStatus();
-            console.error('Ranking read error:', error);
-            renderMatchRankingEmptyState('랭킹을 불러오지 못했습니다.');
-        });
-}
-
-async function saveMatchRanking() {
-    if (!rankingDb || !rankingUser || matchPlayCount < 1) return;
-    const nickname = (currentUser.nickname || '학습자').trim().slice(0, 12);
-    try {
-        const ref = rankingDb.collection('matchingRankings').doc(rankingUser.uid);
-        const candidate = Math.max(0, Math.trunc(matchBestScore));
+        const ref = rankingDb.collection('quizRankings').doc(rankingUser.uid);
+        // Keep the existing allowed schema. The server total includes the match best once.
         await rankingDb.runTransaction(async transaction => {
             const snapshot = await transaction.get(ref);
             const previous = snapshot.exists ? snapshot.data() : {};
             transaction.set(ref, {
                 nickname,
-                singleGameBest: Math.max(candidate, Number(previous.singleGameBest) || 0),
-                // Retain the old cumulative field for existing records.
-                bestScore: Math.max(Number(previous.bestScore) || 0, matchCumulativeScore),
-                plays: Math.max(Number(previous.plays) || 0, Math.trunc(matchPlayCount)),
+                totalScore: Math.max(candidate, Number(previous.totalScore) || 0),
+                completedQuizzes: Math.max(completed, Number(previous.completedQuizzes) || 0),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
+            });
         });
+        combinedRankingError = false;
+        updateCombinedRankingStatus();
     } catch (error) {
-        console.error('Ranking save error:', error);
-        const status = document.getElementById('matchRankingStatus');
-        if (status) status.innerText = '점수 저장 실패';
+        console.error('Combined ranking save error:', error);
+        const status = document.getElementById('quizRankingStatus');
+        if (status) status.innerText = '기기에 점수 저장됨 · 공용 랭킹 동기화 재시도 필요';
     }
 }
 
-function renderMatchRanking(board) {
-    const tbody = document.getElementById('matchRankingBody');
-    if (!tbody) return;
-    if (!board.length) return renderMatchRankingEmptyState('첫 번째 기록의 주인공이 되어보세요!');
-    tbody.innerHTML = board.map((item, index) => {
-        const rank = index < 3 ? ['🥇', '🥈', '🥉'][index] : index + 1;
-        const isMe = rankingUser && item.id === rankingUser.uid;
-        return `<tr class="border-t border-slate-100 dark:border-slate-700 ${isMe ? 'bg-emerald-50 dark:bg-emerald-900/20 font-bold' : ''}">
-            <td class="p-2 text-center">${rank}</td><td class="p-2">${escapeHtml(item.nickname || '학습자')}${isMe ? ' <span class="text-[9px] text-emerald-600">나</span>' : ''}</td>
-            <td class="p-2 text-center text-slate-500">${Number(item.plays) || 0}회</td><td class="p-2 text-right font-black text-emerald-500">${Number(item.singleGameBest) || 0}점</td></tr>`;
-    }).join('');
-}
+window.addEventListener('online', () => saveQuizRanking());
 
-function renderMatchRankingEmptyState(message = '등록된 짝맞추기 랭킹이 없습니다.') {
-    const tbody = document.getElementById('matchRankingBody');
-    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">${escapeHtml(message)}</td></tr>`;
-}
 
 function shuffleMatchItems(items) {
     const result = [...items];
@@ -4372,7 +4313,7 @@ function startFromIntro(event) {
     input.setCustomValidity('');
     currentUser.nickname = nickname;
     saveUserScore();
-    saveMatchRanking();
+    saveQuizRanking();
     document.getElementById('introScreen').hidden = true;
     document.getElementById('app').hidden = false;
     switchTab('list');
