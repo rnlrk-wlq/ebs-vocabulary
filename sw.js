@@ -1,4 +1,4 @@
-const CACHE = 'ebs-vocabulary-pwa-20260914-blue-face-1';
+const CACHE = 'ebs-vocabulary-pwa-20260914-blue-face-2';
 const ROOT = new URL('./', self.location.href);
 const ASSETS = ["./","https://cdn.tailwindcss.com","https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js","pronunciations.js?v=20260914-dictionary-1","app.js?v=20260914-ranking-reset-1","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css","style.css?v=20260914-install-1","manifest.webmanifest","icons/blue-face-180.png","icons/blue-face-192.png","pwa.js?v=20260914-install-1","assets/mascots-cloud.webp","icons/blue-face-512.png"];
 const ALLOWED = new Set(ASSETS.map(path => new URL(path, ROOT).href));
