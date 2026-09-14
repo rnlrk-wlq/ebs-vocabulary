@@ -3191,7 +3191,7 @@ if ('speechSynthesis' in window) {
     });
 }
 
-function speakText(text) {
+function speakTextFallback(text) {
     if (!('speechSynthesis' in window)) return;
     const id = ++englishSpeechRequest;
     clearTimeout(englishSpeechTimer);
@@ -3208,6 +3208,86 @@ function speakText(text) {
         englishSpeechTimer = setTimeout(playPendingEnglishSpeech, 500);
     }
 }
+
+// Original dictionary recordings preserve the speaker's stress and intonation.
+let dictionaryAudio = null;
+let dictionaryPlaybackRequest = 0;
+let dictionaryPlaybackTimer = null;
+
+function showPronunciationSource(label, entry) {
+    let panel = document.getElementById('pronunciationSource');
+    if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'pronunciationSource';
+        panel.setAttribute('role', 'status');
+        panel.className = 'fixed bottom-12 left-3 z-50 max-w-[85vw] rounded-xl bg-white border border-blue-100 px-3 py-2 text-xs text-slate-700 shadow-sm';
+        document.body.appendChild(panel);
+    }
+    panel.replaceChildren(document.createTextNode(label + ' '));
+    if (entry) {
+        const source = document.createElement('a');
+        source.href = entry.source;
+        source.target = '_blank';
+        source.rel = 'noopener noreferrer';
+        source.className = 'underline text-blue-700';
+        source.textContent = (entry.author || 'Wikimedia Commons') + ' · ' + entry.license;
+        panel.appendChild(source);
+    }
+}
+
+function speakText(text) {
+    const request = ++dictionaryPlaybackRequest;
+    clearTimeout(dictionaryPlaybackTimer);
+    clearTimeout(englishSpeechTimer);
+    pendingEnglishSpeech = null;
+    ++englishSpeechRequest;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (dictionaryAudio) {
+        dictionaryAudio.onended = dictionaryAudio.onerror = dictionaryAudio.onplaying = null;
+        dictionaryAudio.pause();
+        dictionaryAudio = null;
+    }
+    const spokenText = cleanEnglishPronunciation(text);
+    if (!spokenText) return;
+    const recordings = window.dictionaryPronunciations || {};
+    const key = spokenText.toLowerCase();
+    const entry = Object.prototype.hasOwnProperty.call(recordings, key) ? recordings[key] : null;
+    let fallbackStarted = false;
+    const fallback = () => {
+        if (request !== dictionaryPlaybackRequest || fallbackStarted) return;
+        fallbackStarted = true;
+        clearTimeout(dictionaryPlaybackTimer);
+        if (dictionaryAudio) {
+            dictionaryAudio.onerror = dictionaryAudio.onplaying = null;
+            dictionaryAudio.pause();
+            dictionaryAudio = null;
+        }
+        showPronunciationSource('영어 합성 음성');
+        speakTextFallback(spokenText);
+    };
+    if (!entry) { fallback(); return; }
+    const audio = new Audio(entry.url);
+    dictionaryAudio = audio;
+    audio.playbackRate = 1;
+    audio.onplaying = () => {
+        if (request !== dictionaryPlaybackRequest) return;
+        clearTimeout(dictionaryPlaybackTimer);
+        showPronunciationSource(entry.dialect + ' 사전 녹음', entry);
+    };
+    audio.onended = () => {
+        if (request === dictionaryPlaybackRequest) {
+            clearTimeout(dictionaryPlaybackTimer);
+            dictionaryAudio = null;
+        }
+    };
+    audio.onerror = fallback;
+    showPronunciationSource('사전 녹음 불러오는 중', entry);
+    dictionaryPlaybackTimer = setTimeout(fallback, 8000);
+    // Start synchronously inside the button gesture, including on mobile Safari.
+    const playback = audio.play();
+    if (playback) playback.catch(fallback);
+}
+
 
 function speakWordById(id) {
     const item = words.find(w => w.id === id);
