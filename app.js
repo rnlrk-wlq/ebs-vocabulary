@@ -3,7 +3,7 @@ tailwind.config = {
     theme: {
         extend: {
             colors: {
-                blue: { 50:'#fffdf0', 100:'#fef9c3', 200:'#fef08a', 300:'#fde047', 400:'#facc15', 500:'#ca8a04', 600:'#a16207', 700:'#854d0e', 800:'#713f12', 900:'#422006', 950:'#261500' }
+                blue: { 50:'#fffdf0', 100:'#fef9c3', 200:'#fef08a', 300:'#fef08a', 400:'#fde68a', 500:'#f5d866', 600:'#fef08a', 700:'#fde68a', 800:'#f5d866', 900:'#fef9c3', 950:'#fffdf0' }
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
