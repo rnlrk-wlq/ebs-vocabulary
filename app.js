@@ -2906,7 +2906,7 @@ function loadWordsFromStorage() {
         if (stored) {
             const savedWords = JSON.parse(stored).map(item => ({
                 ...item,
-                exampleEn: typeof item.exampleEn === 'string' ? item.exampleEn.replaceAll('Hwang Jeongdon', 'Hwang Jeongdong') : item.exampleEn,
+                exampleEn: typeof item.exampleEn === 'string' ? item.exampleEn.replace(/\bHwang Jeongdon\b/g, 'Hwang Jeongdong') : item.exampleEn,
                 exampleKo: typeof item.exampleKo === 'string' ? item.exampleKo.replaceAll('황정돈', '황정동') : item.exampleKo
             }));
             if (!localStorage.getItem('ebs_voca_lesson10_import_v1')) {
