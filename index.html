@@ -12,7 +12,7 @@
     <script src="pronunciations.js?v=20260914-dictionary-1"></script>
     <script src="app.js?v=20260914-ranking-reset-1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20260914-blue-sky-28">
+    <link rel="stylesheet" href="style.css?v=20260914-install-1">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -20,7 +20,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-180.png">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
-    <script defer src="pwa.js?v=20260914-1"></script>
+    <script defer src="pwa.js?v=20260914-install-1"></script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 font-sans antialiased">
 
@@ -43,6 +43,13 @@
                 <p class="text-xs text-slate-500 dark:text-slate-400">랭킹에 표시될 이름이에요. 기존 학습 기록과 점수는 유지돼요.</p>
             </div>
             <button type="submit" class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold">시작하기</button>
+            <div class="pwa-install" data-pwa-install>
+                <button type="button" class="pwa-install-button" data-pwa-install-button aria-label="단어 함 보카 앱으로 설치하기" aria-describedby="introInstallDescription">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4M9 5h6"/></svg>
+                    앱으로 설치하기
+                </button>
+                <p id="introInstallDescription" class="pwa-install-description">휴대전화나 컴퓨터에 설치하면 더 편리하게 학습할 수 있어요.</p>
+            </div>
         </form>
     </section>
 
@@ -58,6 +65,14 @@
                     <h1 class="text-xl font-black tracking-tight text-slate-900 dark:text-white">단어 함 보카?</h1>
                     <p class="text-xs text-slate-500 dark:text-slate-400">수능 필수 핵심 어휘 마스터 프로젝트</p>
                 </div>
+            </div>
+
+            <div class="pwa-install" data-pwa-install>
+                <button type="button" class="pwa-install-button" data-pwa-install-button aria-label="단어 함 보카 앱으로 설치하기" aria-describedby="headerInstallDescription">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4M9 5h6"/></svg>
+                    앱으로 설치하기
+                </button>
+                <p id="headerInstallDescription" class="pwa-install-description">휴대전화나 컴퓨터에 설치하면 더 편리하게 학습할 수 있어요.</p>
             </div>
 
             <!-- TAB NAVIGATION -->
@@ -643,5 +658,13 @@
         </form>
     </div>
     <p class="developer-credit">develop by. 김태서 신슬아 안지혜 정지민</p>
+    <dialog id="pwaInstallGuide" class="pwa-install-dialog" aria-labelledby="pwaInstallTitle" aria-describedby="pwaInstallMessage">
+        <div class="pwa-install-guide-content">
+            <svg class="pwa-share-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 15V2m-4 4 4-4 4 4M7 9H4v12h16V9h-3"/></svg>
+            <h2 id="pwaInstallTitle">앱 설치 안내</h2>
+            <p id="pwaInstallMessage"></p>
+            <button type="button" id="pwaInstallClose" class="pwa-install-button" aria-label="앱 설치 안내 닫기" autofocus>닫기</button>
+        </div>
+    </dialog>
 </body>
 </html>

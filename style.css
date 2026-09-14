@@ -237,3 +237,34 @@ body:has(#introScreen:not([hidden])) { background: #f8e9f0; padding-bottom: 0; }
     #introScreen > form { padding: 24px; }
     #introScreen > form > * + * { margin-top: 16px; }
 }
+
+/* Installation controls are independent of the learning UI. */
+.pwa-install { text-align: center; min-width: 0; }
+.pwa-install[hidden] { display: none !important; }
+.pwa-install-button {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    min-height: 44px; max-width: 100%; padding: .65rem 1rem; border: 0;
+    border-radius: .85rem; background: #2563eb; color: #fff;
+    font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer;
+}
+.pwa-install-button:hover { background: #1d4ed8; }
+.pwa-install-button:focus-visible { outline: 3px solid #60a5fa; outline-offset: 3px; }
+.pwa-install-button:disabled { opacity: .65; cursor: wait; }
+.pwa-install-button svg { flex-shrink: 0; }
+.pwa-install-description { margin: .5rem 0 0; color: #475569; font-size: .75rem; line-height: 1.6; word-break: keep-all; }
+#app > header > .pwa-install { display: block; }
+.pwa-install-dialog {
+    width: min(26rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem);
+    margin: auto; padding: 0; border: 1px solid #dbeafe; border-radius: 1.5rem;
+    background: #fff; color: #0f172a; box-shadow: 0 20px 60px #0f172a40;
+}
+.pwa-install-dialog::backdrop { background: #0f172a80; }
+.pwa-install-guide-content { padding: 1.5rem; text-align: center; }
+.pwa-share-icon { color: #2563eb; margin: 0 auto .75rem; }
+.pwa-install-dialog h2 { font-size: 1.2rem; font-weight: 800; margin: 0; }
+.pwa-install-dialog p { margin: 1rem 0 1.25rem; line-height: 1.7; word-break: keep-all; }
+.dark .pwa-install-description { color: #cbd5e1; }
+.dark .pwa-install-dialog { background: #1e293b; color: #f8fafc; border-color: #475569; }
+@media (min-width: 640px) {
+    #app > header > .pwa-install { text-align: left; }
+}
