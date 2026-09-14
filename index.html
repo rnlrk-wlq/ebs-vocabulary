@@ -9,17 +9,21 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=20260914-pale-yellow-gray-26"></script>
+    <script src="app.js?v=20260914-blue-sky-28"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20260914-mascot-intro-27">
+    <link rel="stylesheet" href="style.css?v=20260914-blue-sky-28">
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 font-sans antialiased">
 
     <section id="introScreen" class="min-h-screen flex items-center justify-center px-5 py-10">
-        <div class="intro-mascots" aria-hidden="true">
-            <div class="intro-mascot intro-mascot--red"><img src="assets/mascot-red.webp" alt="" width="400" height="480" draggable="false"></div>
-            <div class="intro-mascot intro-mascot--yellow"><img src="assets/mascot-yellow.webp" alt="" width="400" height="480" draggable="false"></div>
-            <div class="intro-mascot intro-mascot--blue"><img src="assets/mascot-blue.webp" alt="" width="400" height="480" draggable="false"></div>
+        <div class="intro-clouds" aria-hidden="true">
+            <span class="sky-cloud sky-cloud--one"></span>
+            <span class="sky-cloud sky-cloud--two"></span>
+            <span class="sky-cloud sky-cloud--three"></span>
+            <span class="sky-cloud sky-cloud--four"></span>
+        </div>
+        <div class="intro-cloud-seat" aria-hidden="true">
+            <img src="assets/mascots-cloud.webp" alt="" width="1536" height="1024" draggable="false" fetchpriority="high">
         </div>
         <form onsubmit="startFromIntro(event)" class="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-xl text-center space-y-6">
             <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>

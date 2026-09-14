@@ -158,111 +158,50 @@
     #vocabListScroll .mobile-word-pos { display: block; font-size: 10px; font-weight: normal; color: #64748b; margin-top: 3px; }
 }
 
-/* Theme rules must win over Tailwind's runtime-injected utility styles.
-   Keep the legacy blue class names because app.js uses them for UI state. */
-:root {
-    --accent-surface: #fef08a;
-    --accent-hover: #fde68a;
-    --accent-text: #374151;
-}
-.bg-blue-600,
-#flashcard > .rotate-y-180 {
-    background-color: var(--accent-surface) !important;
-    color: var(--accent-text) !important;
-}
-.hover\:bg-blue-700:hover,
-.hover\:bg-blue-600:hover {
-    background-color: var(--accent-hover) !important;
-    color: var(--accent-text) !important;
-}
-.text-blue-600,
-.text-blue-50,
-.text-blue-200,
-.hover\:text-blue-600:hover,
-.text-amber-700 {
-    color: var(--accent-text) !important;
-}
-.tab-btn.text-blue-600 {
-    background-color: var(--accent-surface) !important;
-}
-/* Child labels must not retain white or brown text on yellow surfaces. */
-.bg-blue-600 .text-white,
-.bg-blue-600 .text-blue-50,
-.bg-blue-600 .text-blue-200,
-#flashcard > .rotate-y-180 .text-white,
-#flashcard > .rotate-y-180 .text-blue-50,
-#flashcard > .rotate-y-180 .text-blue-200 {
-    color: var(--accent-text) !important;
-}
-.dark .dark\:text-blue-400 {
-    color: #d1d5db !important;
-}
-.dark .dark\:bg-blue-900,
-.dark .dark\:bg-blue-900\/20,
-.dark .dark\:bg-blue-900\/30,
-.dark .dark\:bg-blue-900\/40 {
-    background-color: #fef9c3 !important;
-    color: var(--accent-text) !important;
-}
-.dark .bg-blue-600,
-.dark .tab-btn.text-blue-600,
-.dark [class*="dark:bg-blue-900"] .dark\:text-blue-400,
-.dark [class*="dark:bg-blue-900"].dark\:text-blue-400 {
-    color: var(--accent-text) !important;
-}
 
-/* Decorative intro characters; the existing form and study logic stay intact. */
+/* Pastel sky belongs only to the intro. Study views use the original blue utilities. */
 #introScreen {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    min-height: max(100svh, 680px);
-    padding-top: 100px;
-    padding-bottom: 150px;
+    flex-direction: column;
+    min-height: 100svh;
+    padding: 26px 20px 52px;
+    background: radial-gradient(ellipse at 18% 15%, #ffffffa6, transparent 46%),
+                linear-gradient(165deg, #c9e8fa 0%, #dfedfc 48%, #ebe5f8 78%, #f8e9f0 100%);
 }
-#introScreen > form { position: relative; z-index: 2; }
-.intro-mascots { position: absolute; inset: 0; pointer-events: none; user-select: none; }
-.intro-mascot {
+.intro-clouds { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.sky-cloud {
     position: absolute;
-    width: clamp(100px, 15vw, 190px);
-    left: 0;
-    top: 0;
-    animation: mascot-roam-left 22s ease-in-out infinite alternate;
-    will-change: transform;
+    width: 190px;
+    height: 55px;
+    border-radius: 100px;
+    background: #fff;
+    opacity: .7;
+    box-shadow: 0 10px 24px #7da9d315;
+    animation: cloud-drift 18s ease-in-out infinite alternate;
 }
-.intro-mascot img {
-    display: block;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 12px 8px rgb(55 65 81 / 16%));
-    transform-origin: 50% 90%;
-    animation: mascot-step 1.8s ease-in-out infinite;
+.sky-cloud::before, .sky-cloud::after {
+    content: ""; position: absolute; background: inherit; border-radius: 50%;
 }
-.intro-mascot--red { animation-delay: -6s; }
-.intro-mascot--yellow { width: 110px; animation-name: mascot-roam-bottom; animation-duration: 26s; animation-delay: -10s; }
-.intro-mascot--yellow img { animation-delay: -.6s; }
-.intro-mascot--blue { animation-name: mascot-roam-right; animation-duration: 24s; animation-delay: -4s; }
-.intro-mascot--blue img { animation-delay: -1.2s; }
-@keyframes mascot-roam-left {
-    0% { transform: translate(3vw, 14vh) rotate(-6deg); }
-    50% { transform: translate(8vw, 42vh) rotate(4deg); }
-    100% { transform: translate(2vw, 64vh) rotate(-3deg); }
+.sky-cloud::before { width: 88px; height: 88px; left: 28px; bottom: 12px; }
+.sky-cloud::after { width: 68px; height: 68px; right: 20px; bottom: 8px; }
+.sky-cloud--one { left: 5%; top: 21%; }
+.sky-cloud--two { right: 5%; top: 38%; width: 230px; opacity: .7; animation-delay: -9s; }
+.sky-cloud--three { left: 12%; bottom: 13%; width: 150px; opacity: .55; animation-delay: -4s; }
+.sky-cloud--four { right: 12%; top: 9%; width: 125px; opacity: .5; animation-delay: -13s; }
+.intro-cloud-seat {
+    position: relative;
+    z-index: 2;
+    width: min(440px, 94vw);
+    margin: 0 0 -12px;
+    pointer-events: none;
+    user-select: none;
+    flex-shrink: 0;
 }
-@keyframes mascot-roam-right {
-    0% { transform: translate(79vw, 60vh) rotate(5deg); }
-    50% { transform: translate(83vw, 33vh) rotate(-5deg); }
-    100% { transform: translate(77vw, 9vh) rotate(3deg); }
-}
-@keyframes mascot-roam-bottom {
-    0% { transform: translate(23vw, max(520px, 74vh)) rotate(-4deg); }
-    50% { transform: translate(45vw, max(520px, 77vh)) rotate(4deg); }
-    100% { transform: translate(67vw, max(520px, 73vh)) rotate(-3deg); }
-}
-@keyframes mascot-step {
-    0%, 100% { transform: translateY(0) rotate(-3deg); }
-    50% { transform: translateY(-9px) rotate(3deg); }
-}
+.intro-cloud-seat img { display: block; width: 100%; height: auto; filter: drop-shadow(0 10px 12px #6597c326); }
+#introScreen > form { position: relative; z-index: 1; flex-shrink: 0; box-shadow: 0 18px 50px #6f91b52b; }
+@keyframes cloud-drift { from { transform: translateX(-12px); } to { transform: translateX(24px); } }
 .developer-credit {
     position: fixed;
     right: max(16px, env(safe-area-inset-right));
@@ -279,32 +218,22 @@
     pointer-events: none;
 }
 body { padding-bottom: 44px; }
-#introScreen[hidden] .intro-mascot,
-#introScreen[hidden] .intro-mascot img { animation-play-state: paused; }
-@media (max-width: 767px) {
-    #introScreen { padding-top: 130px; padding-bottom: 165px; min-height: max(100svh, 760px); }
-    .intro-mascot { width: 88px; }
-    .intro-mascot--red { animation-name: mascot-mobile-top; }
-    .intro-mascot--blue { animation-name: mascot-mobile-bottom; }
-    .intro-mascot--yellow { animation-name: mascot-mobile-bottom; animation-direction: alternate-reverse; animation-delay: -13s; }
-    @keyframes mascot-mobile-top {
-        from { transform: translate(8vw, 14px) rotate(-6deg); }
-        to { transform: translate(calc(92vw - 88px), 18px) rotate(6deg); }
-    }
-    @keyframes mascot-mobile-bottom {
-        from { transform: translate(6vw, max(625px, calc(100svh - 145px))) rotate(-5deg); }
-        to { transform: translate(calc(94vw - 88px), max(615px, calc(100svh - 155px))) rotate(5deg); }
-    }
+body:has(#introScreen:not([hidden])) { background: #f8e9f0; padding-bottom: 0; }
+#introScreen[hidden] .sky-cloud { animation-play-state: paused; }
+@media (max-width: 639px) {
+    #introScreen { padding: 22px 20px 40px; }
+    .intro-cloud-seat { width: min(340px, 94vw); margin-bottom: -8px; }
+    .sky-cloud--one { left: -95px; top: 18%; }
+    .sky-cloud--two { right: -120px; top: 55%; }
+    .sky-cloud--three { left: -70px; bottom: 8%; }
+    .sky-cloud--four { right: -55px; top: 7%; }
     .developer-credit { max-width: calc(100vw - 24px); font-size: 10px; }
 }
-@media (prefers-reduced-motion: reduce) {
-    .intro-mascot, .intro-mascot img { animation: none; will-change: auto; }
-    .intro-mascot--red { left: 3%; top: 10%; }
-    .intro-mascot--blue { left: auto; right: 3%; top: 16%; }
-    .intro-mascot--yellow { left: 15%; top: auto; bottom: 40px; }
-}
-@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
-    .intro-mascot--red { left: 10%; top: 16px; }
-    .intro-mascot--blue { right: 10%; top: 16px; }
-    .intro-mascot--yellow { left: calc(50% - 44px); bottom: 40px; }
+@media (prefers-reduced-motion: reduce) { .sky-cloud { animation: none; } }
+
+@media (min-width: 640px) and (max-height: 800px) {
+    #introScreen { padding-top: 16px; padding-bottom: 32px; }
+    .intro-cloud-seat { width: 340px; }
+    #introScreen > form { padding: 24px; }
+    #introScreen > form > * + * { margin-top: 16px; }
 }
