@@ -210,3 +210,101 @@
 .dark [class*="dark:bg-blue-900"].dark\:text-blue-400 {
     color: var(--accent-text) !important;
 }
+
+/* Decorative intro characters; the existing form and study logic stay intact. */
+#introScreen {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: max(100svh, 680px);
+    padding-top: 100px;
+    padding-bottom: 150px;
+}
+#introScreen > form { position: relative; z-index: 2; }
+.intro-mascots { position: absolute; inset: 0; pointer-events: none; user-select: none; }
+.intro-mascot {
+    position: absolute;
+    width: clamp(100px, 15vw, 190px);
+    left: 0;
+    top: 0;
+    animation: mascot-roam-left 22s ease-in-out infinite alternate;
+    will-change: transform;
+}
+.intro-mascot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 8px rgb(55 65 81 / 16%));
+    transform-origin: 50% 90%;
+    animation: mascot-step 1.8s ease-in-out infinite;
+}
+.intro-mascot--red { animation-delay: -6s; }
+.intro-mascot--yellow { width: 110px; animation-name: mascot-roam-bottom; animation-duration: 26s; animation-delay: -10s; }
+.intro-mascot--yellow img { animation-delay: -.6s; }
+.intro-mascot--blue { animation-name: mascot-roam-right; animation-duration: 24s; animation-delay: -4s; }
+.intro-mascot--blue img { animation-delay: -1.2s; }
+@keyframes mascot-roam-left {
+    0% { transform: translate(3vw, 14vh) rotate(-6deg); }
+    50% { transform: translate(8vw, 42vh) rotate(4deg); }
+    100% { transform: translate(2vw, 64vh) rotate(-3deg); }
+}
+@keyframes mascot-roam-right {
+    0% { transform: translate(79vw, 60vh) rotate(5deg); }
+    50% { transform: translate(83vw, 33vh) rotate(-5deg); }
+    100% { transform: translate(77vw, 9vh) rotate(3deg); }
+}
+@keyframes mascot-roam-bottom {
+    0% { transform: translate(23vw, max(520px, 74vh)) rotate(-4deg); }
+    50% { transform: translate(45vw, max(520px, 77vh)) rotate(4deg); }
+    100% { transform: translate(67vw, max(520px, 73vh)) rotate(-3deg); }
+}
+@keyframes mascot-step {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-9px) rotate(3deg); }
+}
+.developer-credit {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 5;
+    margin: 0;
+    padding: 7px 11px;
+    border-radius: 12px;
+    background: rgb(255 255 255 / 92%);
+    color: #374151;
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: right;
+    pointer-events: none;
+}
+body { padding-bottom: 44px; }
+#introScreen[hidden] .intro-mascot,
+#introScreen[hidden] .intro-mascot img { animation-play-state: paused; }
+@media (max-width: 767px) {
+    #introScreen { padding-top: 130px; padding-bottom: 165px; min-height: max(100svh, 760px); }
+    .intro-mascot { width: 88px; }
+    .intro-mascot--red { animation-name: mascot-mobile-top; }
+    .intro-mascot--blue { animation-name: mascot-mobile-bottom; }
+    .intro-mascot--yellow { animation-name: mascot-mobile-bottom; animation-direction: alternate-reverse; animation-delay: -13s; }
+    @keyframes mascot-mobile-top {
+        from { transform: translate(8vw, 14px) rotate(-6deg); }
+        to { transform: translate(calc(92vw - 88px), 18px) rotate(6deg); }
+    }
+    @keyframes mascot-mobile-bottom {
+        from { transform: translate(6vw, max(625px, calc(100svh - 145px))) rotate(-5deg); }
+        to { transform: translate(calc(94vw - 88px), max(615px, calc(100svh - 155px))) rotate(5deg); }
+    }
+    .developer-credit { max-width: calc(100vw - 24px); font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .intro-mascot, .intro-mascot img { animation: none; will-change: auto; }
+    .intro-mascot--red { left: 3%; top: 10%; }
+    .intro-mascot--blue { left: auto; right: 3%; top: 16%; }
+    .intro-mascot--yellow { left: 15%; top: auto; bottom: 40px; }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+    .intro-mascot--red { left: 10%; top: 16px; }
+    .intro-mascot--blue { right: 10%; top: 16px; }
+    .intro-mascot--yellow { left: calc(50% - 44px); bottom: 40px; }
+}
