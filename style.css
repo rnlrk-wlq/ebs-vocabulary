@@ -126,12 +126,12 @@
 #vocabListScroll th {
     white-space: nowrap;
 }
-#vocabListScroll th:nth-child(3),
-#vocabListScroll td:nth-child(3) {
+#vocabListScroll th:nth-child(4),
+#vocabListScroll td:nth-child(4) {
     min-width: 10rem;
 }
-#vocabListScroll th:nth-child(5),
-#vocabListScroll td:nth-child(5) {
+#vocabListScroll th:nth-child(6),
+#vocabListScroll td:nth-child(6) {
     min-width: 14rem;
     word-break: keep-all;
     overflow-wrap: break-word;
@@ -149,12 +149,12 @@
 @media (max-width: 639px) {
     #vocabListScroll > table { min-width: 0; width: 100%; table-layout: fixed; }
     #vocabListScroll th, #vocabListScroll td { padding: 0.65rem 0.15rem; min-width: 0; font-size: 11px; }
-    #vocabListScroll th:nth-child(1), #vocabListScroll th:nth-child(2) { width: 26px; }
-    #vocabListScroll th:nth-child(3), #vocabListScroll td:nth-child(3) { width: 29%; min-width: 0; overflow-wrap: anywhere; }
-    #vocabListScroll th:nth-child(4), #vocabListScroll td:nth-child(4) { display: none; }
-    #vocabListScroll th:nth-child(5), #vocabListScroll td:nth-child(5) { width: auto; min-width: 0; word-break: keep-all; overflow-wrap: break-word; }
-    #vocabListScroll th:nth-child(6) { width: 32px; }
-    #vocabListScroll th:nth-child(7) { width: 26px; }
+    #vocabListScroll th:nth-child(1), #vocabListScroll th:nth-child(2), #vocabListScroll th:nth-child(3) { width: 26px; }
+    #vocabListScroll th:nth-child(4), #vocabListScroll td:nth-child(4) { width: 29%; min-width: 0; overflow-wrap: anywhere; }
+    #vocabListScroll th:nth-child(5), #vocabListScroll td:nth-child(5) { display: none; }
+    #vocabListScroll th:nth-child(6), #vocabListScroll td:nth-child(6) { width: auto; min-width: 0; word-break: keep-all; overflow-wrap: break-word; }
+    #vocabListScroll th:nth-child(7) { width: 32px; }
+    #vocabListScroll th:nth-child(8) { width: 26px; }
     #vocabListScroll .mobile-word-pos { display: block; font-size: 10px; font-weight: normal; color: #64748b; margin-top: 3px; }
 }
 

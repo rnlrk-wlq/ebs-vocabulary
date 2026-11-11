@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="20261111-october-trim-2">
+    <meta name="app-version" content="20261111-selected-study-3">
     <title>단어 함 보카?</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -13,9 +13,9 @@
     <script src="september-exam-words.js?v=20260914-text-1"></script>
     <script src="ebs-lessons-17-22.js?v=20261111-import-1"></script>
     <script src="october-exam-words.js?v=20261111-trim-2"></script>
-    <script src="app.js?v=20261111-october-trim-2"></script>
+    <script src="app.js?v=20261111-selected-study-3"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20260914-install-1">
+    <link rel="stylesheet" href="style.css?v=20261111-selected-study-3">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -602,11 +602,26 @@
                     </div>
                 </div>
 
+                <div class="flex flex-wrap items-center gap-2 rounded-2xl border border-blue-100 dark:border-slate-700 bg-blue-50/70 dark:bg-slate-800 px-3 py-2.5">
+                    <span id="selectedStudyCount" class="text-xs font-black text-blue-700 dark:text-blue-300 min-w-[62px]">선택 0개</span>
+                    <button id="startSelectedStudyButton" type="button" onclick="startSelectedWordStudy()" disabled class="px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 transition">
+                        선택 단어만 학습
+                    </button>
+                    <button type="button" onclick="useAllFolderWords()" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition">
+                        전체 단어 학습
+                    </button>
+                    <button type="button" onclick="clearStudyWordSelection()" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 transition">
+                        선택 해제
+                    </button>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400">목록에서 원하는 단어를 체크한 뒤 학습을 시작하세요.</span>
+                </div>
+
                 <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div id="vocabListScroll" class="overflow-auto overscroll-contain" tabindex="0" role="region" aria-label="단어 목록, 스크롤하여 더 보기">
                         <table class="w-full text-left text-xs">
                             <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold">
                                 <tr>
+                                    <th class="p-3.5 w-10 text-center"><input id="selectAllVisibleWords" type="checkbox" aria-label="현재 목록 전체 선택" onchange="toggleSelectVisibleWords(this.checked)" class="w-4 h-4 accent-blue-600 cursor-pointer"></th>
                                     <th class="p-3.5 w-10 text-center">별표</th>
                                     <th class="p-3.5 w-10 text-center">암기</th>
                                     <th class="p-3.5">영단어</th>

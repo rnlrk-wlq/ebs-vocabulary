@@ -2725,6 +2725,8 @@ let words = [];
 let selectedFolder = null;
 let pendingFolderTab = 'flashcard';
 let activeStudyTab = 'flashcard';
+let selectedStudyWordIds = new Set();
+let selectedOnlyMode = false;
 let matchSession = 0;
 
 function wordFolder(item) {
@@ -2846,6 +2848,8 @@ function selectWordFolder(folder) {
         flashcardIndex = 0;
         spellingIndex = 0;
         spellingAnswered = false;
+        selectedStudyWordIds.clear();
+        selectedOnlyMode = false;
         selectedFolder = folder;
         showQuizPrepScreen();
         showMatchPrepScreen();
@@ -3057,8 +3061,20 @@ function resetWordsToDefault() {
     }
 }
 
-function getEffectiveWords() {
+function getFolderWords() {
     return selectedFolder === null ? [] : selectedFolder === 'all' ? [...words] : words.filter(item => wordFolder(item) === selectedFolder);
+}
+
+function getEffectiveWords() {
+    const folderWords = getFolderWords();
+    return selectedOnlyMode ? folderWords.filter(item => selectedStudyWordIds.has(item.id)) : folderWords;
+}
+
+function updateStudySelectionLabel() {
+    const label = document.getElementById('selectedFolderLabel');
+    if (!label || selectedFolder === null) return;
+    const folderName = selectedFolder === 'all' ? '전체 단어' : studyFolders[selectedFolder];
+    label.innerText = selectedOnlyMode ? `${folderName} · 선택 단어 ${getEffectiveWords().length}개 학습 중` : folderName;
 }
 
 function switchTab(tabName) {
@@ -3114,6 +3130,7 @@ function switchTab(tabName) {
 }
 
 function updateFlashcard() {
+    stopWordAudio();
     const pool = getEffectiveWords();
     if (pool.length === 0) {
         document.getElementById('flashcardProgress').innerText = '0 / 0';
@@ -3171,14 +3188,38 @@ function flipFlashcard() {
     if (card) card.classList.toggle('flipped');
 }
 
+let flashcardNavigationTimer = null;
+let flashcardNavigationPending = false;
+
+function navigateFlashcard(step) {
+    if (flashcardNavigationPending) return;
+    const card = document.getElementById('flashcard');
+    clearTimeout(flashcardNavigationTimer);
+    stopWordAudio();
+    const move = () => {
+        flashcardIndex += step;
+        updateFlashcard();
+    };
+    // 뜻 면이 보이는 동안에는 먼저 기존 카드를 완전히 닫은 뒤 다음 내용을 넣는다.
+    // 이렇게 해야 회전 중 다음 단어의 뜻이 미리 비치지 않는다.
+    if (card && card.classList.contains('flipped')) {
+        flashcardNavigationPending = true;
+        card.classList.remove('flipped');
+        flashcardNavigationTimer = setTimeout(() => {
+            flashcardNavigationPending = false;
+            move();
+        }, 520);
+    } else {
+        move();
+    }
+}
+
 function prevFlashcard() {
-    flashcardIndex--;
-    updateFlashcard();
+    navigateFlashcard(-1);
 }
 
 function nextFlashcard() {
-    flashcardIndex++;
-    updateFlashcard();
+    navigateFlashcard(1);
 }
 
 function shuffleFlashcards() {
@@ -3187,8 +3228,9 @@ function shuffleFlashcards() {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
     }
+    const shuffledIds = new Set(pool.map(item => item.id));
     let next = 0;
-    words = words.map(item => selectedFolder === 'all' || wordFolder(item) === selectedFolder ? pool[next++] : item);
+    words = words.map(item => shuffledIds.has(item.id) ? pool[next++] : item);
     flashcardIndex = 0;
     updateFlashcard();
 }
@@ -3309,6 +3351,21 @@ function speakTextFallback(text) {
 let dictionaryAudio = null;
 let dictionaryPlaybackRequest = 0;
 let dictionaryPlaybackTimer = null;
+
+function stopWordAudio() {
+    ++dictionaryPlaybackRequest;
+    ++englishSpeechRequest;
+    clearTimeout(dictionaryPlaybackTimer);
+    clearTimeout(englishSpeechTimer);
+    pendingEnglishSpeech = null;
+    activeEnglishUtterance = null;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (dictionaryAudio) {
+        dictionaryAudio.onended = dictionaryAudio.onerror = dictionaryAudio.onplaying = null;
+        dictionaryAudio.pause();
+        dictionaryAudio = null;
+    }
+}
 
 function showPronunciationSource(label, entry) {
     let panel = document.getElementById('pronunciationSource');
@@ -4208,7 +4265,16 @@ function handleMatchCardClick(btnEl, cardIdx) {
             // 맞힌 두 자리를 아직 나오지 않은 새로운 단어와 뜻으로 교체
             setTimeout(() => {
                 if (session !== matchSession) return;
-                if (matchNextWordIndex < matchWordQueue.length) {
+                if (matchGameActive && matchTimeRemaining > 0) {
+                    // 준비한 단어를 모두 맞혀도 게임을 끝내지 않고 남은 시간 동안 새 순환을 시작한다.
+                    if (matchNextWordIndex >= matchWordQueue.length) {
+                        const activeWordIds = new Set(matchCards
+                            .filter((_, index) => index !== first.index && index !== second.index)
+                            .map(card => card.wordId));
+                        const nextCycle = getEffectiveWords().filter(item => !activeWordIds.has(item.id));
+                        matchWordQueue = shuffleMatchItems(nextCycle.length ? nextCycle : getEffectiveWords());
+                        matchNextWordIndex = 0;
+                    }
                     const nextWord = matchWordQueue[matchNextWordIndex++];
                     matchCards[first.index] = {
                         id: nextWord.id,
@@ -4226,9 +4292,6 @@ function handleMatchCardClick(btnEl, cardIdx) {
                     selectedMatchCards = [];
                     matchResolving = false;
                     renderMatchGrid();
-                } else {
-                    matchResolving = false;
-                    finishMatchGame(`🎉 전체 ${matchCompletedPairs}쌍을 모두 맞혔습니다! 최종 점수: ${matchScore}점`);
                 }
             }, 350);
         } else {
@@ -4258,7 +4321,7 @@ function renderVocabList() {
     const filter = listStatusFilter;
     const tbody = document.getElementById('vocabTableBody');
 
-    let filtered = getEffectiveWords().filter(item => {
+    let filtered = getFolderWords().filter(item => {
         const matchesSearch = item.word.toLowerCase().includes(search) || item.meaning.includes(search);
         if (!matchesSearch) return false;
 
@@ -4269,12 +4332,16 @@ function renderVocabList() {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">조건에 맞는 단어가 없습니다. 단어 추가 버튼으로 이 폴더에 단어를 넣을 수 있습니다.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400">조건에 맞는 단어가 없습니다. 단어 추가 버튼으로 이 폴더에 단어를 넣을 수 있습니다.</td></tr>`;
+        updateStudySelectionControls([]);
         return;
     }
 
     tbody.innerHTML = filtered.map(item => `
         <tr class="${item.mastered ? 'bg-slate-50/50 dark:bg-slate-900/30' : ''} hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+            <td class="p-3 text-center">
+                <input type="checkbox" aria-label="${escapeHtml(item.word)} 학습 선택" ${selectedStudyWordIds.has(item.id) ? 'checked' : ''} onchange="toggleStudyWordSelection(${item.id}, this.checked)" class="w-4 h-4 accent-blue-600 cursor-pointer">
+            </td>
             <td class="p-3 text-center">
                 <button onclick="toggleStarInList(${item.id})" class="text-sm transition hover:scale-125">
                     <i class="${item.starred ? 'fa-solid fa-star text-amber-500' : 'fa-regular fa-star text-slate-300 dark:text-slate-600'}"></i>
@@ -4300,6 +4367,78 @@ function renderVocabList() {
             </td>
         </tr>
     `).join('');
+    updateStudySelectionControls(filtered);
+}
+
+function updateStudySelectionControls(visibleWords = null) {
+    const selectedCount = getFolderWords().filter(item => selectedStudyWordIds.has(item.id)).length;
+    const count = document.getElementById('selectedStudyCount');
+    if (count) count.innerText = `선택 ${selectedCount}개`;
+    const startButton = document.getElementById('startSelectedStudyButton');
+    if (startButton) startButton.disabled = selectedCount === 0;
+    const selectAll = document.getElementById('selectAllVisibleWords');
+    if (selectAll && visibleWords) {
+        const checkedCount = visibleWords.filter(item => selectedStudyWordIds.has(item.id)).length;
+        selectAll.checked = visibleWords.length > 0 && checkedCount === visibleWords.length;
+        selectAll.indeterminate = checkedCount > 0 && checkedCount < visibleWords.length;
+    }
+}
+
+function toggleStudyWordSelection(id, checked) {
+    if (checked) selectedStudyWordIds.add(id);
+    else selectedStudyWordIds.delete(id);
+    if (selectedOnlyMode && !selectedStudyWordIds.has(id)) {
+        selectedOnlyMode = selectedStudyWordIds.size > 0;
+        flashcardIndex = 0;
+        spellingIndex = 0;
+    }
+    updateStudySelectionControls();
+    updateStudySelectionLabel();
+}
+
+function toggleSelectVisibleWords(checked) {
+    const search = document.getElementById('listSearchInput').value.toLowerCase().trim();
+    const visible = getFolderWords().filter(item => {
+        const matchesSearch = item.word.toLowerCase().includes(search) || item.meaning.includes(search);
+        if (!matchesSearch) return false;
+        if (listStatusFilter === 'starred') return item.starred;
+        if (listStatusFilter === 'mastered') return item.mastered;
+        if (listStatusFilter === 'review') return !item.mastered;
+        return true;
+    });
+    visible.forEach(item => checked ? selectedStudyWordIds.add(item.id) : selectedStudyWordIds.delete(item.id));
+    renderVocabList();
+}
+
+function clearStudyWordSelection() {
+    selectedStudyWordIds.clear();
+    selectedOnlyMode = false;
+    flashcardIndex = 0;
+    spellingIndex = 0;
+    updateStudySelectionLabel();
+    renderVocabList();
+}
+
+function startSelectedWordStudy() {
+    const validIds = new Set(getFolderWords().map(item => item.id));
+    selectedStudyWordIds = new Set([...selectedStudyWordIds].filter(id => validIds.has(id)));
+    if (selectedStudyWordIds.size === 0) {
+        alert('학습할 단어를 먼저 선택해 주세요.');
+        return;
+    }
+    selectedOnlyMode = true;
+    flashcardIndex = 0;
+    spellingIndex = 0;
+    updateStudySelectionLabel();
+    switchTab('flashcard');
+}
+
+function useAllFolderWords() {
+    selectedOnlyMode = false;
+    flashcardIndex = 0;
+    spellingIndex = 0;
+    updateStudySelectionLabel();
+    switchTab('flashcard');
 }
 
 function toggleStarInList(id) {
@@ -4323,6 +4462,7 @@ function toggleMasteredInList(id) {
 function deleteWord(id) {
     if (confirm("이 단어를 목록에서 삭제하시겠습니까?")) {
         words = words.filter(w => w.id !== id);
+        selectedStudyWordIds.delete(id);
         saveWordsToStorage();
         renderVocabList();
     }
