@@ -2678,8 +2678,13 @@ defaultWords.push(...lesson10Words);
 
 // Keep exam vocabulary separate from the original EBS dataset.
 defaultWords.push(...SEPTEMBER_EXAM_WORDS);
+// Keep newly supplied source sets separate so the established app logic remains unchanged.
+defaultWords.push(...EBS_LESSON_17_22_WORDS);
+defaultWords.push(...OCTOBER_EXAM_WORDS);
 
 const studyFolders = {
+    ...EBS_LESSON_17_22_FOLDERS,
+    ...OCTOBER_EXAM_FOLDERS,
     "931": "고1 9월 학평 단어 · 31번",
     "932": "고1 9월 학평 단어 · 32번",
     "933": "고1 9월 학평 단어 · 33번",
@@ -2709,6 +2714,10 @@ function sortDocumentWords(items) {
 }
 documentWordOrder.push(...SEPTEMBER_EXAM_WORDS.map(item => item.id));
 SEPTEMBER_EXAM_WORDS.forEach(item => { documentWordFolders[item.id] = item.folderId; });
+documentWordOrder.push(...EBS_LESSON_17_22_WORDS.map(item => item.id));
+EBS_LESSON_17_22_WORDS.forEach(item => { documentWordFolders[item.id] = item.folderId; });
+documentWordOrder.push(...OCTOBER_EXAM_WORDS.map(item => item.id));
+OCTOBER_EXAM_WORDS.forEach(item => { documentWordFolders[item.id] = item.folderId; });
 
 defaultWords.sort((a, b) => documentWordOrder.indexOf(a.id) - documentWordOrder.indexOf(b.id));
 
@@ -2952,12 +2961,37 @@ function loadWordsFromStorage() {
                 localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
                 localStorage.setItem('ebs_voca_september_text_import_v1', '1');
             }
+            if (!localStorage.getItem('ebs_voca_ebs_lessons_17_22_import_v1')) {
+                EBS_LESSON_17_22_WORDS.forEach(item => {
+                    if (!savedWords.some(saved => saved.id === item.id)) savedWords.push({ ...item });
+                });
+                localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
+                localStorage.setItem('ebs_voca_ebs_lessons_17_22_import_v1', '1');
+            }
+            if (!localStorage.getItem('ebs_voca_october_exam_import_v1')) {
+                OCTOBER_EXAM_WORDS.forEach(item => {
+                    if (!savedWords.some(saved => saved.id === item.id)) savedWords.push({ ...item });
+                });
+                localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
+                localStorage.setItem('ebs_voca_october_exam_import_v1', '1');
+            }
+            const suppliedSourceWords = new Map([
+                ...EBS_LESSON_17_22_WORDS,
+                ...OCTOBER_EXAM_WORDS
+            ].map(item => [item.id, item]));
             return sortDocumentWords(savedWords.map((item, index) => {
                 // Preserve these authored examples instead of applying the older example generator.
                 const examWord = SEPTEMBER_EXAM_WORDS.find(word => word.id === item.id);
                 if (examWord) return { ...item, folderId: examWord.folderId, folderScheme: 'hwp',
                     exampleEn: item.exampleEn || examWord.exampleEn,
                     exampleKo: item.exampleKo || examWord.exampleKo };
+                const suppliedWord = suppliedSourceWords.get(item.id);
+                if (suppliedWord) return { ...suppliedWord, ...item,
+                    word: suppliedWord.word, meaning: suppliedWord.meaning, pos: suppliedWord.pos,
+                    folderId: suppliedWord.folderId, folderScheme: 'hwp',
+                    exampleEn: suppliedWord.exampleEn, exampleKo: suppliedWord.exampleKo,
+                    synonyms: suppliedWord.synonyms || '', antonyms: suppliedWord.antonyms || '',
+                    sourceExpression: suppliedWord.sourceExpression || '' };
                 const defaultIndex = defaultWords.findIndex(word => word.id === item.id && word.word === item.word);
                 const examples = makeExample(item.word, item.meaning, defaultIndex >= 0 ? defaultIndex : index);
                 const base = funWordExamples[item.word.replace(/\s*[~(].*$/, '').trim()];
@@ -2978,6 +3012,8 @@ function loadWordsFromStorage() {
     localStorage.setItem('ebs_voca_lesson10_import_v1', '1');
     localStorage.setItem('ebs_voca_september_numbered_import_v1', '1');
     localStorage.setItem('ebs_voca_september_text_import_v1', '1');
+    localStorage.setItem('ebs_voca_ebs_lessons_17_22_import_v1', '1');
+    localStorage.setItem('ebs_voca_october_exam_import_v1', '1');
     return JSON.parse(JSON.stringify(defaultWords));
 }
 
