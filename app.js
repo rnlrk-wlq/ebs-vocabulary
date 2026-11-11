@@ -2975,6 +2975,18 @@ function loadWordsFromStorage() {
                 localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
                 localStorage.setItem('ebs_voca_october_exam_import_v1', '1');
             }
+            // Remove the October exam groups deleted from the curriculum while retaining 30~34.
+            if (!localStorage.getItem('ebs_voca_october_exam_trim_v2')) {
+                const removedOctoberFolders = new Set([
+                    1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029,
+                    1035, 1036, 1037, 1038, 1039, 1040, 1041, 1042
+                ]);
+                for (let index = savedWords.length - 1; index >= 0; index--) {
+                    if (removedOctoberFolders.has(Number(savedWords[index].folderId))) savedWords.splice(index, 1);
+                }
+                localStorage.setItem('ebs_voca_words_2026_full_257', JSON.stringify(savedWords));
+                localStorage.setItem('ebs_voca_october_exam_trim_v2', '1');
+            }
             const suppliedSourceWords = new Map([
                 ...EBS_LESSON_17_22_WORDS,
                 ...OCTOBER_EXAM_WORDS
@@ -3014,6 +3026,7 @@ function loadWordsFromStorage() {
     localStorage.setItem('ebs_voca_september_text_import_v1', '1');
     localStorage.setItem('ebs_voca_ebs_lessons_17_22_import_v1', '1');
     localStorage.setItem('ebs_voca_october_exam_import_v1', '1');
+    localStorage.setItem('ebs_voca_october_exam_trim_v2', '1');
     return JSON.parse(JSON.stringify(defaultWords));
 }
 
