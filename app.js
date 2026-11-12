@@ -2212,7 +2212,28 @@ const teacherWordExamples = {
   }
 };
 
-const exampleTeachers = [{"ko":"배종원","en":"Bae Jongwon"},{"ko":"손영희","en":"Son Younghee"},{"ko":"명정의","en":"Myeong Jeongui"},{"ko":"전인호","en":"Jeon Inho"},{"ko":"이재욱","en":"Lee Jaewook"},{"ko":"이혜원","en":"Lee Hyewon"},{"ko":"백혜숙","en":"Baek Hyesook"},{"ko":"박승주","en":"Park Seungju"},{"ko":"서민영","en":"Seo Minyoung"},{"ko":"허순명","en":"Heo Sunmyeong"},{"ko":"조혜주","en":"Jo Hyeju"},{"ko":"위광현","en":"Wi Gwanghyeon"},{"ko":"황지성","en":"Hwang Jiseong"},{"ko":"김덕하","en":"Kim Deokha"},{"ko":"이영춘","en":"Lee Youngchun"},{"ko":"김철훈","en":"Kim Cheolhun"},{"ko":"김성주","en":"Kim Seongju"},{"ko":"박영수","en":"Park Youngsu"},{"ko":"이연임","en":"Lee Yeonim"},{"ko":"백광일","en":"Baek Gwangil"},{"ko":"신지완","en":"Shin Jiwan"},{"ko":"전선영","en":"Jeon Seonyeong"},{"ko":"박수환","en":"Park Suhwan"},{"ko":"안다은","en":"An Daeun"},{"ko":"홍지혜","en":"Hong Jihye"},{"ko":"이민아","en":"Lee Mina"},{"ko":"강병선","en":"Kang Byeongseon"},{"ko":"강준영","en":"Kang Junyoung"},{"ko":"최수형","en":"Choi Suhyeong"},{"ko":"황정동","en":"Hwang Jeongdong"}];
+const exampleTeachers = [
+    { ko: '배종원', en: 'Bae Jongwon' }, { ko: '손영희', en: 'Son Younghee' },
+    { ko: '명정의', en: 'Myeong Jeongui' }, { ko: '전인호', en: 'Jeon Inho' },
+    { ko: '이재욱', en: 'Lee Jaewook' }, { ko: '이혜원', en: 'Lee Hyewon' },
+    { ko: '백혜숙', en: 'Baek Hyesook' }, { ko: '박승주', en: 'Park Seungju' },
+    { ko: '허순명', en: 'Heo Sunmyeong' }, { ko: '김성주', en: 'Kim Seongju' },
+    { ko: '조혜주', en: 'Jo Hyeju' }, { ko: '이강휘', en: 'Lee Ganghwi' },
+    { ko: '박지은', en: 'Park Jieun' }, { ko: '강준영', en: 'Kang Junyoung' },
+    { ko: '황지성', en: 'Hwang Jiseong' }, { ko: '황정동', en: 'Hwang Jeongdong' },
+    { ko: '박수환', en: 'Park Suhwan' }, { ko: '서민영', en: 'Seo Minyoung' },
+    { ko: '김철훈', en: 'Kim Cheolhun' }, { ko: '위광현', en: 'Wi Gwanghyeon' },
+    { ko: '박영수', en: 'Park Youngsu' }, { ko: '홍지혜', en: 'Hong Jihye' },
+    { ko: '이민아', en: 'Lee Mina' }, { ko: '강병선', en: 'Kang Byeongseon' },
+    { ko: '최수형', en: 'Choi Suhyeong' }, { ko: '이연임', en: 'Lee Yeonim' },
+    { ko: '이영춘', en: 'Lee Youngchun' }, { ko: '김덕하', en: 'Kim Deokha' },
+    { ko: '신지완', en: 'Shin Jiwan' }, { ko: '전선영', en: 'Jeon Seonyeong' },
+    { ko: '어승주', en: 'Eo Seungju' }, { ko: '리사', en: 'Lisa' },
+    { ko: '이진우', en: 'Lee Jinwoo' }, { ko: '백광일', en: 'Baek Gwangil' },
+    { ko: '임영기', en: 'Im Younggi' }, { ko: '안다은', en: 'An Daeun' },
+    { ko: '구태영', en: 'Gu Taeyoung' }, { ko: '이명숙', en: 'Lee Myeongsook' },
+    { ko: '권메아리', en: 'Kwon Meari' }
+];
 
 // A leading Korean parenthetical belongs to the meaning, not the English word.
 function repairMeaningParenthesis(item) {
