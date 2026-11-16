@@ -234,9 +234,9 @@
     flex: 0 0 auto;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     position: static;
-    width: 100%;
+    width: auto;
     clear: both;
 }
 .vocab-toolbar-button { min-height: 40px; width: auto; flex: 0 0 auto; justify-content: center; white-space: nowrap; }
