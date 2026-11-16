@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="20261116-school-auth-staging-11">
+    <meta name="app-version" content="20261116-toolbar-layout-12">
     <title>단어 함 보카?</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -12,7 +12,7 @@
     <script src="app.js?v=20261116-school-auth-staging-7"></script>
     <script src="auth.js?v=20261116-school-auth-production-11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20261116-school-auth-production-11">
+    <link rel="stylesheet" href="style.css?v=20261116-toolbar-layout-12">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -594,13 +594,13 @@
             </section>
 
             <section id="view-list" class="view-section hidden flex-col space-y-4 w-full">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div class="relative w-full sm:w-72">
+                <div class="vocab-toolbar">
+                    <div class="vocab-primary-controls">
+                    <div class="relative vocab-search-control">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="listSearchInput" oninput="renderVocabList()" placeholder="단어 또는 뜻 검색..." class="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <input type="text" id="listSearchInput" oninput="renderVocabList()" placeholder="단어 또는 뜻 검색..." class="w-full pl-9 pr-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-600">
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                        <select id="listFilter" aria-label="학습 폴더 및 암기 상태" onchange="handleListFilterChange()" class="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none">
+                        <select id="listFilter" aria-label="학습 폴더 및 암기 상태" onchange="handleListFilterChange()" class="vocab-folder-select px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600">
                             <optgroup label="학습 폴더">
                                 <option value="folder:all">전체 단어</option>
                                 <option value="folder:4">04. 함축적 의미 파악 (44개)</option>
@@ -645,17 +645,19 @@
                             <option value="review">❌ 미암기 단어만</option>
                             </optgroup>
                         </select>
-                        <button onclick="openMultiFolderModal()" class="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="여러 폴더의 단어를 함께 학습">
+                    </div>
+                    <div class="vocab-toolbar-actions">
+                        <button onclick="openMultiFolderModal()" class="vocab-toolbar-button px-3 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="여러 폴더의 단어를 함께 학습">
                             <i class="fa-solid fa-layer-group"></i><span>여러 폴더 선택</span>
                         </button>
-                        <button onclick="createCustomFolder()" class="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="내 폴더 만들기">
+                        <button onclick="createCustomFolder()" class="vocab-toolbar-button px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="내 폴더 만들기">
                             <i class="fa-solid fa-folder-plus"></i><span>폴더 만들기</span>
                         </button>
-                        <button onclick="openAddWordModal()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition flex items-center space-x-1 shadow-sm" title="새 단어 추가">
+                        <button onclick="openAddWordModal()" class="vocab-toolbar-button px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition flex items-center space-x-1 shadow-sm" title="새 단어 추가">
                             <i class="fa-solid fa-plus"></i>
                             <span>단어 추가</span>
                         </button>
-                        <button onclick="resetWordsToDefault()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center space-x-1 shadow-sm" title="기본 단어장으로 초기화">
+                        <button onclick="resetWordsToDefault()" class="vocab-toolbar-button px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center space-x-1 shadow-sm" title="기본 단어장으로 초기화">
                             <i class="fa-solid fa-rotate-left"></i>
                             <span>단어 초기화</span>
                         </button>
