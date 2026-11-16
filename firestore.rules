@@ -1,137 +1,22 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function googleEmail() {
-      return signedIn()
-        && request.auth.token.email_verified == true
-        && request.auth.token.firebase.sign_in_provider == 'google.com';
-    }
-
-    function schoolAccount() {
-      return googleEmail()
-        && request.auth.token.email.matches('^[^@]+@muhak-g-h[.]gne[.]go[.]kr$');
-    }
-
-    function userProfile(uid) {
-      return get(/databases/$(database)/documents/schoolUsers/$(uid));
-    }
-
-    function approved() {
-      return schoolAccount()
-        && exists(/databases/$(database)/documents/schoolUsers/$(request.auth.uid))
-        && userProfile(request.auth.uid).data.status == 'approved';
-    }
-
-    function teacher() {
-      return approved()
-        && request.auth.token.email in [
-          'englishmath@muhak-g-h.gne.go.kr',
-          'mildwone@muhak-g-h.gne.go.kr'
-        ]
-        && userProfile(request.auth.uid).data.role == 'teacher';
-    }
-
-    function validStudentIdentity(data) {
-      return data.school == '마산무학여자고등학교'
-        && data.email == request.auth.token.email
-        && data.name is string && data.name.size() >= 2 && data.name.size() <= 20
-        && data.grade is int && data.grade >= 1 && data.grade <= 3
-        && data.classNo is int && data.classNo >= 1 && data.classNo <= 8
-        && data.studentNo is int && data.studentNo >= 1 && data.studentNo <= 50;
-    }
-
+    function schoolAccount() { return request.auth != null && request.auth.token.email_verified == true && request.auth.token.firebase.sign_in_provider == 'google.com' && request.auth.token.email.matches('^[^@]+@muhak-g-h[.]gne[.]go[.]kr$'); }
+    function profile(uid) { return get(/databases/$(database)/documents/schoolUsers/$(uid)); }
+    function approved() { return schoolAccount() && exists(/databases/$(database)/documents/schoolUsers/$(request.auth.uid)) && profile(request.auth.uid).data.status == 'approved'; }
+    function teacher() { return approved() && request.auth.token.email in ['englishmath@muhak-g-h.gne.go.kr', 'mildwone@muhak-g-h.gne.go.kr'] && profile(request.auth.uid).data.role == 'teacher'; }
+    function validStudent(data) { return data.school == '마산무학여자고등학교' && data.email == request.auth.token.email && data.name is string && data.name.size() >= 2 && data.name.size() <= 20 && data.grade is int && data.grade >= 1 && data.grade <= 3 && data.classNo is int && data.classNo >= 1 && data.classNo <= 8 && data.studentNo is int && data.studentNo >= 1 && data.studentNo <= 50; }
     match /schoolUsers/{uid} {
       allow get: if schoolAccount() && (request.auth.uid == uid || teacher());
       allow list: if teacher();
-
-      allow create: if schoolAccount() && request.auth.uid == uid && (
-        (request.auth.token.email in [
-            'englishmath@muhak-g-h.gne.go.kr',
-            'mildwone@muhak-g-h.gne.go.kr'
-          ]
-          && request.resource.data.role == 'teacher'
-          && request.resource.data.status == 'approved')
-        ||
-        (validStudentIdentity(request.resource.data)
-          && request.resource.data.role == 'student'
-          && request.resource.data.status == 'approved')
-      );
-
-      allow update: if teacher() || (
-        schoolAccount() && request.auth.uid == uid
-        && resource.data.role == 'student' && request.resource.data.role == 'student'
-        && (
-          (request.resource.data.status == 'pending'
-            && resource.data.status in ['pending', 'rejected']
-            && validStudentIdentity(request.resource.data)
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-              'name', 'grade', 'classNo', 'studentNo', 'status',
-              'rejectionReason', 'updatedAt'
-            ]))
-          ||
-          (resource.data.status == 'approved' && request.resource.data.status == 'approved'
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['editRequest','updatedAt'])
-            && request.resource.data.editRequest.name is string
-            && request.resource.data.editRequest.name.size() >= 2
-            && request.resource.data.editRequest.name.size() <= 20
-            && request.resource.data.editRequest.grade is int
-            && request.resource.data.editRequest.grade >= 1
-            && request.resource.data.editRequest.grade <= 3
-            && request.resource.data.editRequest.classNo is int
-            && request.resource.data.editRequest.classNo >= 1
-            && request.resource.data.editRequest.classNo <= 8
-            && request.resource.data.editRequest.studentNo is int
-            && request.resource.data.editRequest.studentNo >= 1
-            && request.resource.data.editRequest.studentNo <= 50)
-        )
-      );
-
+      allow create: if schoolAccount() && request.auth.uid == uid && ((request.auth.token.email in ['englishmath@muhak-g-h.gne.go.kr', 'mildwone@muhak-g-h.gne.go.kr'] && request.resource.data.role == 'teacher' && request.resource.data.status == 'approved') || (validStudent(request.resource.data) && request.resource.data.role == 'student' && request.resource.data.status == 'approved'));
+      allow update: if teacher() || (schoolAccount() && request.auth.uid == uid && resource.data.role == 'student' && request.resource.data.role == 'student' && resource.data.status == 'approved' && request.resource.data.status == 'approved' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['editRequest','updatedAt']) && request.resource.data.editRequest.name is string && request.resource.data.editRequest.name.size() >= 2 && request.resource.data.editRequest.name.size() <= 20 && request.resource.data.editRequest.grade is int && request.resource.data.editRequest.grade >= 1 && request.resource.data.editRequest.grade <= 3 && request.resource.data.editRequest.classNo is int && request.resource.data.editRequest.classNo >= 1 && request.resource.data.editRequest.classNo <= 8 && request.resource.data.editRequest.studentNo is int && request.resource.data.editRequest.studentNo >= 1 && request.resource.data.editRequest.studentNo <= 50);
       allow delete: if false;
-
-      match /learningProgress/{documentId} {
-        allow read, create, update: if approved() && request.auth.uid == uid;
-        allow read: if teacher();
-        allow delete: if false;
-      }
+      match /learningProgress/{documentId} { allow read, create, update: if approved() && request.auth.uid == uid; allow read: if teacher(); allow delete: if false; }
     }
-
-    match /schoolVocabulary/{documentId} {
-      allow read: if approved();
-      allow create, update: if teacher();
-      allow delete: if false;
-    }
-
-    match /matchingRankings/{userId} {
-      allow read: if approved();
-      allow create, update: if approved() && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly(['nickname','bestScore','plays','updatedAt'])
-        && request.resource.data.nickname is string
-        && request.resource.data.nickname.size() >= 1
-        && request.resource.data.nickname.size() <= 20
-        && request.resource.data.bestScore is int
-        && request.resource.data.bestScore >= 0
-        && request.resource.data.plays is int
-        && request.resource.data.plays >= 0;
-      allow delete: if false;
-    }
-
-    match /quizRankings_r20260914b/{userId} {
-      allow read: if approved();
-      allow create, update: if approved() && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly(['nickname','totalScore','completedQuizzes','updatedAt'])
-        && request.resource.data.nickname is string
-        && request.resource.data.nickname.size() >= 1
-        && request.resource.data.nickname.size() <= 20
-        && request.resource.data.totalScore is int
-        && request.resource.data.totalScore >= 0
-        && request.resource.data.completedQuizzes is int
-        && request.resource.data.completedQuizzes >= 0;
-      allow delete: if teacher();
-    }
+    match /schoolVocabulary/{documentId} { allow read: if approved(); allow create, update: if teacher(); allow delete: if false; }
+    match /matchingRankings/{userId} { allow read: if request.auth != null; allow create, update: if request.auth != null && request.auth.uid == userId && request.resource.data.keys().hasOnly(['nickname','bestScore','plays','updatedAt']) && request.resource.data.nickname is string && request.resource.data.nickname.size() >= 1 && request.resource.data.nickname.size() <= 12 && request.resource.data.bestScore is int && request.resource.data.bestScore >= 0 && request.resource.data.plays is int && request.resource.data.plays >= 0; allow delete: if false; }
+    match /quizRankings/{userId} { allow read: if request.auth != null; allow create, update: if request.auth != null && request.auth.uid == userId && request.resource.data.keys().hasOnly(['nickname','totalScore','completedQuizzes','updatedAt']) && request.resource.data.nickname is string && request.resource.data.nickname.size() >= 1 && request.resource.data.nickname.size() <= 12 && request.resource.data.totalScore is int && request.resource.data.totalScore >= 0 && request.resource.data.completedQuizzes is int && request.resource.data.completedQuizzes >= 0; allow delete: if false; }
+    match /quizRankings_r20260914b/{userId} { allow read: if request.auth != null; allow create, update: if request.auth != null && request.auth.uid == userId && request.resource.data.keys().hasOnly(['nickname','totalScore','completedQuizzes','updatedAt']) && request.resource.data.nickname is string && request.resource.data.nickname.size() >= 1 && request.resource.data.nickname.size() <= 12 && request.resource.data.totalScore is int && request.resource.data.totalScore >= 0 && request.resource.data.completedQuizzes is int && request.resource.data.completedQuizzes >= 0; allow delete: if teacher(); }
   }
 }
