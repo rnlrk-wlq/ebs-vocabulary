@@ -17,8 +17,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="단어 함 보카?">
-    <link rel="apple-touch-icon" href="../icons/blue-face-180.png">
-    <link rel="icon" type="image/png" href="../icons/blue-face-192.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/blue-face-180.png">
+    <link rel="icon" type="image/png" href="icons/blue-face-192.png">
+    <script defer src="pwa.js?v=20260914-install-1"></script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 font-sans antialiased">
 
@@ -47,11 +49,13 @@
 
             <form id="registrationForm" onsubmit="submitSchoolRegistration(event)" class="hidden space-y-4">
                 <div class="rounded-2xl bg-blue-50 dark:bg-blue-950/30 p-4 text-xs text-slate-600 dark:text-slate-300">학교: <strong>마산무학여자고등학교</strong><br>승인 후 본인 UID에 학습 기록이 연결됩니다.</div>
-                <div class="grid grid-cols-2 gap-3">
-                    <label class="text-xs font-bold">학년<select id="studentGrade" required class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"><option value="">선택</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option></select></label>
-                    <label class="text-xs font-bold">반<select id="studentClass" required class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"><option value="">선택</option><option value="1">1반</option><option value="2">2반</option><option value="3">3반</option><option value="4">4반</option><option value="5">5반</option><option value="6">6반</option><option value="7">7반</option><option value="8">8반</option><option value="9">9반</option><option value="10">10반</option></select></label>
-                    <label class="text-xs font-bold">번호<input id="studentNumber" type="number" min="1" max="50" required class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"></label>
-                    <label class="text-xs font-bold">이름<input id="studentName" maxlength="20" required autocomplete="name" class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"></label>
+                <div class="space-y-3">
+                    <fieldset><legend class="text-xs font-bold mb-1.5">학년</legend><div id="studentGradeButtons" class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="학년 선택"></div><input id="studentGrade" type="hidden" required></fieldset>
+                    <fieldset><legend class="text-xs font-bold mb-1.5">반</legend><div id="studentClassButtons" class="grid grid-cols-5 gap-2" role="radiogroup" aria-label="반 선택"></div><input id="studentClass" type="hidden" required></fieldset>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="text-xs font-bold">번호<input id="studentNumber" type="number" inputmode="numeric" min="1" max="50" required class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"></label>
+                        <label class="text-xs font-bold">이름<input id="studentName" type="text" lang="ko" inputmode="text" maxlength="20" required autocomplete="name" placeholder="한글 이름" class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"></label>
+                    </div>
                 </div>
                 <label class="block text-xs font-bold">인증된 이메일<input id="verifiedStudentEmail" readonly class="mt-1 w-full p-3 rounded-xl border bg-slate-100 dark:bg-slate-700 dark:border-slate-600 text-slate-500"></label>
                 <p id="registrationError" class="hidden text-sm font-bold text-red-600" role="alert"></p>
@@ -79,7 +83,7 @@
             <span class="sky-cloud sky-cloud--four"></span>
         </div>
         <div class="intro-cloud-seat" aria-hidden="true">
-            <img src="../assets/mascots-cloud.webp" alt="" width="1536" height="1024" draggable="false" fetchpriority="high">
+            <img src="assets/mascots-cloud.webp" alt="" width="1536" height="1024" draggable="false" fetchpriority="high">
         </div>
         <form onsubmit="startFromIntro(event)" class="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-xl text-center space-y-6">
             <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>
