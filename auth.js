@@ -1,6 +1,9 @@
 const SCHOOL_NAME = '마산무학여자고등학교';
 const SCHOOL_AUTH_DOMAINS = ['muhak-g-h.gne.go.kr'];
-const TEACHER_EMAILS = ['englishmath@muhak-g-h.gne.go.kr'];
+const TEACHER_EMAILS = [
+    'englishmath@muhak-g-h.gne.go.kr',
+    'mildwone@muhak-g-h.gne.go.kr'
+];
 const PROFILE_COLLECTION = 'schoolUsers';
 const PROGRESS_COLLECTION = 'learningProgress';
 const PROGRESS_SCHEMA_VERSION = 1;
