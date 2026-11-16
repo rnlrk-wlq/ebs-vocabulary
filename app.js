@@ -2744,6 +2744,7 @@ defaultWords.sort((a, b) => documentWordOrder.indexOf(a.id) - documentWordOrder.
 
 let words = [];
 let selectedFolder = null;
+let selectedFolderIds = new Set();
 let pendingFolderTab = 'flashcard';
 let activeStudyTab = 'flashcard';
 let selectedStudyWordIds = new Set();
@@ -2852,7 +2853,10 @@ function handleListFilterChange() {
 
 function selectWordFolder(folder) {
     if (!(folder === 'all' || Object.hasOwn(studyFolders, folder))) return;
-    if (selectedFolder !== folder) {
+    const isSameSingleFolder = folder === 'all'
+        ? selectedFolder === 'all'
+        : selectedFolder === folder && selectedFolderIds.size === 1 && selectedFolderIds.has(Number(folder));
+    if (!isSameSingleFolder) {
         const quizActive = !document.getElementById('quizActiveContainer').classList.contains('hidden');
         const matchActive = matchTimer !== null;
         if (selectedFolder !== null && (quizActive || matchActive) &&
@@ -2872,12 +2876,91 @@ function selectWordFolder(folder) {
         selectedStudyWordIds.clear();
         selectedOnlyMode = false;
         selectedFolder = folder;
+        selectedFolderIds = folder === 'all' ? new Set() : new Set([Number(folder)]);
         showQuizPrepScreen();
         showMatchPrepScreen();
     }
     document.getElementById('studyMain').classList.remove('hidden');
-    document.getElementById('selectedFolderLabel').innerText = folder === 'all' ? '전체 단어' : studyFolders[folder];
+    updateStudySelectionLabel();
     switchTab(pendingFolderTab);
+}
+
+function getSelectedFolderLabel() {
+    if (selectedFolder === 'all') return '전체 단어';
+    if (selectedFolderIds.size > 1) return `선택 폴더 ${selectedFolderIds.size}개 · 총 ${getFolderWords().length}개 단어`;
+    return studyFolders[selectedFolder] || '선택 폴더';
+}
+
+function getSelectableFolders() {
+    return Object.keys(studyFolders).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+}
+
+function updateMultiFolderCount() {
+    const checked = document.querySelectorAll('#multiFolderOptions input[type="checkbox"]:checked');
+    const count = Array.from(checked).reduce((sum, input) => sum + Number(input.dataset.wordCount || 0), 0);
+    const label = document.getElementById('multiFolderCount');
+    if (label) label.innerText = `폴더 ${checked.length}개 · 단어 ${count}개`;
+}
+
+function openMultiFolderModal() {
+    const options = document.getElementById('multiFolderOptions');
+    options.innerHTML = getSelectableFolders().map(folderId => {
+        const count = words.filter(word => Number(wordFolder(word)) === folderId).length;
+        const checked = selectedFolder === 'all' || selectedFolderIds.has(folderId) ? 'checked' : '';
+        return `<label class="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 p-3 cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-700/70 transition">
+            <input type="checkbox" name="multiFolder" value="${folderId}" data-word-count="${count}" ${checked} onchange="updateMultiFolderCount()" class="w-4 h-4 accent-indigo-600">
+            <span class="min-w-0"><span class="block text-xs font-bold text-slate-800 dark:text-slate-100">${escapeHtml(studyFolders[folderId])}</span><span class="text-[11px] text-slate-500 dark:text-slate-400">${count}개 단어</span></span>
+        </label>`;
+    }).join('');
+    document.getElementById('multiFolderModal').classList.remove('hidden');
+    updateMultiFolderCount();
+}
+
+function closeMultiFolderModal() {
+    document.getElementById('multiFolderModal').classList.add('hidden');
+}
+
+function toggleAllMultiFolders(checked) {
+    document.querySelectorAll('#multiFolderOptions input[type="checkbox"]').forEach(input => { input.checked = checked; });
+    updateMultiFolderCount();
+}
+
+function applyMultiFolderSelection(event) {
+    event.preventDefault();
+    const folderIds = Array.from(document.querySelectorAll('#multiFolderOptions input[type="checkbox"]:checked')).map(input => Number(input.value));
+    if (folderIds.length === 0) {
+        alert('학습할 폴더를 한 개 이상 선택해 주세요.');
+        return;
+    }
+    const quizActive = !document.getElementById('quizActiveContainer').classList.contains('hidden');
+    const matchActive = matchTimer !== null;
+    if ((quizActive || matchActive) && !confirm('폴더를 바꾸면 진행 중인 학습이 종료됩니다. 선택한 폴더로 변경할까요?')) return;
+    preserveMatchSessionScore();
+    matchSession++;
+    if (matchTimer) clearInterval(matchTimer);
+    matchTimer = null;
+    matchResolving = false;
+    selectedMatchCards = [];
+    quizPool = [];
+    quizIndex = 0;
+    quizAnswered = false;
+    flashcardIndex = 0;
+    spellingIndex = 0;
+    spellingAnswered = false;
+    selectedStudyWordIds.clear();
+    selectedOnlyMode = false;
+    selectedFolderIds = new Set(folderIds);
+    selectedFolder = folderIds[0];
+    listStatusFilter = 'all';
+    const menu = document.getElementById('listFilter');
+    if (menu) menu.value = `folder:${selectedFolder}`;
+    closeMultiFolderModal();
+    document.getElementById('studyMain').classList.remove('hidden');
+    showQuizPrepScreen();
+    showMatchPrepScreen();
+    updateStudySelectionLabel();
+    renderVocabList();
+    switchTab(activeStudyTab);
 }
 
 
@@ -3065,6 +3148,10 @@ function saveWordsToStorage() {
 
 function resetWordsToDefault() {
     if (selectedFolder === null) return;
+    if (selectedFolderIds.size > 1) {
+        alert('단어 초기화는 한 번에 한 폴더씩 할 수 있습니다. 먼저 폴더 하나를 선택해 주세요.');
+        return;
+    }
     if (customFolders.some(folder => folder.id === selectedFolder)) {
         alert('직접 만든 폴더에는 초기화할 기본 단어가 없습니다. 단어 목록에서 개별 단어를 삭제할 수 있습니다.');
         return;
@@ -3083,7 +3170,10 @@ function resetWordsToDefault() {
 }
 
 function getFolderWords() {
-    return selectedFolder === null ? [] : selectedFolder === 'all' ? [...words] : words.filter(item => wordFolder(item) === selectedFolder);
+    if (selectedFolder === null) return [];
+    if (selectedFolder === 'all') return [...words];
+    if (selectedFolderIds.size > 0) return words.filter(item => selectedFolderIds.has(Number(wordFolder(item))));
+    return words.filter(item => wordFolder(item) === selectedFolder);
 }
 
 function getEffectiveWords() {
@@ -3094,7 +3184,7 @@ function getEffectiveWords() {
 function updateStudySelectionLabel() {
     const label = document.getElementById('selectedFolderLabel');
     if (!label || selectedFolder === null) return;
-    const folderName = selectedFolder === 'all' ? '전체 단어' : studyFolders[selectedFolder];
+    const folderName = getSelectedFolderLabel();
     label.innerText = selectedOnlyMode ? `${folderName} · 선택 단어 ${getEffectiveWords().length}개 학습 중` : folderName;
 }
 
@@ -4490,6 +4580,10 @@ function deleteWord(id) {
 }
 
 function openAddWordModal() {
+    if (selectedFolderIds.size > 1) {
+        alert('단어를 추가할 폴더 하나를 먼저 선택해 주세요.');
+        return;
+    }
     document.getElementById('addWordModal').classList.remove('hidden');
 }
 
