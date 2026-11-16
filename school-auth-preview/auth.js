@@ -199,7 +199,7 @@ async function submitSchoolRegistration(event) {
         grade: Number(document.getElementById('studentGrade').value),
         classNo: Number(document.getElementById('studentClass').value),
         studentNo: Number(document.getElementById('studentNumber').value),
-        role: 'student', status: 'pending', rejectionReason: '',
+        role: 'student', status: 'approved', rejectionReason: '',
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     if (!profile.name || !profile.grade || !profile.classNo || profile.studentNo < 1 || profile.studentNo > 50) {
@@ -511,9 +511,9 @@ async function requestProfileEdit() {
     const name = prompt('수정할 이름을 입력해 주세요.', schoolProfile.name)?.trim();
     if (!name) return;
     const grade = Number(prompt('수정할 학년(1~3)을 입력해 주세요.', String(schoolProfile.grade)));
-    const classNo = Number(prompt('수정할 반(1~10)을 입력해 주세요.', String(schoolProfile.classNo)));
+    const classNo = Number(prompt('수정할 반(1~8)을 입력해 주세요.', String(schoolProfile.classNo)));
     const studentNo = Number(prompt('수정할 번호(1~50)를 입력해 주세요.', String(schoolProfile.studentNo)));
-    if (name.length < 2 || name.length > 20 || grade < 1 || grade > 3 || classNo < 1 || classNo > 10 || studentNo < 1 || studentNo > 50) {
+    if (name.length < 2 || name.length > 20 || grade < 1 || grade > 3 || classNo < 1 || classNo > 8 || studentNo < 1 || studentNo > 50) {
         alert('학년·반·번호·이름을 정확히 입력해 주세요.');
         return;
     }
@@ -547,6 +547,32 @@ async function setStudentStatus(uid, status) {
     let rejectionReason = '';
     if (status === 'rejected') rejectionReason = prompt('반려 사유를 입력해 주세요.')?.trim() || '신청 정보를 확인해 주세요.';
     await schoolDb.collection(PROFILE_COLLECTION).doc(uid).update({ status, rejectionReason, reviewedBy: schoolUser.uid, reviewedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+}
+
+async function resetPublicRanking() {
+    if (schoolProfile?.role !== 'teacher' || !isTeacherEmail(schoolUser?.email)) return;
+    const phrase = prompt('공용 랭킹의 닉네임·완료 횟수·점수를 모두 삭제합니다.\n학생 개인 진도는 삭제되지 않습니다.\n계속하려면 "랭킹 초기화"를 입력해 주세요.');
+    if (phrase !== '랭킹 초기화') return;
+    const button = document.getElementById('resetRankingButton');
+    const status = document.getElementById('rankingAdminStatus');
+    button.disabled = true;
+    status.textContent = '랭킹 초기화 중...';
+    try {
+        let removed = 0;
+        while (true) {
+            const snapshot = await schoolDb.collection('quizRankings_r20260914b').limit(400).get();
+            if (snapshot.empty) break;
+            const batch = schoolDb.batch();
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            removed += snapshot.size;
+        }
+        status.textContent = `랭킹 ${removed}건 초기화 완료 · 개인 학습 진도 유지`;
+    } catch (error) {
+        status.textContent = `초기화 실패 · ${firebaseErrorMessage(error)}`;
+    } finally {
+        button.disabled = false;
+    }
 }
 
 window.addEventListener('online', () => { if (schoolProfile?.status === 'approved') queueProgressSave(); });
