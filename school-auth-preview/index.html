@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app-version" content="20261116-school-auth-staging-6">
+    <title>단어 함 보카?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="app.js?v=20261116-school-auth-staging-7"></script>
+    <script src="auth.js?v=20261116-school-auth-staging-7"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=20261111-selected-study-3">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="단어 함 보카?">
+    <link rel="apple-touch-icon" href="../icons/blue-face-180.png">
+    <link rel="icon" type="image/png" href="../icons/blue-face-192.png">
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 font-sans antialiased">
+
+    <section id="accessGate" class="min-h-screen flex items-center justify-center px-5 py-10 bg-gradient-to-b from-blue-50 to-slate-50 dark:from-slate-950 dark:to-slate-900">
+        <div class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xl">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl"><i class="fa-solid fa-school"></i></div>
+                <h1 class="text-2xl font-black mt-4">마산무학여고 영단어 학습</h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">학교 Google 계정으로 로그인하고 선생님의 승인을 받아 이용합니다.</p>
+            </div>
+
+            <div id="authConnecting" class="text-center py-8" aria-live="polite">
+                <i class="fa-solid fa-circle-notch fa-spin text-blue-600 text-2xl"></i>
+                <p class="mt-3 font-bold">로그인 상태 확인 중</p>
+                <p class="text-xs text-slate-500 mt-1">잠시만 기다려 주세요.</p>
+            </div>
+
+            <div id="authLogin" class="hidden space-y-4">
+                <div class="rounded-2xl bg-blue-50 dark:bg-blue-950/30 p-4 text-xs leading-6 text-slate-600 dark:text-slate-300">
+                    학년·반·번호·이름과 학습 진행 기록은 수업 운영과 이어서 학습을 위해 저장됩니다. 전화번호와 생년월일은 수집하지 않습니다.
+                </div>
+                <label class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300"><input id="personalDeviceLogin" type="checkbox" class="accent-blue-600">개인 기기에서 로그인 유지</label>
+                <button type="button" onclick="signInWithSchoolGoogle(event)" class="w-full py-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fa-brands fa-google text-red-500 mr-2"></i>학교 Google 계정으로 로그인</button>
+                <p id="authLoginError" class="hidden text-sm font-bold text-red-600 bg-red-50 dark:bg-red-950/30 rounded-xl p-3" role="alert"></p>
+            </div>
+
+            <form id="registrationForm" onsubmit="submitSchoolRegistration(event)" class="hidden space-y-4">
+                <div class="rounded-2xl bg-blue-50 dark:bg-blue-950/30 p-4 text-xs text-slate-600 dark:text-slate-300">학교: <strong>마산무학여자고등학교</strong><br>승인 후 본인 UID에 학습 기록이 연결됩니다.</div>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="text-xs font-bold">학년<select id="studentGrade" required class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"><option value="">선택</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option></select></label>
+                    <label class="text-xs font-bold">반<select id="studentClass" required class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"><option value="">선택</option><option value="1">1반</option><option value="2">2반</option><option value="3">3반</option><option value="4">4반</option><option value="5">5반</option><option value="6">6반</option><option value="7">7반</option><option value="8">8반</option><option value="9">9반</option><option value="10">10반</option></select></label>
+                    <label class="text-xs font-bold">번호<input id="studentNumber" type="number" min="1" max="50" required class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"></label>
+                    <label class="text-xs font-bold">이름<input id="studentName" maxlength="20" required autocomplete="name" class="mt-1 w-full p-3 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-600"></label>
+                </div>
+                <label class="block text-xs font-bold">인증된 이메일<input id="verifiedStudentEmail" readonly class="mt-1 w-full p-3 rounded-xl border bg-slate-100 dark:bg-slate-700 dark:border-slate-600 text-slate-500"></label>
+                <p id="registrationError" class="hidden text-sm font-bold text-red-600" role="alert"></p>
+                <div class="flex gap-2"><button type="button" onclick="schoolSignOut()" class="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-700 font-bold">다른 계정</button><button type="submit" class="flex-[2] py-3 rounded-xl bg-blue-600 text-white font-bold">가입 승인 요청</button></div>
+            </form>
+
+            <div id="approvalWaiting" class="hidden space-y-4 text-center">
+                <i class="fa-regular fa-clock text-amber-500 text-4xl"></i>
+                <h2 class="text-xl font-black">선생님의 가입 승인을 기다리고 있습니다.</h2>
+                <p class="text-sm text-slate-600 dark:text-slate-300">신청한 학년·반·번호·이름을 확인해 주세요.<br>승인되면 단어 학습을 시작할 수 있습니다.</p>
+                <div id="pendingProfileSummary" class="rounded-2xl bg-slate-50 dark:bg-slate-900 p-4 text-sm"></div>
+                <p id="approvalStatusText" class="text-xs font-bold text-amber-600" aria-live="polite">승인 대기</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2"><button onclick="refreshApprovalStatus()" class="py-3 rounded-xl bg-blue-600 text-white text-xs font-bold">승인 상태 확인</button><button onclick="editPendingRegistration()" class="py-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-bold">신청 정보 수정</button><button onclick="schoolSignOut()" class="py-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-bold">다른 계정으로 로그인</button></div>
+            </div>
+
+            <div id="accessBlocked" class="hidden space-y-4 text-center"><i class="fa-solid fa-circle-exclamation text-red-500 text-4xl"></i><h2 id="blockedTitle" class="text-xl font-black">이용할 수 없습니다.</h2><p id="blockedMessage" class="text-sm text-slate-600 dark:text-slate-300"></p><div class="flex gap-2"><button onclick="editPendingRegistration()" class="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-700 font-bold">정보 수정·재신청</button><button onclick="schoolSignOut()" class="flex-1 py-3 rounded-xl bg-blue-600 text-white font-bold">계정 전환</button></div></div>
+        </div>
+    </section>
+
+    <section id="introScreen" hidden class="min-h-screen flex items-center justify-center px-5 py-10">
+        <div class="intro-clouds" aria-hidden="true">
+            <span class="sky-cloud sky-cloud--one"></span>
+            <span class="sky-cloud sky-cloud--two"></span>
+            <span class="sky-cloud sky-cloud--three"></span>
+            <span class="sky-cloud sky-cloud--four"></span>
+        </div>
+        <div class="intro-cloud-seat" aria-hidden="true">
+            <img src="../assets/mascots-cloud.webp" alt="" width="1536" height="1024" draggable="false" fetchpriority="high">
+        </div>
+        <form onsubmit="startFromIntro(event)" class="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-xl text-center space-y-6">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>
+            <div><h1 class="text-3xl font-black">단어 함 보카?</h1><p class="text-sm text-slate-500 dark:text-slate-400 mt-3">오늘도 단어 하나부터, 함께 시작해요!</p></div>
+            <div class="text-left space-y-2">
+                <label for="introNickname" class="block text-sm font-bold">닉네임</label>
+                <input id="introNickname" maxlength="12" required autocomplete="nickname" oninput="this.setCustomValidity('')" placeholder="사용할 닉네임을 입력해 주세요" class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <p class="text-xs text-slate-500 dark:text-slate-400">랭킹에 표시될 이름이에요. 기존 학습 기록과 점수는 유지돼요.</p>
+            </div>
+            <button type="submit" class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold">시작하기</button>
+            <div class="pwa-install" data-pwa-install>
+                <button type="button" class="pwa-install-button" data-pwa-install-button aria-label="단어 함 보카 앱으로 설치하기" aria-describedby="introInstallDescription">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4M9 5h6"/></svg>
+                    앱으로 설치하기
+                </button>
+                <p id="introInstallDescription" class="pwa-install-description">휴대전화나 컴퓨터에 설치하면 더 편리하게 학습할 수 있어요.</p>
+            </div>
+        </form>
+    </section>
+
+    <div id="app" hidden class="max-w-4xl mx-auto px-4 py-6 flex flex-col min-h-screen">
+        
+        <!-- HEADER & NAVIGATION -->
+        <header class="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-book-open text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight text-slate-900 dark:text-white">단어 함 보카?</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">수능 필수 핵심 어휘 마스터 프로젝트</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 rounded-2xl bg-slate-100 dark:bg-slate-800 px-3 py-2 text-xs">
+                <span><strong id="signedInStudentName">학습자</strong><br><span id="signedInStudentEmail" class="text-slate-500"></span></span>
+                <button id="teacherRoomButton" type="button" onclick="openTeacherRoom()" class="hidden px-3 py-2 rounded-xl bg-indigo-600 text-white font-bold">교사용 관리실</button>
+                <button id="profileEditRequestButton" type="button" onclick="requestProfileEdit()" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 font-bold">정보 수정 요청</button>
+                <button type="button" onclick="finishStudyAndSignOut()" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 font-bold">학습 마치고 로그아웃</button>
+            </div>
+
+            <div class="pwa-install" data-pwa-install>
+                <button type="button" class="pwa-install-button" data-pwa-install-button aria-label="단어 함 보카 앱으로 설치하기" aria-describedby="headerInstallDescription">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4M9 5h6"/></svg>
+                    앱으로 설치하기
+                </button>
+                <p id="headerInstallDescription" class="pwa-install-description">휴대전화나 컴퓨터에 설치하면 더 편리하게 학습할 수 있어요.</p>
+            </div>
+
+            <!-- TAB NAVIGATION -->
+            <nav class="flex items-center gap-1 bg-slate-200/60 dark:bg-slate-800 p-1.5 rounded-2xl text-xs font-bold overflow-x-auto max-w-full">
+                <button onclick="switchTab('list')" id="tab-list" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                    <i class="fa-solid fa-list-check mr-1"></i>단어 목록
+                </button>
+                <button onclick="switchTab('flashcard')" id="tab-flashcard" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm">
+                    <i class="fa-solid fa-clone mr-1"></i>플래시카드
+                </button>
+                <button onclick="switchTab('spelling-practice')" id="tab-spelling-practice" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                    <i class="fa-solid fa-keyboard mr-1"></i>스펠링 연습
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i>퀴즈 테스트
+                </button>
+                <button onclick="switchTab('match')" id="tab-match" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                    <i class="fa-solid fa-puzzle-piece mr-1"></i>짝맞추기 Game
+                </button>
+                <button onclick="switchTab('ranking')" id="tab-ranking" class="tab-btn px-3 py-2 rounded-xl transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                    <i class="fa-solid fa-trophy mr-1 text-amber-500"></i>선택받은 자
+                </button>
+            </nav>
+        </header>
+
+
+        <div class="flex items-center justify-between mb-4 text-sm">
+            <span id="selectedFolderLabel" class="font-bold text-blue-600 dark:text-blue-400">학습할 폴더를 선택하세요</span>
+        </div>
+        
+
+        <!-- MAIN CONTENT AREA -->
+        <main id="studyMain" class="hidden flex-1 flex flex-col justify-center items-center w-full">
+
+            <section id="view-flashcard" class="view-section flex flex-col items-center justify-center space-y-6 w-full">
+                <!-- Progress Bar -->
+                <div class="w-full max-w-md flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 px-2">
+                    <span id="flashcardProgress">0 / 0</span>
+                    <span class="text-[11px] text-slate-400"><i class="fa-solid fa-info-circle mr-1"></i>카드 내부 버튼으로 암기 상태를 설정하세요</span>
+                </div>
+
+                <!-- 3D Card Container -->
+                <div class="w-full max-w-md h-80 perspective-1000 cursor-pointer" onclick="flipFlashcard()">
+                    <div id="flashcard" class="w-full h-full relative transform-style-3d transition-transform duration-500 shadow-xl rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800">
+                        
+                        <!-- Front Face (English Word) -->
+                        <div class="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-8 pb-16 text-center rounded-3xl">
+                            <!-- Star button top-right inside front card face -->
+                            <div class="absolute top-4 right-4 z-10">
+                                <button onclick="toggleStarCurrent(event)" id="btnStar" class="px-2.5 py-1 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-700/80 hover:bg-amber-50 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">
+                                    <i class="fa-regular fa-star mr-1 text-amber-500"></i>별표 보관
+                                </button>
+                            </div>
+
+                            <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full mb-2 mt-2" id="fcPos">POS</span>
+                            <h2 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-1 tracking-tight" id="fcWord">Word</h2>
+                            <p class="text-sm font-mono text-slate-400 dark:text-slate-500 mb-3" id="fcPhonetic">/phonetic/</p>
+                            <button onclick="speakWord(event)" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-blue-600 hover:text-white transition mb-2">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                            <span class="text-[11px] text-slate-400"><i class="fa-solid fa-rotate mr-1"></i>클릭하여 뜻 확인</span>
+
+                            <!-- Mastered Button enlarged at bottom -->
+                            <div class="absolute bottom-3 left-6 right-6 z-10">
+                                <button onclick="toggleMasteredCurrent(event)" id="btnMastered" class="w-full py-2.5 px-4 text-xs sm:text-sm font-bold rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-700/90 hover:bg-emerald-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-200 shadow-sm">
+                                    <i class="fa-regular fa-circle-check mr-1.5 text-emerald-500 text-sm"></i>암기 완료
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Back Face (Korean Meaning & Example) -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-8 pb-16 text-center bg-blue-600 text-white rounded-3xl">
+                            <!-- Star button top-right inside back card face -->
+                            <div class="absolute top-4 right-4 z-10">
+                                <button onclick="toggleStarCurrent(event)" id="btnStarBack" class="px-2.5 py-1 text-xs font-semibold rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition">
+                                    <i class="fa-regular fa-star mr-1 text-amber-300"></i>별표 보관
+                                </button>
+                            </div>
+
+                            <h3 class="text-2xl font-black mb-3 mt-2" id="fcMeaning">의미</h3>
+                            <div class="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl text-xs sm:text-sm text-blue-50 w-full space-y-1 mb-2">
+                                <p class="font-medium italic" id="fcExampleEn">Example Sentence</p>
+                                <p class="text-blue-200" id="fcExampleKo">예문 해석</p>
+                            </div>
+                            <span class="text-[11px] text-blue-200"><i class="fa-solid fa-rotate mr-1"></i>클릭하여 단어 확인</span>
+
+                            <!-- Mastered Button enlarged at bottom -->
+                            <div class="absolute bottom-3 left-6 right-6 z-10">
+                                <button onclick="toggleMasteredCurrent(event)" id="btnMasteredBack" class="w-full py-2.5 px-4 text-xs sm:text-sm font-bold rounded-2xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition shadow-sm">
+                                    <i class="fa-regular fa-circle-check mr-1.5 text-emerald-300 text-sm"></i>암기 완료
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="prevFlashcard()" class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700 shadow-sm transition">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button onclick="shuffleFlashcards()" class="px-4 py-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700 shadow-sm transition">
+                        <i class="fa-solid fa-shuffle mr-1.5 text-blue-600"></i>무작위 섞기
+                    </button>
+                    <button onclick="nextFlashcard()" class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700 shadow-sm transition">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="view-spelling-practice" class="view-section hidden flex flex-col items-center justify-center space-y-6 w-full">
+                <div class="w-full max-w-md bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-lg space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                        <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-full" id="spPos" hidden></span>
+                        <span class="text-xs font-mono text-slate-400" id="spProgress">1 / 39</span>
+                    </div>
+
+                    <!-- Target Word Display -->
+                    <div class="text-center space-y-2 py-2">
+                        <div class="flex items-center justify-center space-x-2">
+                            <h2 class="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight" id="spWordTarget">Word</h2>
+                            <button onclick="speakSpellingWord()" class="text-slate-400 hover:text-blue-600 transition">
+                                <i class="fa-solid fa-volume-high text-lg"></i>
+                            </button>
+                        </div>
+                        <p class="text-sm font-mono text-slate-400" id="spPhonetic">/phonetic/</p>
+                        <p class="text-xl font-bold text-slate-800 dark:text-slate-100 mt-2" id="spMeaning">한글 뜻</p>
+                    </div>
+
+                    <!-- Input Box & Submit -->
+                    <form onsubmit="handleSpellingSubmit(event)" class="space-y-3">
+                        <div>
+                            <input type="text" id="spInput" autocomplete="off" placeholder="위 단어를 그대로 받아 적으세요..." class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center text-lg font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 transition">
+                        </div>
+                        <button type="submit" id="spSubmitBtn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition shadow-md shadow-blue-500/20 text-sm">
+                            확인 (Enter)
+                        </button>
+                    </form>
+
+                    <!-- Feedback Alert -->
+                    <div id="spFeedback" class="text-center text-xs font-extrabold min-h-[20px]"></div>
+
+                    <!-- Navigation -->
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <button onclick="prevSpellingWord()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition">
+                            <i class="fa-solid fa-arrow-left mr-1"></i>이전
+                        </button>
+                        <button onclick="randomSpellingWord()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition">
+                            <i class="fa-solid fa-shuffle mr-1"></i>랜덤
+                        </button>
+                        <button onclick="nextSpellingWord()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition">
+                            다음<i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-quiz" class="view-section hidden flex flex-col items-center justify-center space-y-6 w-full max-w-md mx-auto">
+                
+                <!-- 1. QUIZ PREPARATION / READY SCREEN -->
+                <div id="quizPrepContainer" class="w-full bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl space-y-6 text-center">
+                    <div class="space-y-2">
+                        <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">선택 폴더 퀴즈 테스트</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">퀴즈를 풀고 누적 점수를 쌓아 랭킹 상위권에 도전해보세요!</p>
+                    </div>
+
+                    <!-- User Profile & Cumulative Score Card -->
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-blue-950/40 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/40 text-left space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">내 학습자 프로필</span>
+                            <button onclick="toggleEditNickname()" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-pen text-[10px]"></i>
+                                <span>이름 수정</span>
+                            </button>
+                        </div>
+                        <div id="nicknameDisplayArea" class="flex items-center justify-between pt-1 border-t border-blue-100 dark:border-slate-800">
+                            <div>
+                                <p class="text-sm font-black text-slate-900 dark:text-white" id="quizPrepNickname">학습자</p>
+                                <p class="text-[10px] text-slate-400">완료한 퀴즈: <span id="quizPrepCompletedCount" class="font-bold text-slate-600 dark:text-slate-300">0</span>회</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-bold text-blue-600 dark:text-blue-400">내 누적 총점</p>
+                                <p class="text-xl font-black text-blue-600 dark:text-blue-400" id="quizPrepTotalScore">0점</p>
+                            </div>
+                        </div>
+
+                        <!-- Inline Edit Nickname Form -->
+                        <div id="nicknameEditArea" class="hidden pt-2 border-t border-blue-100 dark:border-slate-800 space-y-2">
+                            <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400">새 학습자 이름 입력</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="inputNickname" onkeydown="if(event.key==='Enter') saveNickname()" class="flex-1 px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="이름을 입력하세요">
+                                <button type="button" onclick="saveNickname()" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition shadow-sm">저장</button>
+                                <button type="button" onclick="toggleEditNickname()" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-300 transition">취소</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mode Selection -->
+                    <div class="space-y-2 text-left">
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400">퀴즈 유형 선택</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="setPrepQuizMode('choice')" id="prepModeChoice" class="p-3.5 rounded-2xl border-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex flex-col items-center text-center space-y-1.5 transition">
+                                <i class="fa-solid fa-list-check text-xl"></i>
+                                <span class="text-xs font-black">4지선다형</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-400 font-normal">보기에서 뜻 선택</span>
+                            </button>
+                            <button type="button" onclick="setPrepQuizMode('typing')" id="prepModeTyping" class="p-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex flex-col items-center text-center space-y-1.5 transition hover:border-slate-300">
+                                <i class="fa-solid fa-keyboard text-xl"></i>
+                                <span class="text-xs font-black">스펠링 쓰기</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-400 font-normal">직접 영단어 입력</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Info Tag -->
+                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center justify-between border border-slate-100 dark:border-slate-700/50">
+                        <span>선택 폴더 단어 수</span>
+                        <span class="font-extrabold text-blue-600 dark:text-blue-400 text-sm" id="prepTotalWordsCount">0개</span>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="space-y-2">
+                        <button onclick="startNewQuiz()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl transition shadow-lg shadow-blue-500/30 text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-play text-xs"></i>
+                            <span>선택 폴더 퀴즈 시작하기</span>
+                        </button>
+                        <button onclick="switchTab('ranking')" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition text-xs flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-trophy text-amber-500"></i>
+                            <span>선택받은 자 보기</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. ACTIVE QUIZ CARD CONTAINER -->
+                <div id="quizActiveContainer" class="w-full bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl space-y-6 hidden">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-500 border-b border-slate-100 dark:border-slate-700 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-400">이번 퀴즈:</span>
+                            <span id="quizScore" class="text-blue-600 dark:text-blue-400 font-black text-sm">0</span>점
+                        </div>
+                        <div class="flex items-center space-x-1.5 text-amber-500 font-bold">
+                            <i class="fa-solid fa-coins"></i>
+                            <span>누적 총점: <span id="quizCumulativeDisplay" class="font-black">0</span>점</span>
+                        </div>
+                        <span id="quizProgress" class="bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-full font-mono text-slate-600 dark:text-slate-300">1 / 39</span>
+                    </div>
+
+                    <!-- Question Box -->
+                    <div class="text-center py-4 space-y-2">
+                        <span id="quizModeBadge" class="text-[11px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">4지선다형</span>
+                        <h3 id="quizQuestionText" class="text-2xl font-black text-slate-900 dark:text-white pt-2">문제 텍스트</h3>
+                        <p id="quizSubHint" class="text-xs font-mono text-slate-400 hidden">스펠링 힌트</p>
+                    </div>
+
+                    <!-- Options (Multiple Choice) -->
+                    <div id="quizChoiceContainer" class="grid grid-cols-1 gap-2.5">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Inputs (Spelling Typing) -->
+                    <div id="quizTypingContainer" class="hidden space-y-3">
+                        <button type="button" id="quizHintButton" onclick="showQuizHint()" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-700 text-sm font-bold disabled:opacity-50">힌트 보기 · 정답 3초</button>
+                        <p id="quizHintAnswer" aria-live="polite" class="hidden rounded-xl bg-blue-50 p-3 text-center font-bold text-slate-800"></p>
+                        <input type="text" id="quizTypingInput" autocomplete="off" placeholder="영어 스펠링을 입력하세요..." class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center text-base font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <button onclick="handleQuizTypingAction()" id="quizTypingBtn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition shadow-md shadow-blue-500/20 text-sm">
+                            정답 제출 (Enter)
+                        </button>
+                    </div>
+
+                    <!-- Feedback & Next Button Area -->
+                    <div id="quizFeedbackArea" class="space-y-3 hidden pt-2 border-t border-slate-100 dark:border-slate-700 text-center">
+                        <div id="quizFeedbackText" class="text-sm font-extrabold"></div>
+                        <button onclick="nextQuizQuestion()" id="btnQuizNext" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition shadow">
+                            다음 문제 (Enter ↵)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2.5 10-QUESTION BATCH INTERMISSION CONTAINER -->
+                <div id="quizBatchContainer" class="w-full bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl space-y-6 text-center hidden">
+                    <div class="space-y-2">
+                        <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+                            <i class="fa-solid fa-flag-checkered"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight" id="batchTitle">10문제 학습 완료!</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400" id="batchSubtitle">잠시 숨을 고르고 다음 단계로 넘어가세요.</p>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2 text-xs">
+                        <div class="flex justify-between font-bold text-slate-600 dark:text-slate-300">
+                            <span>이번 세트 정답률</span>
+                            <span class="text-blue-600 dark:text-blue-400 font-extrabold" id="batchScoreText">10/10문제</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-slate-600 dark:text-slate-300">
+                            <span>전체 진행률</span>
+                            <span class="text-emerald-500 font-extrabold" id="batchProgressText">10 / 39 단어</span>
+                        </div>
+                    </div>
+
+                    <button onclick="continueNextBatch()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl transition shadow-lg shadow-blue-500/30 text-sm flex items-center justify-center space-x-2">
+                        <span id="batchBtnText">다음 10문제 도전하기</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                    <button type="button" id="quizExitBtn" onclick="exitQuizAtIntermission()" class="w-full py-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-2xl transition text-sm">
+                        나가기
+                    </button>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">나가도 지금까지 획득한 점수는 유지됩니다.</p>
+                </div>
+
+                <!-- 3. QUIZ RESULT SCREEN -->
+                <div id="quizResultContainer" class="w-full bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl space-y-6 text-center hidden">
+                    <div class="space-y-2">
+                        <div class="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 text-amber-500 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">퀴즈 완료!</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">축하합니다! 점수가 내 누적 총점에 합산되었습니다.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30 space-y-1">
+                            <p class="text-[11px] font-bold text-blue-600 dark:text-blue-400">이번 획득 점수</p>
+                            <p id="quizFinalScore" class="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400">+100점</p>
+                        </div>
+                        <div class="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-2xl border border-amber-100 dark:border-amber-900/30 space-y-1">
+                            <p class="text-[11px] font-bold text-amber-600 dark:text-amber-400">새 누적 총점</p>
+                            <p id="quizNewTotalScore" class="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400">0점</p>
+                        </div>
+                    </div>
+
+                    <p id="quizAccuracyText" class="text-xs text-slate-500 dark:text-slate-400 font-medium">정답률: 10/10문항 (100%)</p>
+
+                    <div class="flex flex-col sm:flex-row gap-2 pt-2">
+                        <button onclick="switchTab('ranking')" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-2xl transition shadow-md shadow-amber-500/20">
+                            <i class="fa-solid fa-trophy mr-1"></i>랭킹 확인하기
+                        </button>
+                        <button onclick="startNewQuiz()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition shadow-md shadow-blue-500/20">
+                            <i class="fa-solid fa-rotate-right mr-1"></i>다시 도전하기
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="view-ranking" class="view-section hidden flex flex-col items-center justify-center space-y-6 w-full max-w-2xl mx-auto">
+                <div class="w-full bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl space-y-6">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4 gap-4">
+                        <div class="flex items-center space-x-3 text-center sm:text-left">
+                            <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/40 text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-black text-slate-900 dark:text-white">선택받은 자</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">퀴즈 누적 점수 + 짝맞추기 최고점수를 합산한 순위</p>
+                                <p id="quizRankingStatus" class="text-[10px] font-bold text-emerald-500 mt-1">전체 사용자 연결 중...</p>
+                            </div>
+                        </div>
+
+                        <!-- My Score Summary Box -->
+                        <div class="bg-slate-50 dark:bg-slate-900 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-right w-full sm:w-auto">
+                            <div class="flex justify-between sm:justify-end sm:space-x-3 items-center">
+                                <span class="text-xs font-bold text-slate-500" id="rankingMyNickname">내 닉네임: 학습자</span>
+                                <button onclick="switchTab('quiz'); setTimeout(toggleEditNickname, 100);" class="text-[10px] text-blue-600 dark:text-blue-400 font-bold hover:underline">변경</button>
+                            </div>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">내 합산 점수: <span id="rankingMyScore" class="text-blue-600 dark:text-blue-400 font-black text-sm">0점</span></p>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">내 순위: <span id="rankingMyRank" aria-live="polite" class="text-blue-600 dark:text-blue-400 font-black text-sm">확인 중...</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Leaderboard Table -->
+                    <div id="leaderboardScroll" class="overflow-auto overscroll-contain" tabindex="0" role="region" aria-label="선택받은 자 순위표, 스크롤하여 더 보기">
+                        <table class="w-full text-left text-xs">
+                            <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold">
+                                <tr>
+                                    <th class="p-3 w-16 text-center">순위</th>
+                                    <th class="p-3">학습자 닉네임</th>
+                                    <th class="p-3 text-center">완료 퀴즈</th>
+                                    <th class="p-3 text-right">누적 합산 점수</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardBody" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Navigation Action -->
+                    <div class="pt-2 text-center">
+                        <button onclick="switchTab('quiz')" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-2xl transition shadow-md shadow-blue-500/20">
+                            <i class="fa-solid fa-pen-to-square mr-1.5"></i>퀴즈 풀고 점수 더 쌓기
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="view-match" class="view-section hidden flex flex-col items-center justify-center py-4 space-y-6 w-full">
+                <!-- 짝맞추기 게임 준비 화면 -->
+                <div id="matchPrepContainer" class="w-full max-w-md bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl space-y-6 text-center">
+                    <div class="space-y-2">
+                        <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner">
+                            <i class="fa-solid fa-puzzle-piece"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">짝맞추기 Game</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">영어 단어와 알맞은 뜻을 찾아 짝을 맞춰보세요!</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-900 dark:to-emerald-950/40 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
+                        <p class="text-xs font-bold text-slate-500 dark:text-slate-400">짝맞추기 최고점수</p>
+                        <p id="matchCumulativeScore" class="text-3xl font-black text-emerald-500 mt-1">0점</p>
+                        <p id="matchLastScore" class="text-[11px] font-bold text-slate-400 mt-2">아직 완료한 게임이 없습니다.</p>
+                    </div>
+
+                    <p class="text-xs text-slate-500">퀴즈 누적 점수 + 짝맞추기 최고점수가 통합 랭킹에 반영됩니다.</p>
+
+                    <div class="space-y-2 text-left">
+                        <label for="matchDuration" class="block text-xs font-bold text-slate-600 dark:text-slate-300">게임 시간</label>
+                        <select id="matchDuration" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-bold">
+                            <option value="60">1분</option>
+                            <option value="180">3분</option>
+                            <option value="300" selected>5분</option>
+                        </select>
+                        <p class="text-xs text-slate-500">나가도 기록은 저장되며, 최고점수를 넘으면 랭킹에 반영됩니다.</p>
+                    </div>
+
+                    <button onclick="startMatchGame()" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-2xl transition shadow-lg shadow-emerald-500/30 text-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play text-xs"></i>
+                        <span>게임 시작하기</span>
+                    </button>
+                </div>
+
+                <!-- 짝맞추기 게임 진행 화면 -->
+                <div id="matchActiveContainer" class="hidden w-full flex flex-col items-center space-y-6">
+                <div class="w-full max-w-2xl flex items-center justify-between bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300">시간: <span id="matchTimer" class="text-blue-600 font-mono">05:00</span></span>
+                    </div>
+                    <div class="text-xs font-bold text-slate-600 dark:text-slate-300">
+                        점수: <span id="matchScore" class="text-emerald-500 font-bold">0</span>
+                    </div>
+                    <button onclick="showMatchPrepScreen()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition">
+                        나가기
+                    </button>
+                </div>
+
+                <!-- On-screen feedback banner for match game -->
+                <div id="matchFeedback" class="w-full max-w-2xl text-center font-extrabold text-sm min-h-[28px] transition-all duration-200 flex items-center justify-center"></div>
+
+                <!-- 세로 4열 구조 (1,2열: 영어 / 3,4열: 한국어) -->
+                <div id="matchGrid" class="w-full max-w-2xl grid grid-cols-4 gap-2 sm:gap-3">
+                </div>
+                </div>
+            </section>
+
+            <section id="view-list" class="view-section hidden flex-col space-y-4 w-full">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="listSearchInput" oninput="renderVocabList()" placeholder="단어 또는 뜻 검색..." class="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <select id="listFilter" aria-label="학습 폴더 및 암기 상태" onchange="handleListFilterChange()" class="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none">
+                            <optgroup label="학습 폴더">
+                                <option value="folder:all">전체 단어</option>
+                                <option value="folder:4">04. 함축적 의미 파악 (44개)</option>
+                                <option value="folder:5">05. 주제 · 제목 파악 (43개)</option>
+                                <option value="folder:8">08. 어법 정확성 파악 (42개)</option>
+                                <option value="folder:9">09. 어휘 적절성 파악 (20개)</option>
+                                <option value="folder:10">10. 빈칸 내용 추론 (31개)</option>
+                                <option value="folder:12">12. 문단 내 글의 순서 파악하기 (47개)</option>
+                                <option value="folder:13">13. 주어진 문장의 적합한 위치 찾기 (50개)</option>
+                                <option value="folder:14">14. 문단 요약하기 (11개)</option>
+                            </optgroup>
+                            <optgroup label="EBS 수능특강 Light 17~22과">
+                                <option value="folder:17">17. 인물 및 일화 (46개)</option>
+                                <option value="folder:18">18. 인문과학 (56개)</option>
+                                <option value="folder:19">19. 사회과학 (60개)</option>
+                                <option value="folder:20">20. 자연과학 및 테크놀로지 (62개)</option>
+                                <option value="folder:21">21. 예술, 스포츠 및 엔터테인먼트 (41개)</option>
+                                <option value="folder:22">22. 환경 및 보건 (47개)</option>
+                            </optgroup>
+                            <optgroup id="customFolderOptions" label="내 폴더"></optgroup>
+                            <optgroup label="고1 9월 학평 단어">
+                                <option value="folder:931">31번 (25개)</option>
+                                <option value="folder:932">32번 (34개)</option>
+                                <option value="folder:933">33번 (28개)</option>
+                                <option value="folder:934">34번 (28개)</option>
+                                <option value="folder:935">35번 (27개)</option>
+                                <option value="folder:936">36번 (30개)</option>
+                                <option value="folder:937">37번 (28개)</option>
+                                <option value="folder:938">38번 (34개)</option>
+                                <option value="folder:939">39번 (20개)</option>
+                            </optgroup>
+                            <optgroup label="고1 10월 학평 단어">
+                                <option value="folder:1030">30번 · 어휘 (28개)</option>
+                                <option value="folder:1031">31번 · 빈칸 추론 (28개)</option>
+                                <option value="folder:1032">32번 · 빈칸 추론 (26개)</option>
+                                <option value="folder:1033">33번 · 빈칸 추론 (28개)</option>
+                                <option value="folder:1034">34번 · 빈칸 추론 (28개)</option>
+                            </optgroup>
+                            <optgroup label="선택 폴더 안에서 보기">
+                            <option value="starred">⭐ 별표 보관함</option>
+                            <option value="mastered">✔ 암기 완료만</option>
+                            <option value="review">❌ 미암기 단어만</option>
+                            </optgroup>
+                        </select>
+                        <button onclick="openMultiFolderModal()" class="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="여러 폴더의 단어를 함께 학습">
+                            <i class="fa-solid fa-layer-group"></i><span>여러 폴더 선택</span>
+                        </button>
+                        <button onclick="createCustomFolder()" class="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="내 폴더 만들기">
+                            <i class="fa-solid fa-folder-plus"></i><span>폴더 만들기</span>
+                        </button>
+                        <button onclick="openAddWordModal()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition flex items-center space-x-1 shadow-sm" title="새 단어 추가">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>단어 추가</span>
+                        </button>
+                        <button onclick="resetWordsToDefault()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center space-x-1 shadow-sm" title="기본 단어장으로 초기화">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>단어 초기화</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 rounded-2xl border border-blue-100 dark:border-slate-700 bg-blue-50/70 dark:bg-slate-800 px-3 py-2.5">
+                    <span id="selectedStudyCount" class="text-xs font-black text-blue-700 dark:text-blue-300 min-w-[62px]">선택 0개</span>
+                    <button id="startSelectedStudyButton" type="button" onclick="startSelectedWordStudy()" disabled class="px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 transition">
+                        선택 단어만 학습
+                    </button>
+                    <button type="button" onclick="useAllFolderWords()" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition">
+                        전체 단어 학습
+                    </button>
+                    <button type="button" onclick="clearStudyWordSelection()" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 transition">
+                        선택 해제
+                    </button>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400">목록에서 원하는 단어를 체크한 뒤 학습을 시작하세요.</span>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div id="vocabListScroll" class="overflow-auto overscroll-contain" tabindex="0" role="region" aria-label="단어 목록, 스크롤하여 더 보기">
+                        <table class="w-full text-left text-xs">
+                            <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold">
+                                <tr>
+                                    <th class="p-3.5 w-10 text-center"><input id="selectAllVisibleWords" type="checkbox" aria-label="현재 목록 전체 선택" onchange="toggleSelectVisibleWords(this.checked)" class="w-4 h-4 accent-blue-600 cursor-pointer"></th>
+                                    <th class="p-3.5 w-10 text-center">별표</th>
+                                    <th class="p-3.5 w-10 text-center">암기</th>
+                                    <th class="p-3.5">영단어</th>
+                                    <th class="p-3.5">품사</th>
+                                    <th class="p-3.5">뜻</th>
+                                    <th class="p-3.5 text-center w-20">듣기</th>
+                                    <th class="p-3.5 text-center w-16">삭제</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vocabTableBody" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <section id="teacherRoom" hidden class="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 sm:p-8">
+        <div class="max-w-6xl mx-auto space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3"><div><h1 class="text-2xl font-black">교사용 회원 관리실</h1><p class="text-xs text-slate-500">가입 승인·반려·정지·정지 해제 및 학생 정보 수정 요청을 처리합니다.</p></div><button onclick="closeTeacherRoom()" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold">학습 화면으로</button></div>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2"><input id="teacherSearch" oninput="renderTeacherUsers()" placeholder="이름 검색" class="p-3 rounded-xl border dark:bg-slate-800 dark:border-slate-700"><select id="teacherGradeFilter" onchange="renderTeacherUsers()" class="p-3 rounded-xl border dark:bg-slate-800 dark:border-slate-700"><option value="">전체 학년</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option></select><select id="teacherClassFilter" onchange="renderTeacherUsers()" class="p-3 rounded-xl border dark:bg-slate-800 dark:border-slate-700"><option value="">전체 반</option><option value="1">1반</option><option value="2">2반</option><option value="3">3반</option><option value="4">4반</option><option value="5">5반</option><option value="6">6반</option><option value="7">7반</option><option value="8">8반</option><option value="9">9반</option><option value="10">10반</option></select><select id="teacherStatusFilter" onchange="renderTeacherUsers()" class="p-3 rounded-xl border dark:bg-slate-800 dark:border-slate-700"><option value="">전체 상태</option><option value="pending">승인 대기</option><option value="approved">승인 완료</option><option value="rejected">반려</option><option value="suspended">이용 정지</option></select></div>
+            <p id="teacherRoomStatus" class="text-xs font-bold text-slate-500" aria-live="polite"></p>
+            <div class="overflow-x-auto bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700"><table class="w-full text-xs"><thead class="bg-slate-100 dark:bg-slate-900"><tr><th class="p-3">학생</th><th class="p-3">학년·반·번호</th><th class="p-3">상태</th><th class="p-3">신청/수정</th><th class="p-3">관리</th></tr></thead><tbody id="teacherUsersBody"></tbody></table></div>
+        </div>
+    </section>
+
+    <div id="cloudSaveStatus" class="hidden fixed bottom-4 right-4 z-50 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-xl" aria-live="polite"></div>
+
+    <!-- MULTI FOLDER MODAL -->
+    <div id="multiFolderModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl max-h-[85vh] rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                <div>
+                    <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-layer-group text-indigo-600"></i>함께 학습할 폴더 선택</h3>
+                    <p class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">두 개 이상의 폴더를 체크하면 단어를 하나의 묶음으로 학습합니다.</p>
+                </div>
+                <button onclick="closeMultiFolderModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" onclick="toggleAllMultiFolders(true)" class="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold">전체 선택</button>
+                <button type="button" onclick="toggleAllMultiFolders(false)" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold">선택 해제</button>
+                <span id="multiFolderCount" class="ml-auto text-xs font-bold text-slate-500 dark:text-slate-400"></span>
+            </div>
+            <form onsubmit="applyMultiFolderSelection(event)" class="min-h-0 flex flex-col gap-4">
+                <div id="multiFolderOptions" class="overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 pr-1"></div>
+                <div class="flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <button type="button" onclick="closeMultiFolderModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold">취소</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm">선택한 폴더로 학습</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADD WORD MODAL -->
+    <div id="addWordModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-blue-600"></i>새 단어 추가하기
+                </h3>
+                <button onclick="closeAddWordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            <form onsubmit="submitAddWord(event)" class="space-y-3">
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-2 space-y-1">
+                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">영단어 *</label>
+                        <input type="text" id="newWord" required placeholder="ex) persistent" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-bold focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">품사</label>
+                        <input type="text" id="newPos" placeholder="ex) adj." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">한글 뜻 *</label>
+                        <input type="text" id="newMeaning" required placeholder="ex) 끈질긴, 집요한" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-bold focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">발음기호</label>
+                        <input type="text" id="newPhonetic" placeholder="ex) /pərˈsɪstənt/" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">예문 (영어)</label>
+                    <input type="text" id="newExampleEn" placeholder="ex) He was persistent in pursuing his goals." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">예문 해석 (한글)</label>
+                    <input type="text" id="newExampleKo" placeholder="ex) 그는 목표를 추구하는 데 끈질겼다." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" onclick="closeAddWordModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition">취소</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<div id="customFolderModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="customFolderTitle">
+        <form onsubmit="submitCustomFolder(event)" class="w-full max-w-sm p-6 bg-white dark:bg-slate-800 rounded-3xl shadow-xl">
+            <h2 id="customFolderTitle" class="text-lg font-black mb-4">폴더 만들기</h2>
+            <label for="customFolderName" class="block text-sm font-bold mb-2">폴더 이름</label>
+            <input id="customFolderName" maxlength="30" required placeholder="예: 이번 주 복습" class="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-900">
+            <p class="text-xs text-slate-500 mt-2">만든 폴더는 이 브라우저에 저장됩니다.</p>
+            <div class="flex justify-end gap-2 mt-5">
+                <button type="button" onclick="closeCustomFolderModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-sm font-bold">취소</button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold">만들기</button>
+            </div>
+        </form>
+    </div>
+    <p class="developer-credit">develop by. 김태서 신슬아 안지혜 정지민</p>
+    <dialog id="pwaInstallGuide" class="pwa-install-dialog" aria-labelledby="pwaInstallTitle" aria-describedby="pwaInstallMessage">
+        <div class="pwa-install-guide-content">
+            <svg class="pwa-share-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 15V2m-4 4 4-4 4 4M7 9H4v12h16V9h-3"/></svg>
+            <h2 id="pwaInstallTitle">앱 설치 안내</h2>
+            <p id="pwaInstallMessage"></p>
+            <button type="button" id="pwaInstallClose" class="pwa-install-button" aria-label="앱 설치 안내 닫기" autofocus>닫기</button>
+        </div>
+    </dialog>
+</body>
+</html>
