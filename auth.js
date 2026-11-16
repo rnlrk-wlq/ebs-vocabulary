@@ -277,7 +277,8 @@ async function enterApprovedLearning() {
 async function loadProtectedVocabulary() {
     const snapshot = await schoolDb.collection('schoolVocabulary').doc('current').get({ source: 'server' });
     if (!snapshot.exists) throw new Error('protected-vocabulary-missing');
-    const data = snapshot.data();
+    const stored = snapshot.data();
+    const data = typeof stored.payloadJson === 'string' ? JSON.parse(stored.payloadJson) : stored;
     if (!Array.isArray(data.words) || !data.words.length || !data.folders || !Array.isArray(data.wordOrder)) {
         throw new Error('protected-vocabulary-invalid');
     }
