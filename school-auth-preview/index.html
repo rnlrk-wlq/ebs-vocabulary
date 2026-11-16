@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="20261116-school-auth-staging-10">
+    <meta name="app-version" content="20261116-school-auth-staging-11">
     <title>단어 함 보카?</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -122,7 +122,7 @@
 
             <div class="flex items-center gap-2 rounded-2xl bg-slate-100 dark:bg-slate-800 px-3 py-2 text-xs">
                 <span><strong id="signedInStudentName">학습자</strong><br><span id="signedInStudentEmail" class="text-slate-500"></span></span>
-                <button id="teacherRoomButton" type="button" onclick="openTeacherRoom()" class="hidden px-3 py-2 rounded-xl bg-indigo-600 text-white font-bold">교사용 관리실</button>
+                <button id="teacherRoomButton" type="button" onclick="openTeacherRoom()" aria-label="관리자 페이지 열기" class="hidden px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-md shadow-indigo-500/20 transition"><i class="fa-solid fa-user-shield mr-1.5" aria-hidden="true"></i>관리자 페이지</button>
                 <button id="profileEditRequestButton" type="button" onclick="requestProfileEdit()" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 font-bold">정보 수정 요청</button>
                 <button type="button" onclick="finishStudyAndSignOut()" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 font-bold">학습 마치고 로그아웃</button>
             </div>
