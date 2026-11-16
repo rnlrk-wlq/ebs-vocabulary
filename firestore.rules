@@ -38,7 +38,7 @@ service cloud.firestore {
         && data.email == request.auth.token.email
         && data.name is string && data.name.size() >= 2 && data.name.size() <= 20
         && data.grade is int && data.grade >= 1 && data.grade <= 3
-        && data.classNo is int && data.classNo >= 1 && data.classNo <= 10
+        && data.classNo is int && data.classNo >= 1 && data.classNo <= 8
         && data.studentNo is int && data.studentNo >= 1 && data.studentNo <= 50;
     }
 
@@ -53,7 +53,7 @@ service cloud.firestore {
         ||
         (validStudentIdentity(request.resource.data)
           && request.resource.data.role == 'student'
-          && request.resource.data.status == 'pending')
+          && request.resource.data.status == 'approved')
       );
 
       allow update: if teacher() || (
@@ -78,7 +78,7 @@ service cloud.firestore {
             && request.resource.data.editRequest.grade <= 3
             && request.resource.data.editRequest.classNo is int
             && request.resource.data.editRequest.classNo >= 1
-            && request.resource.data.editRequest.classNo <= 10
+            && request.resource.data.editRequest.classNo <= 8
             && request.resource.data.editRequest.studentNo is int
             && request.resource.data.editRequest.studentNo >= 1
             && request.resource.data.editRequest.studentNo <= 50)
@@ -125,7 +125,7 @@ service cloud.firestore {
         && request.resource.data.totalScore >= 0
         && request.resource.data.completedQuizzes is int
         && request.resource.data.completedQuizzes >= 0;
-      allow delete: if false;
+      allow delete: if teacher();
     }
   }
 }
