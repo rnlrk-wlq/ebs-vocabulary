@@ -171,13 +171,60 @@ async function handleProfileSnapshot(snapshot) {
 
 function showRegistrationForm(profile = null) {
     showAccessPanel('registrationForm');
+    renderRegistrationChoiceButtons();
     document.getElementById('verifiedStudentEmail').value = schoolUser?.email || '';
     if (profile) {
-        document.getElementById('studentGrade').value = String(profile.grade || '');
-        document.getElementById('studentClass').value = String(profile.classNo || '');
+        selectRegistrationChoice('studentGrade', profile.grade);
+        selectRegistrationChoice('studentClass', profile.classNo);
         document.getElementById('studentNumber').value = String(profile.studentNo || '');
         document.getElementById('studentName').value = profile.name || '';
+    } else {
+        const nameInput = document.getElementById('studentName');
+        if (!nameInput.value) nameInput.value = suggestedStudentName(schoolUser?.displayName);
     }
+}
+
+function suggestedStudentName(displayName) {
+    const korean = String(displayName || '').match(/[가-힣]{2,5}/);
+    return korean ? korean[0] : '';
+}
+
+function renderRegistrationChoiceButtons() {
+    const groups = [
+        { inputId: 'studentGrade', containerId: 'studentGradeButtons', count: 3, suffix: '학년' },
+        { inputId: 'studentClass', containerId: 'studentClassButtons', count: 10, suffix: '반' }
+    ];
+    groups.forEach(group => {
+        const container = document.getElementById(group.containerId);
+        if (!container || container.children.length) return;
+        for (let value = 1; value <= group.count; value += 1) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = `${value}${group.suffix}`;
+            button.dataset.value = String(value);
+            button.setAttribute('role', 'radio');
+            button.setAttribute('aria-checked', 'false');
+            button.className = 'registration-choice py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs font-bold';
+            button.addEventListener('click', () => selectRegistrationChoice(group.inputId, value));
+            container.appendChild(button);
+        }
+    });
+}
+
+function selectRegistrationChoice(inputId, value) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.value = value ? String(value) : '';
+    const container = document.getElementById(`${inputId}Buttons`);
+    container?.querySelectorAll('.registration-choice').forEach(button => {
+        const selected = button.dataset.value === input.value;
+        button.setAttribute('aria-checked', String(selected));
+        button.classList.toggle('bg-blue-600', selected);
+        button.classList.toggle('text-white', selected);
+        button.classList.toggle('border-blue-600', selected);
+        button.classList.toggle('bg-white', !selected);
+        button.classList.toggle('dark:bg-slate-900', !selected);
+    });
 }
 
 async function submitSchoolRegistration(event) {
