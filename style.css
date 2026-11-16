@@ -232,6 +232,9 @@
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: 8px;
+    position: static;
+    width: 100%;
+    clear: both;
 }
 .vocab-toolbar-button { min-height: 40px; justify-content: center; white-space: nowrap; }
 .vocab-toolbar-button--multi {
@@ -240,6 +243,7 @@
     min-width: 0;
     max-width: 148px;
     padding-inline: 12px;
+    position: static;
 }
 .dark .vocab-toolbar { background: rgb(30 41 59 / 78%); border-color: #334155; }
 
