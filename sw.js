@@ -1,6 +1,6 @@
-const CACHE = 'ebs-vocabulary-pwa-20261116-toolbar-no-overlap-14';
+const CACHE = 'ebs-vocabulary-pwa-20261116-toolbar-inline-15';
 const ROOT = new URL('./', self.location.href);
-const ASSETS = ["./","https://cdn.tailwindcss.com","https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js","app.js?v=20261116-school-auth-staging-7","auth.js?v=20261116-toolbar-admin-13","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css","style.css?v=20261116-toolbar-no-overlap-14","manifest.webmanifest","icons/blue-face-180.png","icons/blue-face-192.png","pwa.js?v=20261116-school-auth-production-11","assets/mascots-cloud.webp","icons/blue-face-512.png"];
+const ASSETS = ["./","https://cdn.tailwindcss.com","https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js","app.js?v=20261116-school-auth-staging-7","auth.js?v=20261116-toolbar-admin-13","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css","style.css?v=20261116-toolbar-inline-15","manifest.webmanifest","icons/blue-face-180.png","icons/blue-face-192.png","pwa.js?v=20261116-school-auth-production-11","assets/mascots-cloud.webp","icons/blue-face-512.png"];
 const ALLOWED = new Set(ASSETS.map(path => new URL(path, ROOT).href));
 self.addEventListener('install', event => {
     event.waitUntil((async () => {
