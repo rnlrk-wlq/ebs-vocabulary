@@ -26,7 +26,7 @@
 
     <section id="accessGate" class="min-h-screen flex items-center justify-center px-5 py-10">
         <div class="intro-clouds" aria-hidden="true"><span class="sky-cloud sky-cloud--one"></span><span class="sky-cloud sky-cloud--two"></span><span class="sky-cloud sky-cloud--three"></span><span class="sky-cloud sky-cloud--four"></span></div>
-        <div class="access-cloud-seat" aria-hidden="true"><img src="assets/mascots-cloud.webp" alt="" width="1536" height="1024" draggable="false" fetchpriority="high"></div>
+        <div class="access-cloud-seat" aria-hidden="true"><img src="../assets/mascots-cloud.webp" alt="" width="1536" height="1024" draggable="false" fetchpriority="high"></div>
         <div class="access-card w-full max-w-lg bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xl">
             <div class="text-center mb-6">
                 <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl"><i class="fa-solid fa-school"></i></div>
@@ -85,7 +85,7 @@
             <span class="sky-cloud sky-cloud--four"></span>
         </div>
         <div class="intro-cloud-seat" aria-hidden="true">
-            <img src="assets/mascots-cloud.webp" alt="" width="1536" height="1024" draggable="false" fetchpriority="high">
+            <img src="../assets/mascots-cloud.webp" alt="" width="1536" height="1024" draggable="false" fetchpriority="high">
         </div>
         <form onsubmit="startFromIntro(event)" class="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-xl text-center space-y-6">
             <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>
@@ -758,54 +758,3 @@
                     </div>
                     <div class="space-y-1">
                         <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">품사</label>
-                        <input type="text" id="newPos" placeholder="ex) adj." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">한글 뜻 *</label>
-                        <input type="text" id="newMeaning" required placeholder="ex) 끈질긴, 집요한" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-bold focus:ring-2 focus:ring-blue-600 outline-none">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">발음기호</label>
-                        <input type="text" id="newPhonetic" placeholder="ex) /pərˈsɪstənt/" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none">
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">예문 (영어)</label>
-                    <input type="text" id="newExampleEn" placeholder="ex) He was persistent in pursuing his goals." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">예문 해석 (한글)</label>
-                    <input type="text" id="newExampleKo" placeholder="ex) 그는 목표를 추구하는 데 끈질겼다." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none">
-                </div>
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
-                    <button type="button" onclick="closeAddWordModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition">취소</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition">저장하기</button>
-                </div>
-            </form>
-        </div>
-    </div>
-<div id="customFolderModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="customFolderTitle">
-        <form onsubmit="submitCustomFolder(event)" class="w-full max-w-sm p-6 bg-white dark:bg-slate-800 rounded-3xl shadow-xl">
-            <h2 id="customFolderTitle" class="text-lg font-black mb-4">폴더 만들기</h2>
-            <label for="customFolderName" class="block text-sm font-bold mb-2">폴더 이름</label>
-            <input id="customFolderName" maxlength="30" required placeholder="예: 이번 주 복습" class="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-900">
-            <p class="text-xs text-slate-500 mt-2">만든 폴더는 이 브라우저에 저장됩니다.</p>
-            <div class="flex justify-end gap-2 mt-5">
-                <button type="button" onclick="closeCustomFolderModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-sm font-bold">취소</button>
-                <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold">만들기</button>
-            </div>
-        </form>
-    </div>
-    <p class="developer-credit">develop by. 김태서 신슬아 안지혜 정지민</p>
-    <dialog id="pwaInstallGuide" class="pwa-install-dialog" aria-labelledby="pwaInstallTitle" aria-describedby="pwaInstallMessage">
-        <div class="pwa-install-guide-content">
-            <svg class="pwa-share-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 15V2m-4 4 4-4 4 4M7 9H4v12h16V9h-3"/></svg>
-            <h2 id="pwaInstallTitle">앱 설치 안내</h2>
-            <p id="pwaInstallMessage"></p>
-            <button type="button" id="pwaInstallClose" class="pwa-install-button" aria-label="앱 설치 안내 닫기" autofocus>닫기</button>
-        </div>
-    </dialog>
-</body>
-</html>
