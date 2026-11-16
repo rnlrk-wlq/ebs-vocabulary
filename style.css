@@ -209,8 +209,9 @@
 
 /* Keep word search and folder selection visually aligned. */
 .vocab-toolbar {
-    display: grid;
-    gap: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 14px;
     border: 1px solid #e2e8f0;
     border-radius: 18px;
@@ -218,25 +219,27 @@
     box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 .vocab-primary-controls {
-    display: grid;
-    grid-template-columns: minmax(220px, .9fr) minmax(280px, 1.1fr);
-    gap: 10px;
-    align-items: stretch;
+    display: flex;
+    flex: 1 1 auto;
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
 }
-.vocab-search-control,
-.vocab-folder-select { min-width: 0; width: 100%; }
+.vocab-search-control { flex: 0 1 230px; min-width: 170px; }
+.vocab-folder-select { flex: 1 1 250px; min-width: 200px; width: auto; }
 .vocab-search-control input,
 .vocab-folder-select { height: 44px; }
 .vocab-toolbar-actions {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
     position: static;
     width: 100%;
     clear: both;
 }
-.vocab-toolbar-button { min-height: 40px; justify-content: center; white-space: nowrap; }
+.vocab-toolbar-button { min-height: 40px; width: auto; flex: 0 0 auto; justify-content: center; white-space: nowrap; }
 .vocab-toolbar-button--multi {
     flex: 0 0 auto;
     width: auto;
@@ -248,11 +251,19 @@
 .dark .vocab-toolbar { background: rgb(30 41 59 / 78%); border-color: #334155; }
 
 @media (max-width: 639px) {
-    .vocab-toolbar { padding: 12px; gap: 10px; }
-    .vocab-primary-controls { grid-template-columns: 1fr; }
+    .vocab-toolbar { padding: 12px; gap: 8px; flex-wrap: wrap; }
+    .vocab-primary-controls { flex: 1 1 100%; }
+    .vocab-search-control,
+    .vocab-folder-select { min-width: 0; }
     .vocab-toolbar-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .vocab-toolbar-button { width: 100%; }
     .vocab-toolbar-button--multi { max-width: none; }
+}
+
+@media (min-width: 640px) and (max-width: 980px) {
+    .vocab-toolbar { flex-wrap: wrap; }
+    .vocab-primary-controls { flex: 1 1 100%; }
+    .vocab-toolbar-actions { width: 100%; justify-content: flex-end; }
 }
 .developer-credit {
     position: fixed;
