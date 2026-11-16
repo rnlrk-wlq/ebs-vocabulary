@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="20261116-toolbar-layout-12">
+    <meta name="app-version" content="20261116-toolbar-admin-13">
     <title>단어 함 보카?</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="app.js?v=20261116-school-auth-staging-7"></script>
-    <script src="auth.js?v=20261116-school-auth-production-11"></script>
+    <script src="auth.js?v=20261116-toolbar-admin-13"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20261116-toolbar-layout-12">
+    <link rel="stylesheet" href="style.css?v=20261116-toolbar-admin-13">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -647,7 +647,7 @@
                         </select>
                     </div>
                     <div class="vocab-toolbar-actions">
-                        <button onclick="openMultiFolderModal()" class="vocab-toolbar-button px-3 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="여러 폴더의 단어를 함께 학습">
+                        <button onclick="openMultiFolderModal()" class="vocab-toolbar-button vocab-toolbar-button--multi px-3 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="여러 폴더의 단어를 함께 학습">
                             <i class="fa-solid fa-layer-group"></i><span>여러 폴더 선택</span>
                         </button>
                         <button onclick="createCustomFolder()" class="vocab-toolbar-button px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center space-x-1" title="내 폴더 만들기">
