@@ -1,0 +1,270 @@
+.perspective-1000 { perspective: 1000px; }
+.transform-style-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
+.flipped { transform: rotateY(180deg); }
+
+/* Keep the brand and navigation on separate rows so Korean labels stay intact. */
+#app > header {
+    flex-direction: column;
+    align-items: stretch;
+}
+#app > header > div {
+    min-width: 0;
+}
+#app > header > div > div:first-child {
+    flex-shrink: 0;
+}
+#app > header h1,
+#app > header p {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+#app > header > nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    overflow: visible;
+}
+#app > header > nav .tab-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0.625rem 0.25rem;
+    white-space: nowrap;
+    line-height: 1.5;
+}
+#app > header > nav .tab-btn > i {
+    flex-shrink: 0;
+}
+@media (min-width: 640px) {
+    #app > header > nav {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
+/* Let the search shrink while keeping list actions readable and aligned. */
+#view-list > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+#view-list > div:first-child > div:first-child {
+    width: 100%;
+    min-width: 0;
+}
+#view-list > div:first-child > div:last-child {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+#view-list > div:first-child > div:last-child > * {
+    margin: 0;
+    min-width: 0;
+    min-height: 2.5rem;
+}
+#listFilter {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+#view-list > div:first-child button {
+    justify-content: center;
+    white-space: nowrap;
+    padding: 0.5rem;
+}
+#view-list > div:first-child button i {
+    flex-shrink: 0;
+}
+@media (min-width: 768px) {
+    #view-list > div:first-child {
+        flex-direction: row;
+        align-items: center;
+    }
+    #view-list > div:first-child > div:first-child {
+        flex: 1 1 12rem;
+    }
+    #view-list > div:first-child > div:last-child {
+        flex: 0 1 36rem;
+        grid-template-columns: minmax(8rem, 1fr) repeat(3, max-content);
+    }
+    #listFilter {
+        grid-column: auto;
+    }
+    #view-list > div:first-child button {
+        padding-inline: 0.75rem;
+    }
+}
+#listSearchInput {
+    min-height: 2.5rem;
+}
+
+/* Both tables use exactly the same viewport height and cannot flex-shrink. */
+#leaderboardScroll,
+#vocabListScroll {
+    box-sizing: border-box;
+    height: min(32rem, 60vh);
+    min-height: min(32rem, 60vh);
+    max-height: min(32rem, 60vh);
+    flex-shrink: 0;
+}
+#view-list > div:has(> #vocabListScroll) {
+    flex-shrink: 0;
+}
+
+/* Keep vocabulary readable on narrow screens; scroll inside the table. */
+#vocabListScroll {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+#vocabListScroll > table {
+    min-width: 42rem;
+}
+#vocabListScroll th {
+    white-space: nowrap;
+}
+#vocabListScroll th:nth-child(4),
+#vocabListScroll td:nth-child(4) {
+    min-width: 10rem;
+}
+#vocabListScroll th:nth-child(6),
+#vocabListScroll td:nth-child(6) {
+    min-width: 14rem;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+#view-list,
+#view-list > div:has(> #vocabListScroll) {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+#app[hidden], #introScreen[hidden] { display: none; }
+.mobile-word-pos { display: none; }
+@media (max-width: 639px) {
+    #vocabListScroll > table { min-width: 0; width: 100%; table-layout: fixed; }
+    #vocabListScroll th, #vocabListScroll td { padding: 0.65rem 0.15rem; min-width: 0; font-size: 11px; }
+    #vocabListScroll th:nth-child(1), #vocabListScroll th:nth-child(2), #vocabListScroll th:nth-child(3) { width: 26px; }
+    #vocabListScroll th:nth-child(4), #vocabListScroll td:nth-child(4) { width: 29%; min-width: 0; overflow-wrap: anywhere; }
+    #vocabListScroll th:nth-child(5), #vocabListScroll td:nth-child(5) { display: none; }
+    #vocabListScroll th:nth-child(6), #vocabListScroll td:nth-child(6) { width: auto; min-width: 0; word-break: keep-all; overflow-wrap: break-word; }
+    #vocabListScroll th:nth-child(7) { width: 32px; }
+    #vocabListScroll th:nth-child(8) { width: 26px; }
+    #vocabListScroll .mobile-word-pos { display: block; font-size: 10px; font-weight: normal; color: #64748b; margin-top: 3px; }
+}
+
+
+/* Pastel sky belongs only to the intro. Study views use the original blue utilities. */
+#introScreen {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    flex-direction: column;
+    min-height: 100svh;
+    padding: 26px 20px 52px;
+    background: radial-gradient(ellipse at 18% 15%, #ffffffa6, transparent 46%),
+                linear-gradient(165deg, #c9e8fa 0%, #dfedfc 48%, #ebe5f8 78%, #f8e9f0 100%);
+}
+.intro-clouds { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.sky-cloud {
+    position: absolute;
+    width: 190px;
+    height: 55px;
+    border-radius: 100px;
+    background: #fff;
+    opacity: .7;
+    box-shadow: 0 10px 24px #7da9d315;
+    animation: cloud-drift 18s ease-in-out infinite alternate;
+}
+.sky-cloud::before, .sky-cloud::after {
+    content: ""; position: absolute; background: inherit; border-radius: 50%;
+}
+.sky-cloud::before { width: 88px; height: 88px; left: 28px; bottom: 12px; }
+.sky-cloud::after { width: 68px; height: 68px; right: 20px; bottom: 8px; }
+.sky-cloud--one { left: 5%; top: 21%; }
+.sky-cloud--two { right: 5%; top: 38%; width: 230px; opacity: .7; animation-delay: -9s; }
+.sky-cloud--three { left: 12%; bottom: 13%; width: 150px; opacity: .55; animation-delay: -4s; }
+.sky-cloud--four { right: 12%; top: 9%; width: 125px; opacity: .5; animation-delay: -13s; }
+.intro-cloud-seat {
+    position: relative;
+    z-index: 2;
+    width: min(440px, 94vw);
+    margin: 0 0 -12px;
+    pointer-events: none;
+    user-select: none;
+    flex-shrink: 0;
+}
+.intro-cloud-seat img { display: block; width: 100%; height: auto; filter: drop-shadow(0 10px 12px #6597c326); }
+#introScreen > form { position: relative; z-index: 1; flex-shrink: 0; box-shadow: 0 18px 50px #6f91b52b; }
+@keyframes cloud-drift { from { transform: translateX(-12px); } to { transform: translateX(24px); } }
+.developer-credit {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 5;
+    margin: 0;
+    padding: 7px 11px;
+    border-radius: 12px;
+    background: rgb(255 255 255 / 92%);
+    color: #374151;
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: right;
+    pointer-events: none;
+}
+body { padding-bottom: 44px; }
+body:has(#introScreen:not([hidden])) { background: #f8e9f0; padding-bottom: 0; }
+#introScreen[hidden] .sky-cloud { animation-play-state: paused; }
+@media (max-width: 639px) {
+    #introScreen { padding: 22px 20px 40px; }
+    .intro-cloud-seat { width: min(340px, 94vw); margin-bottom: -8px; }
+    .sky-cloud--one { left: -95px; top: 18%; }
+    .sky-cloud--two { right: -120px; top: 55%; }
+    .sky-cloud--three { left: -70px; bottom: 8%; }
+    .sky-cloud--four { right: -55px; top: 7%; }
+    .developer-credit { max-width: calc(100vw - 24px); font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .sky-cloud { animation: none; } }
+
+@media (min-width: 640px) and (max-height: 800px) {
+    #introScreen { padding-top: 16px; padding-bottom: 32px; }
+    .intro-cloud-seat { width: 340px; }
+    #introScreen > form { padding: 24px; }
+    #introScreen > form > * + * { margin-top: 16px; }
+}
+
+/* Installation controls are independent of the learning UI. */
+.pwa-install { text-align: center; min-width: 0; }
+.pwa-install[hidden] { display: none !important; }
+.pwa-install-button {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    min-height: 44px; max-width: 100%; padding: .65rem 1rem; border: 0;
+    border-radius: .85rem; background: #2563eb; color: #fff;
+    font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer;
+}
+.pwa-install-button:hover { background: #1d4ed8; }
+.pwa-install-button:focus-visible { outline: 3px solid #60a5fa; outline-offset: 3px; }
+.pwa-install-button:disabled { opacity: .65; cursor: wait; }
+.pwa-install-button svg { flex-shrink: 0; }
+.pwa-install-description { margin: .5rem 0 0; color: #475569; font-size: .75rem; line-height: 1.6; word-break: keep-all; }
+#app > header > .pwa-install { display: block; }
+.pwa-install-dialog {
+    width: min(26rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem);
+    margin: auto; padding: 0; border: 1px solid #dbeafe; border-radius: 1.5rem;
+    background: #fff; color: #0f172a; box-shadow: 0 20px 60px #0f172a40;
+}
+.pwa-install-dialog::backdrop { background: #0f172a80; }
+.pwa-install-guide-content { padding: 1.5rem; text-align: center; }
+.pwa-share-icon { color: #2563eb; margin: 0 auto .75rem; }
+.pwa-install-dialog h2 { font-size: 1.2rem; font-weight: 800; margin: 0; }
+.pwa-install-dialog p { margin: 1rem 0 1.25rem; line-height: 1.7; word-break: keep-all; }
+.dark .pwa-install-description { color: #cbd5e1; }
+.dark .pwa-install-dialog { background: #1e293b; color: #f8fafc; border-color: #475569; }
+@media (min-width: 640px) {
+    #app > header > .pwa-install { text-align: left; }
+}
