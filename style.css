@@ -206,6 +206,42 @@
 .intro-cloud-seat img { display: block; width: 100%; height: auto; filter: drop-shadow(0 10px 12px #6597c326); }
 #introScreen > form { position: relative; z-index: 1; flex-shrink: 0; box-shadow: 0 18px 50px #6f91b52b; }
 @keyframes cloud-drift { from { transform: translateX(-12px); } to { transform: translateX(24px); } }
+
+/* Keep word search and folder selection visually aligned. */
+.vocab-toolbar {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: rgb(255 255 255 / 82%);
+    box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
+}
+.vocab-primary-controls {
+    display: grid;
+    grid-template-columns: minmax(220px, .9fr) minmax(280px, 1.1fr);
+    gap: 10px;
+    align-items: stretch;
+}
+.vocab-search-control,
+.vocab-folder-select { min-width: 0; width: 100%; }
+.vocab-search-control input,
+.vocab-folder-select { height: 44px; }
+.vocab-toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.vocab-toolbar-button { min-height: 40px; justify-content: center; white-space: nowrap; }
+.dark .vocab-toolbar { background: rgb(30 41 59 / 78%); border-color: #334155; }
+
+@media (max-width: 639px) {
+    .vocab-toolbar { padding: 12px; gap: 10px; }
+    .vocab-primary-controls { grid-template-columns: 1fr; }
+    .vocab-toolbar-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .vocab-toolbar-button { width: 100%; }
+}
 .developer-credit {
     position: fixed;
     right: max(16px, env(safe-area-inset-right));
