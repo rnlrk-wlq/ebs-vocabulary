@@ -46,17 +46,11 @@ function isTeacherEmail(email) {
 function firebaseErrorMessage(error) {
     const code = error?.code || '';
     if (code.includes('popup-closed')) return '로그인 창이 닫혔습니다. 다시 시도해 주세요.';
-    if (code.includes('popup-blocked')) return '로그인 창을 열 수 없습니다. 잠시 후 다시 시도해 주세요.';
+    if (code.includes('popup-blocked')) return '로그인 창이 차단되었습니다. 브라우저의 팝업 허용 후 다시 눌러 주세요.';
     if (code.includes('operation-not-supported')) return '현재 실행 환경에서는 팝업 로그인을 사용할 수 없습니다. 다시 시도해 주세요.';
     if (code.includes('network')) return '네트워크 연결을 확인한 뒤 다시 시도해 주세요.';
     if (code.includes('permission-denied')) return '접근 권한이 없습니다. 승인 상태를 확인해 주세요.';
     return '연결 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
-}
-
-function isInstalledOrMobileApp() {
-    return window.matchMedia('(display-mode: standalone)').matches ||
-        window.navigator.standalone === true ||
-        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
 async function initializeSchoolAccess() {
@@ -80,11 +74,6 @@ async function initializeSchoolAccess() {
             showAccessPanel('authLogin');
             showAuthError(firebaseErrorMessage(error));
         });
-        schoolAuth.getRedirectResult().catch(error => {
-            clearTimeout(authConnectionTimer);
-            showAccessPanel('authLogin');
-            showAuthError(firebaseErrorMessage(error));
-        });
     } catch (error) {
         clearTimeout(authConnectionTimer);
         showAccessPanel('authLogin');
@@ -97,27 +86,16 @@ async function signInWithSchoolGoogle(event) {
     if (button) button.disabled = true;
     document.getElementById('authLoginError')?.classList.add('hidden');
     try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        // Open Google synchronously from the student's tap. Awaiting another
+        // promise first makes installed/mobile browsers treat this as an
+        // unsolicited popup and can return to the first screen without login.
+        const result = await schoolAuth.signInWithPopup(provider);
         const persistence = document.getElementById('personalDeviceLogin')?.checked
             ? firebase.auth.Auth.Persistence.LOCAL
             : firebase.auth.Auth.Persistence.SESSION;
         await schoolAuth.setPersistence(persistence);
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-        if (isInstalledOrMobileApp()) {
-            await schoolAuth.signInWithRedirect(provider);
-            return;
-        }
-        let result;
-        try {
-            result = await schoolAuth.signInWithPopup(provider);
-        } catch (error) {
-            const code = String(error?.code || '');
-            if (code.includes('popup-blocked') || code.includes('operation-not-supported')) {
-                await schoolAuth.signInWithRedirect(provider);
-                return;
-            }
-            throw error;
-        }
         if (!isAllowedSchoolEmail(result.user)) {
             await schoolAuth.signOut();
             showAccessPanel('authLogin');
