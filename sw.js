@@ -1,12 +1,15 @@
-const CACHE = 'ebs-vocabulary-pwa-20261116-toolbar-classic-17';
+const CACHE = 'ebs-vocabulary-pwa-20261118-auth-app-fix-18';
 const ROOT = new URL('./', self.location.href);
-const ASSETS = ["./","https://cdn.tailwindcss.com","https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js","app.js?v=20261116-school-auth-staging-7","auth.js?v=20261116-toolbar-admin-13","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css","style.css?v=20261116-toolbar-classic-17","manifest.webmanifest","icons/blue-face-180.png","icons/blue-face-192.png","pwa.js?v=20261116-school-auth-production-11","assets/mascots-cloud.webp","icons/blue-face-512.png"];
+const CORE_ASSETS = ["./","app.js?v=20261116-school-auth-staging-7","auth.js?v=20261118-auth-app-fix-18","style.css?v=20261116-toolbar-classic-17","manifest.webmanifest","icons/blue-face-180.png","icons/blue-face-192.png","pwa.js?v=20261118-auth-app-fix-18","assets/mascots-cloud.webp","icons/blue-face-512.png"];
+const OPTIONAL_ASSETS = ["https://cdn.tailwindcss.com","https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"];
+const ASSETS = [...CORE_ASSETS, ...OPTIONAL_ASSETS];
 const ALLOWED = new Set(ASSETS.map(path => new URL(path, ROOT).href));
 self.addEventListener('install', event => {
     event.waitUntil((async () => {
         const cache = await caches.open(CACHE);
-        // Require the entire learning shell, including its CDN dependencies.
-        await Promise.all(ASSETS.map(async path => {
+        // The local shell is required. External CDNs are best-effort so a
+        // temporary school-network block cannot leave students on an old app.
+        await Promise.all(CORE_ASSETS.map(async path => {
             const url = new URL(path, ROOT);
             const response = await fetch(url.href, {
                 mode: url.origin === ROOT.origin ? 'same-origin' : 'no-cors',
@@ -15,8 +18,16 @@ self.addEventListener('install', event => {
             if (!response.ok && response.type !== 'opaque') throw new Error('Asset unavailable: ' + path);
             await cache.put(url.href, response);
         }));
+        await Promise.allSettled(OPTIONAL_ASSETS.map(async path => {
+            const url = new URL(path, ROOT);
+            const response = await fetch(url.href, { mode: 'no-cors', cache: 'reload' });
+            if (response.ok || response.type === 'opaque') await cache.put(url.href, response);
+        }));
         await self.skipWaiting();
     })());
+});
+self.addEventListener('message', event => {
+    if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 self.addEventListener('activate', event => {
     event.waitUntil((async () => {
