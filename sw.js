@@ -1,6 +1,6 @@
-const CACHE = 'ebs-vocabulary-pwa-20261118-auth-app-fix-18';
+const CACHE = 'ebs-vocabulary-pwa-20261118-auth-popup-fix-19';
 const ROOT = new URL('./', self.location.href);
-const CORE_ASSETS = ["./","app.js?v=20261116-school-auth-staging-7","auth.js?v=20261118-auth-app-fix-18","style.css?v=20261116-toolbar-classic-17","manifest.webmanifest","icons/blue-face-180.png","icons/blue-face-192.png","pwa.js?v=20261118-auth-app-fix-18","assets/mascots-cloud.webp","icons/blue-face-512.png"];
+const CORE_ASSETS = ["./","app.js?v=20261116-school-auth-staging-7","auth.js?v=20261118-auth-popup-fix-19","style.css?v=20261116-toolbar-classic-17","manifest.webmanifest","icons/blue-face-180.png","icons/blue-face-192.png","pwa.js?v=20261118-auth-app-fix-18","assets/mascots-cloud.webp","icons/blue-face-512.png"];
 const OPTIONAL_ASSETS = ["https://cdn.tailwindcss.com","https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"];
 const ASSETS = [...CORE_ASSETS, ...OPTIONAL_ASSETS];
 const ALLOWED = new Set(ASSETS.map(path => new URL(path, ROOT).href));
