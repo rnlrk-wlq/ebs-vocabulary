@@ -2,7 +2,26 @@
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' })
+            .then(async registration => {
+                await registration.update();
+                if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                registration.addEventListener('updatefound', () => {
+                    const worker = registration.installing;
+                    worker?.addEventListener('statechange', () => {
+                        if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                            registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                    });
+                });
+            })
             .catch(error => console.warn('앱 오프라인 준비 실패:', error));
+    });
+
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
     });
 }
 
